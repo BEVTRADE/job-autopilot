@@ -1,0 +1,527 @@
+{
+  "identity": {
+    "full_name": "Hakim Arezki",
+    "title": "Tech Lead IA | Lead Data Scientist",
+    "email": "harezki@kiras.fr",
+    "phone": "0633661248",
+    "linkedin": "https://www.linkedin.com/in/hakim-arezki",
+    "location": "Paris / Île-de-France",
+    "mobility": [
+      "Île-de-France",
+      "Remote",
+      "Luxembourg"
+    ],
+    "status": "Freelance / Consultant",
+    "years_experience": 15,
+    "languages": {
+      "Français": "Bilingue",
+      "Anglais": "Courant"
+    }
+  },
+  "preferences": {
+    "target_titles": [
+      "Tech Lead IA",
+      "Lead Data Scientist",
+      "Lead MLOps",
+      "AI Architect",
+      "Architecte IA",
+      "Lead Machine Learning Engineer",
+      "Head of Data Science",
+      "Consultant IA Générative",
+      "Data Architect",
+      "Principal Data Scientist"
+    ],
+    "daily_rate_target_eur": 850,
+    "daily_rate_floor_eur": 700,
+    "contract_types": [
+      "Freelance",
+      "Portage",
+      "CDI"
+    ],
+    "remote_min_days": 2,
+    "exclude_keywords": [
+      "stage",
+      "alternance",
+      "apprenti",
+      "junior",
+      "débutant",
+      "développeur web junior",
+      "support niveau 1",
+      "helpdesk",
+      "commercial"
+    ]
+  },
+  "skill_groups": {
+    "leadership": [
+      "Lead technique",
+      "Revue d'architecture",
+      "Revue de code",
+      "Encadrement d'équipes Data/ML",
+      "Cadrage technique",
+      "Standards MLOps",
+      "IA responsable"
+    ],
+    "languages_tech": [
+      "Python",
+      "SQL",
+      "TypeScript",
+      "R",
+      "Java"
+    ],
+    "cloud_aws": [
+      "S3",
+      "Lambda",
+      "Glue",
+      "EMR",
+      "Step Functions",
+      "Kinesis",
+      "MSK",
+      "Redshift",
+      "SageMaker",
+      "Bedrock",
+      "CloudWatch",
+      "IAM",
+      "AWS CDK"
+    ],
+    "cloud_azure": [
+      "Azure OpenAI",
+      "Data Factory",
+      "Synapse",
+      "Event Hub",
+      "Functions",
+      "Key Vault",
+      "Cognitive Search"
+    ],
+    "data_platform": [
+      "Databricks",
+      "Delta Lake",
+      "Unity Catalog",
+      "PySpark",
+      "DBT",
+      "Airflow",
+      "MWAA",
+      "Kafka",
+      "Snowflake",
+      "Hadoop",
+      "Data Lake",
+      "Lakehouse"
+    ],
+    "ml": [
+      "Scikit-learn",
+      "XGBoost",
+      "LightGBM",
+      "CatBoost",
+      "PyTorch",
+      "TensorFlow",
+      "SHAP",
+      "CUDA",
+      "FSDP",
+      "DeepSpeed",
+      "Ray",
+      "Weights & Biases"
+    ],
+    "genai": [
+      "LLM",
+      "RAG",
+      "Agents IA",
+      "Amazon Bedrock",
+      "Claude",
+      "Azure OpenAI",
+      "GPT",
+      "LLaMA",
+      "Mistral",
+      "LangChain",
+      "LlamaIndex",
+      "OpenSearch",
+      "FAISS",
+      "PGVector",
+      "Multimodal",
+      "OCR",
+      "Tesseract",
+      "Docling",
+      "Microsoft Copilot",
+      "Copilot Studio",
+      "Azure AI Studio",
+      "MCP",
+      "Model Context Protocol",
+      "Tool calling",
+      "Serveurs MCP",
+      "Prompt engineering",
+      "System prompts",
+      "Guardrails",
+      "Structured outputs"
+    ],
+    "mlops": [
+      "MLflow",
+      "CI/CD",
+      "Model monitoring",
+      "Data Drift",
+      "Concept Drift",
+      "PSI",
+      "Versioning",
+      "Reproductibilité",
+      "LLMOps"
+    ],
+    "devops": [
+      "Terraform",
+      "Docker",
+      "GitHub Actions",
+      "GitLab CI",
+      "ECR",
+      "Kubernetes"
+    ],
+    "databases": [
+      "PostgreSQL",
+      "Redshift",
+      "Snowflake",
+      "DynamoDB",
+      "MongoDB",
+      "Redis",
+      "Cassandra",
+      "ElasticSearch"
+    ],
+    "observability": [
+      "Prometheus",
+      "Grafana",
+      "CloudWatch",
+      "RBAC",
+      "RGPD",
+      "Auditabilité"
+    ],
+    "backend": [
+      "FastAPI",
+      "REST API",
+      "Microservices",
+      "Event-driven",
+      "Serverless"
+    ],
+    "bi": [
+      "Power BI",
+      "QuickSight",
+      "Streamlit",
+      "Kibana",
+      "R-Shiny"
+    ],
+    "methodes": [
+      "SAFe",
+      "Agile",
+      "Scrum",
+      "Design Authority",
+      "ADR",
+      "TDD"
+    ],
+    "agentique": [
+      "Agents IA",
+      "Orchestration d'agents",
+      "Gestion d'état",
+      "Sélection d'outils",
+      "Mémoire",
+      "Human-in-the-loop",
+      "Observabilité des agents",
+      "MCP"
+    ]
+  },
+  "domains": [
+    "Banque",
+    "Assurance",
+    "Finance / Risque de crédit",
+    "Énergie",
+    "Industrie",
+    "Transport / Mobilité",
+    "Retail / Luxe",
+    "Jeux"
+  ],
+  "summary_default": "Lead Tech IA | Lead Data Scientist avec 15 ans d'expérience dans la conception, l'industrialisation et le pilotage de plateformes Data, Machine Learning et IA. Expérience significative en Python, Databricks, architectures Cloud et MLOps. Pilotage technique d'équipes Data Science et Machine Learning Engineering, de la définition des architectures à la mise en production de solutions Data & IA, en garantissant performance, sécurité, observabilité et gouvernance.",
+  "experiences": [
+    {
+      "title": "Tech Lead IA & ML Platform",
+      "company": "BIL (Luxembourg)",
+      "start": "01/2026",
+      "end": "Present",
+      "domain": "Banque",
+      "context": "Environnement bancaire à forte intensité de données : IA pour l'analyse prédictive, le scoring crédit, l'évaluation du risque et l'aide à la décision. Pilotage technique des développements IA et industrialisation des plateformes ML.",
+      "achievements": [
+        "Pilotage technique des développements IA et accompagnement des Data Scientists, ML Engineers et Data Engineers.",
+        "Animation des revues de code et d'architecture, validation des choix techniques.",
+        "Définition des standards Python, des pratiques MLOps et des principes d'industrialisation des plateformes IA.",
+        "Conception et industrialisation de modèles ML/DL pour le scoring crédit, la prédiction du risque et la détection d'anomalies.",
+        "Feature engineering, validation des données, explicabilité (SHAP) et suivi des performances.",
+        "Industrialisation des workflows ML (entraînement, validation, déploiement, monitoring, versioning) sur Databricks.",
+        "Exposition des modèles via des APIs sécurisées et architectures distribuées.",
+        "Surveillance Data Drift / Concept Drift et amélioration continue.",
+        "Développement de solutions d'IA Générative, d'agents IA et de systèmes RAG métier.",
+        "Gouvernance des modèles : documentation, traçabilité, reproductibilité, auditabilité, conformité.",
+        "Exposition des métadonnées clients issues de Snowflake via MCP, pour l'extraction et l'exploitation par les agents IA de la plateforme."
+      ],
+      "stack": [
+        "Python",
+        "SQL",
+        "Scikit-learn",
+        "XGBoost",
+        "LightGBM",
+        "CatBoost",
+        "PyTorch",
+        "TensorFlow",
+        "SHAP",
+        "Amazon Bedrock",
+        "OpenAI",
+        "Mistral",
+        "LLaMA",
+        "LangChain",
+        "LlamaIndex",
+        "AWS",
+        "Databricks",
+        "Delta Lake",
+        "Unity Catalog",
+        "MLflow",
+        "Snowflake",
+        "PySpark",
+        "Airflow",
+        "DBT",
+        "Kafka",
+        "FastAPI",
+        "Docker",
+        "Terraform",
+        "GitHub Actions",
+        "PostgreSQL",
+        "Prometheus",
+        "Grafana",
+        "Power BI",
+        "MCP",
+        "Model Context Protocol"
+      ]
+    },
+    {
+      "title": "Tech Lead Data IA & Ops",
+      "company": "TotalEnergies",
+      "start": "12/2020",
+      "end": "12/2025",
+      "domain": "Énergie / Industrie",
+      "context": "Projets Data Science, Machine Learning et IA Générative dédiés à l'automatisation documentaire et à l'aide à la décision. Conception et industrialisation de plateformes Data & IA en environnement industriel réglementé.",
+      "achievements": [
+        "Pilotage technique de projets Data & IA et accompagnement des équipes Data Science / ML / Data Engineering.",
+        "Conception d'architectures Data & IA distribuées (microservices, event-driven, serverless) et définition des standards.",
+        "Conception de MVP et solutions ML : prédiction, classification, extraction d'information, détection d'anomalies.",
+        "Pipelines d'entraînement, d'évaluation et de déploiement avec MLflow, CI/CD, monitoring et versioning.",
+        "Développement d'agents IA, de solutions multimodales (OCR, Vision, LLMs) et de pipelines RAG.",
+        "Pipelines Data & ML avec Databricks, PySpark, Airflow et DBT (ingestion, transformation, exposition).",
+        "Solutions Cloud AWS (S3, Lambda, Glue, Step Functions, Bedrock) pour l'orchestration des traitements IA.",
+        "Architectures événementielles Kafka pour le traitement des données.",
+        "Industrialisation via Terraform, Docker et CI/CD avec observabilité et optimisation des performances.",
+        "Définition des ADR, SLA, bonnes pratiques MLOps et gouvernance (RGPD, auditabilité, traçabilité).",
+        "Pilotage en cadre SAFe et développement d'agents et d'assistants métiers avec Copilot Studio.",
+        "Exposition des données de forage via serveurs MCP, permettant l'analyse automatisée des rapports journaliers et des incidents par des agents IA."
+      ],
+      "stack": [
+        "Python",
+        "SQL",
+        "TypeScript",
+        "AWS",
+        "Databricks",
+        "Delta Lake",
+        "Unity Catalog",
+        "MLflow",
+        "PySpark",
+        "DBT",
+        "Airflow",
+        "PyTorch",
+        "Weights & Biases",
+        "Amazon Bedrock",
+        "OpenAI",
+        "Mistral",
+        "LLaMA",
+        "LangChain",
+        "LlamaIndex",
+        "Kafka",
+        "FastAPI",
+        "Terraform",
+        "Docker",
+        "GitHub Actions",
+        "OpenSearch",
+        "FAISS",
+        "PGVector",
+        "PostgreSQL",
+        "Snowflake",
+        "MongoDB",
+        "Redis",
+        "Prometheus",
+        "Grafana",
+        "Streamlit",
+        "Power BI",
+        "Copilot Studio",
+        "Microsoft Copilot",
+        "SAFe",
+        "MCP",
+        "Model Context Protocol"
+      ]
+    },
+    {
+      "title": "Lead Data Scientist",
+      "company": "MSM (RATP, Alstom, Renault, IRT SystemX)",
+      "start": "08/2018",
+      "end": "12/2020",
+      "domain": "Transport / Mobilité",
+      "context": "Superviseur multimodal intelligent à l'échelle d'un territoire : suivi des incidents, prédiction des flux voyageurs et aide à la décision pour l'exploitation des réseaux de transport.",
+      "achievements": [
+        "Définition du socle technique, des architectures fonctionnelles/techniques et des standards de développement.",
+        "Architecture orientée microservices pour l'ingestion, le traitement, le stockage et l'exposition des données.",
+        "Pipelines de traitement de données multimodales (horaires, incidents, GPS, capteurs).",
+        "Modèles ML de prédiction des flux voyageurs et de la durée des perturbations.",
+        "Data Lake multicouche et intégration de flux Kafka sécurisés.",
+        "Démonstrateur opérationnel déployé sur le site de Paris-La Défense.",
+        "Publication IEEE (DSD 2020) sur l'architecture de supervision hybride temps réel / prédictif."
+      ],
+      "stack": [
+        "Python",
+        "SQL",
+        "Saagie",
+        "Kafka",
+        "Docker",
+        "PostgreSQL",
+        "MongoDB",
+        "Power BI",
+        "GitLab"
+      ]
+    },
+    {
+      "title": "Lead Data Scientist / Data Engineer",
+      "company": "Banques et assurances (IBP)",
+      "start": "01/2017",
+      "end": "08/2018",
+      "domain": "Banque / Assurance",
+      "context": "Lutte contre le blanchiment et le financement du terrorisme, détection de fraude et préparation de la donnée conforme RGPD.",
+      "achievements": [
+        "Système robotique + IA pour le traitement des transactions et la détection de fraude.",
+        "Automatisation de la gestion d'alertes, sanctions et embargos.",
+        "Réduction des faux positifs (TF-IDF, Hashing Vectorization, matrices de confusion).",
+        "Moteur de matching exact / flou / phonétique entre entités suspectes et clients.",
+        "Data Catalog via ELK et Data Lineage via Apache Atlas.",
+        "CI/CD GitLab, méthodologie DevOps en TDD, monitoring temps réel."
+      ],
+      "stack": [
+        "Python",
+        "Scikit-learn",
+        "NLTK",
+        "H2O",
+        "AWS",
+        "Spark",
+        "ELK",
+        "ElasticSearch",
+        "Kibana",
+        "Logstash",
+        "Apache Atlas",
+        "GitLab",
+        "Power BI"
+      ]
+    },
+    {
+      "title": "Lead Data Scientist",
+      "company": "Retail de luxe",
+      "start": "09/2015",
+      "end": "01/2017",
+      "domain": "Retail / Luxe",
+      "context": "Expérience client intelligente et analyse des indicateurs de fidélisation.",
+      "achievements": [
+        "Définition des KPIs (ventes, churn, rétention, fréquence de visite, croissance par article/boutique/pays).",
+        "Migration Oracle SQL vers Cassandra via Sqoop, capture de flux asynchrones via Kafka.",
+        "Croisement de données internes et de données exogènes web-crawlées (socio-démographiques).",
+        "Analyses temps réel via Spark et Storm, DataViz Power BI.",
+        "Classification des profils clients et moteur de recommandation (filtrage collaboratif, Pearson)."
+      ],
+      "stack": [
+        "Python",
+        "Scikit-learn",
+        "NLTK",
+        "H2O",
+        "Hadoop",
+        "Kafka",
+        "Cassandra",
+        "Spark",
+        "Storm",
+        "Power BI",
+        "ETL"
+      ]
+    },
+    {
+      "title": "Data Scientist",
+      "company": "Beamlabs / Lotsys & Française des Jeux",
+      "start": "11/2014",
+      "end": "09/2015",
+      "domain": "Jeux",
+      "context": "Socle technique Big Data, analyse du comportement des joueurs, moteur de recommandation temps réel et marketing prédictif.",
+      "achievements": [
+        "Migration Oracle SQL vers Cassandra, capture de flux via ZooKeeper et Kafka.",
+        "Web scraping et crawling distribué, croisement avec données exogènes.",
+        "Architecture distribuée Hadoop / HBase, indexation ElasticSearch.",
+        "Optimisation d'hyperparamètres et validation croisée."
+      ],
+      "stack": [
+        "Python",
+        "Scikit-learn",
+        "NLTK",
+        "H2O",
+        "Spark",
+        "SQL",
+        "ElasticSearch",
+        "Kibana",
+        "Hortonworks",
+        "Hadoop",
+        "Kafka",
+        "Cassandra"
+      ]
+    },
+    {
+      "title": "Ingénieur R&D / Ph.D.",
+      "company": "CentraleSupélec (LPICM)",
+      "start": "02/2010",
+      "end": "10/2014",
+      "domain": "Recherche / Nanotechnologie",
+      "context": "Intégration du machine learning en nanotechnologie et optimisation du rendement des cellules photovoltaïques.",
+      "achievements": [
+        "Développement d'algorithmes d'analyse de structures cristallines (R et Python).",
+        "Modélisation du réseau cristallin du graphène et simulation de transistors à effet de champ.",
+        "Optimisation de l'absorption optique et du transport électronique (FDTD, éléments finis).",
+        "Visualisation de données géographiques via R-Shiny."
+      ],
+      "stack": [
+        "Python",
+        "R",
+        "R-Shiny",
+        "Lumerical",
+        "Java"
+      ]
+    }
+  ],
+  "education": [
+    {
+      "degree": "Ph.D.",
+      "school": "CentraleSupélec, Université Paris-Saclay, Orsay",
+      "years": "2011-2014"
+    },
+    {
+      "degree": "Master of Sciences",
+      "school": "Université Pierre et Marie Curie (Paris VI)",
+      "years": "2010-2011"
+    },
+    {
+      "degree": "Maîtrise en Sciences de l'ingénieur",
+      "school": "Université Paris Diderot (Paris VII)",
+      "years": "2009-2010"
+    }
+  ],
+  "publications": [
+    "18 articles scientifiques publiés dans des revues internationales",
+    "7 participations à des conférences (présentations orales et écrites)",
+    "Architecture of a Public Transport Supervision System Using Hybridization Models Based on Real and Predictive Data — DSD 2020, p.440-446",
+    "Disruption impact on the offer and demand on the public transport network in Paris",
+    "Big Data Paris 2018 — Speaker"
+  ],
+  "trainings_given": [
+    "Advanced Python For Machine Learning (5j, SQLI Institute, 2019)",
+    "Datalab Saagie (3j, 2019)",
+    "SQL for Data Science (4j, FItec, 2018)",
+    "ELK (5j, FItec, 2017)",
+    "Kafka / Air4Data (5j, SQLI Institut, 2017)",
+    "DataViz Tableau vs Power BI (4j, SQLI Institut, 2017)"
+  ]
+}

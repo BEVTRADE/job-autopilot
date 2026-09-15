@@ -1,0 +1,22 @@
+# Environnement
+.venv/
+__pycache__/
+*.pyc
+
+# Données produites, régénérables ou personnelles
+data/output/
+data/logs/
+data/live/
+data/*.db
+data/*.db-journal
+data/journal.jsonl
+
+# Sorties bureautiques temporaires
+*.tmp
+.~lock.*#
+~$*
+.DS_Store
+
+# Archives et rebuts
+_a_supprimer/
+*.zip

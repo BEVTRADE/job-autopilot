@@ -1,0 +1,85 @@
+# ============================================================
+#  job-autopilot — configuration
+#  Tout ce qui pilote le comportement quotidien est ici.
+# ============================================================
+
+runtime:
+  # SÉCURITÉ : dry_run=true => rien n'est envoyé. Le pipeline fait tout
+  # (scan, lecture, CV adapté, rapport) mais s'arrête avant "Envoyer".
+  dry_run: true
+  # kill_switch : si le fichier existe, le run s'arrête immédiatement.
+  kill_switch_file: "~/.job-autopilot/STOP"
+  headless: false          # false = vous voyez ce qui se passe (recommandé)
+  browser_profile_dir: "~/.job-autopilot/browser-profile"
+  slow_mo_ms: 250          # ralentit les actions -> comportement plus humain
+  timezone: "Europe/Paris"
+
+llm:
+  provider: "anthropic"
+  model: "claude-sonnet-4-5"
+  # clé lue depuis la variable d'environnement ANTHROPIC_API_KEY
+  max_detail_chars: 18000
+
+limits:
+  max_applications_per_day: 12
+  max_applications_per_site_per_day: 5
+  min_seconds_between_applications: 90
+  max_jobs_analyzed_per_day: 60
+
+matching:
+  # seuil en dessous duquel on ignore l'offre
+  min_score_to_consider: 55
+  # seuil au-dessus duquel on postule (si dry_run=false)
+  min_score_to_apply: 72
+  # une offre déjà vue n'est jamais retraitée (dédoublonnage par hash)
+  dedupe_days: 120
+
+search:
+  keywords:
+    - "Tech Lead IA"
+    - "Lead Data Scientist"
+    - "MLOps"
+    - "IA Générative"
+    - "LLM"
+    - "Machine Learning Engineer"
+    - "Data Architect"
+    - "Databricks"
+  locations: ["Île-de-France", "Paris", "Remote", "Luxembourg"]
+  posted_within_days: 3
+
+sites:
+  freework:
+    enabled: true
+    search_urls:
+      - "https://www.free-work.com/fr/tech-it/jobs?query=tech%20lead%20ia&freshness=less_than_24_hours"
+      - "https://www.free-work.com/fr/tech-it/jobs?query=lead%20data%20scientist&freshness=less_than_24_hours"
+      - "https://www.free-work.com/fr/tech-it/jobs?query=mlops&freshness=less_than_24_hours"
+    auto_apply: true
+  linkedin:
+    enabled: true
+    search_urls:
+      - "https://www.linkedin.com/jobs/search/?keywords=Tech%20Lead%20IA&location=%C3%8Ele-de-France&f_TPR=r86400&f_AL=true"
+      - "https://www.linkedin.com/jobs/search/?keywords=Lead%20Data%20Scientist&location=%C3%8Ele-de-France&f_TPR=r86400&f_AL=true"
+    # LinkedIn : uniquement Easy Apply, quota bas, comportement prudent
+    auto_apply: true
+    easy_apply_only: true
+  malt:
+    enabled: true
+    search_urls:
+      - "https://www.malt.fr/dashboard/freelancer/opportunities"
+    auto_apply: true
+  wttj:
+    enabled: true
+    search_urls:
+      - "https://www.welcometothejungle.com/fr/jobs?query=lead%20data%20scientist&refinementList%5Boffices.country_code%5D%5B%5D=FR"
+    auto_apply: false        # WTTJ redirige souvent vers des ATS externes
+  apec:
+    enabled: false
+    search_urls:
+      - "https://www.apec.fr/candidat/recherche-emploi.html/emploi?motsCles=lead%20data%20scientist"
+    auto_apply: false
+
+report:
+  output_dir: "data/output"
+  open_in_browser: true
+  email_to: ""             # optionnel

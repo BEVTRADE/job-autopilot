@@ -1,0 +1,1153 @@
+[
+  {
+    "aid": 7499172,
+    "title": "Directeur de programme Mainframe (anglais courant) - H/F",
+    "company": "LeHibou",
+    "tjm_min": 860,
+    "tjm_max": 1100,
+    "axis_id": "DIRECTEUR_PROGRAMME_DATA_IA",
+    "axis_label": "Directeur de programme Data & IA",
+    "lang": "fr",
+    "cv_path": "reprise/cv_finaux/FR_DIRECTEUR_PROGRAMME_DATA_IA.docx",
+    "fit": 89,
+    "value": 94,
+    "decision_score": 91,
+    "verdict": "apply",
+    "reasons": [
+      "compétences couvertes 100%",
+      "intitulé 100%",
+      "proximité textuelle 50%",
+      "TJM plancher 860 € ≥ 650 €"
+    ],
+    "skills_matched": [
+      "Direction de projet",
+      "Gestion de projet"
+    ],
+    "skills_missing": [],
+    "runners_up": [
+      [
+        "Architecte IA & IA Générative",
+        34
+      ],
+      [
+        "Consultant Data & BI",
+        34
+      ]
+    ]
+  },
+  {
+    "aid": 7465037,
+    "title": "Directeur de projet IT RGPD",
+    "company": "CAT-AMANIA",
+    "tjm_min": 850,
+    "tjm_max": 860,
+    "axis_id": "DIRECTEUR_PROGRAMME_DATA_IA",
+    "axis_label": "Directeur de programme Data & IA",
+    "lang": "fr",
+    "cv_path": "reprise/cv_finaux/FR_DIRECTEUR_PROGRAMME_DATA_IA.docx",
+    "fit": 75,
+    "value": 94,
+    "decision_score": 84,
+    "verdict": "apply",
+    "reasons": [
+      "compétences couvertes 83%",
+      "intitulé 100%",
+      "proximité textuelle 25%",
+      "TJM plancher 850 € ≥ 650 €"
+    ],
+    "skills_matched": [
+      "Direction de projet",
+      "RGPD"
+    ],
+    "skills_missing": [],
+    "runners_up": [
+      [
+        "Architecte d'entreprise / Urbaniste SI",
+        21
+      ],
+      [
+        "Consultant Data & BI",
+        17
+      ]
+    ]
+  },
+  {
+    "aid": 7634477,
+    "title": "Architecte Solution/Fonctionnel",
+    "company": "Cherry Pick",
+    "tjm_min": 800,
+    "tjm_max": 850,
+    "axis_id": "ARCHITECTE_ENTREPRISE_URBANISTE",
+    "axis_label": "Architecte d'entreprise / Urbaniste SI",
+    "lang": "fr",
+    "cv_path": "reprise/cv_finaux/FR_ARCHITECTE_ENTREPRISE_URBANISTE.docx",
+    "fit": 86,
+    "value": 82,
+    "decision_score": 84,
+    "verdict": "apply",
+    "reasons": [
+      "compétences couvertes 100%",
+      "intitulé 100%",
+      "proximité textuelle 36%",
+      "TJM plancher 800 € ≥ 650 €"
+    ],
+    "skills_matched": [
+      "Architecture"
+    ],
+    "skills_missing": [],
+    "runners_up": [
+      [
+        "Architecte IA & IA Générative",
+        43
+      ],
+      [
+        "Directeur de programme Data & IA",
+        24
+      ]
+    ]
+  },
+  {
+    "aid": 8036557,
+    "title": "Manager de transition - Equipe RUN ",
+    "company": "Mon Consultant Indépendant",
+    "tjm_min": 1060,
+    "tjm_max": 1090,
+    "axis_id": "DIRECTEUR_PROGRAMME_DATA_IA",
+    "axis_label": "Directeur de programme Data & IA",
+    "lang": "fr",
+    "cv_path": "reprise/cv_finaux/FR_DIRECTEUR_PROGRAMME_DATA_IA.docx",
+    "fit": 81,
+    "value": 84,
+    "decision_score": 83,
+    "verdict": "apply",
+    "reasons": [
+      "compétences couvertes 100%",
+      "intitulé 100%",
+      "proximité textuelle 21%",
+      "TJM plancher 1060 € ≥ 650 €"
+    ],
+    "skills_matched": [
+      "Gestion de projet"
+    ],
+    "skills_missing": [],
+    "runners_up": [
+      [
+        "Consultant Data & BI",
+        40
+      ],
+      [
+        "Architecte IA & IA Générative",
+        39
+      ]
+    ]
+  },
+  {
+    "aid": 7755467,
+    "title": "Architecte Entreprise (localisation à Rennes, 3j sur site)",
+    "company": "Cherry Pick",
+    "tjm_min": 780,
+    "tjm_max": 830,
+    "axis_id": "ARCHITECTE_ENTREPRISE_URBANISTE",
+    "axis_label": "Architecte d'entreprise / Urbaniste SI",
+    "lang": "fr",
+    "cv_path": "reprise/cv_finaux/FR_ARCHITECTE_ENTREPRISE_URBANISTE.docx",
+    "fit": 85,
+    "value": 77,
+    "decision_score": 81,
+    "verdict": "apply",
+    "reasons": [
+      "compétences couvertes 100%",
+      "intitulé 100%",
+      "proximité textuelle 32%",
+      "TJM plancher 780 € ≥ 650 €"
+    ],
+    "skills_matched": [
+      "Architecture"
+    ],
+    "skills_missing": [],
+    "runners_up": [
+      [
+        "Architecte IA & IA Générative",
+        43
+      ],
+      [
+        "Directeur de programme Data & IA",
+        26
+      ]
+    ]
+  },
+  {
+    "aid": 7977398,
+    "title": "Architecte Entreprise ",
+    "company": "Cherry Pick",
+    "tjm_min": 800,
+    "tjm_max": 850,
+    "axis_id": "ARCHITECTE_ENTREPRISE_URBANISTE",
+    "axis_label": "Architecte d'entreprise / Urbaniste SI",
+    "lang": "fr",
+    "cv_path": "reprise/cv_finaux/FR_ARCHITECTE_ENTREPRISE_URBANISTE.docx",
+    "fit": 79,
+    "value": 82,
+    "decision_score": 80,
+    "verdict": "apply",
+    "reasons": [
+      "compétences couvertes 83%",
+      "intitulé 100%",
+      "proximité textuelle 39%",
+      "TJM plancher 800 € ≥ 650 €"
+    ],
+    "skills_matched": [
+      "Architecture",
+      "Gouvernance"
+    ],
+    "skills_missing": [],
+    "runners_up": [
+      [
+        "Architecte IA & IA Générative",
+        44
+      ],
+      [
+        "Directeur de programme Data & IA",
+        39
+      ]
+    ]
+  },
+  {
+    "aid": 9178861,
+    "title": "Directeur de projet / projet IA",
+    "company": "Mon Consultant Indépendant",
+    "tjm_min": 950,
+    "tjm_max": 1000,
+    "axis_id": "ARCHITECTE_IA_GENAI",
+    "axis_label": "Architecte IA & IA Générative",
+    "lang": "fr",
+    "cv_path": "reprise/cv_finaux/FR_ARCHITECTE_IA_GENAI.docx",
+    "fit": 66,
+    "value": 94,
+    "decision_score": 80,
+    "verdict": "apply",
+    "reasons": [
+      "compétences couvertes 100%",
+      "intitulé 55%",
+      "proximité textuelle 15%",
+      "TJM plancher 950 € ≥ 650 €"
+    ],
+    "skills_matched": [
+      "IA"
+    ],
+    "skills_missing": [],
+    "runners_up": [
+      [
+        "Directeur de programme Data & IA",
+        60
+      ],
+      [
+        "Architecte d'entreprise / Urbaniste SI",
+        28
+      ]
+    ]
+  },
+  {
+    "aid": 8238794,
+    "title": "Directeur de Programme ",
+    "company": "Cherry Pick",
+    "tjm_min": 830,
+    "tjm_max": 880,
+    "axis_id": "DIRECTEUR_PROGRAMME_DATA_IA",
+    "axis_label": "Directeur de programme Data & IA",
+    "lang": "fr",
+    "cv_path": "reprise/cv_finaux/FR_DIRECTEUR_PROGRAMME_DATA_IA.docx",
+    "fit": 69,
+    "value": 89,
+    "decision_score": 79,
+    "verdict": "apply",
+    "reasons": [
+      "compétences couvertes 67%",
+      "intitulé 100%",
+      "proximité textuelle 33%",
+      "TJM plancher 830 € ≥ 650 €"
+    ],
+    "skills_matched": [
+      "Méthode Agile"
+    ],
+    "skills_missing": [],
+    "runners_up": [
+      [
+        "Architecte IA & IA Générative",
+        42
+      ],
+      [
+        "Consultant Data & BI",
+        41
+      ]
+    ]
+  },
+  {
+    "aid": 7976681,
+    "title": " Directeur de programme RGPD",
+    "company": "ARGANA CONSULTING CORP LLP",
+    "tjm_min": 800,
+    "tjm_max": 860,
+    "axis_id": "DIRECTEUR_PROGRAMME_DATA_IA",
+    "axis_label": "Directeur de programme Data & IA",
+    "lang": "fr",
+    "cv_path": "reprise/cv_finaux/FR_DIRECTEUR_PROGRAMME_DATA_IA.docx",
+    "fit": 74,
+    "value": 82,
+    "decision_score": 78,
+    "verdict": "apply",
+    "reasons": [
+      "compétences couvertes 72%",
+      "intitulé 100%",
+      "proximité textuelle 41%",
+      "TJM plancher 800 € ≥ 650 €"
+    ],
+    "skills_matched": [
+      "Agile Scrum",
+      "Architecture",
+      "Backlog management",
+      "Budget Management",
+      "Cash Management",
+      "DataCenter Infrastructure Management (DCIM)",
+      "Direction de projet",
+      "LMS (Learning Management System)",
+      "Méthode Agile",
+      "Project Portfolio Management (PPM)",
+      "Reporting",
+      "RGPD"
+    ],
+    "skills_missing": [
+      "Microsoft Project",
+      "Run"
+    ],
+    "runners_up": [
+      [
+        "Consultant Data & BI",
+        29
+      ],
+      [
+        "Architecte IA & IA Générative",
+        29
+      ]
+    ]
+  },
+  {
+    "aid": 8713002,
+    "title": "Lead Product Owner – Securities Research Data/AI Platform H/F",
+    "company": "Comet",
+    "tjm_min": 900,
+    "tjm_max": 1000,
+    "axis_id": "ARCHITECTE_IA_GENAI",
+    "axis_label": "Architecte IA & IA Générative",
+    "lang": "fr",
+    "cv_path": "reprise/cv_finaux/FR_ARCHITECTE_IA_GENAI.docx",
+    "fit": 63,
+    "value": 94,
+    "decision_score": 78,
+    "verdict": "apply",
+    "reasons": [
+      "compétences couvertes 73%",
+      "intitulé 55%",
+      "proximité textuelle 49%",
+      "TJM plancher 900 € ≥ 650 €"
+    ],
+    "skills_matched": [
+      "Azure",
+      "IA",
+      "Large Language Model (LLM)",
+      "RAG"
+    ],
+    "skills_missing": [
+      "Bloomberg"
+    ],
+    "runners_up": [
+      [
+        "Directeur de programme Data & IA",
+        42
+      ],
+      [
+        "Consultant Data & BI",
+        29
+      ]
+    ]
+  },
+  {
+    "aid": 6260738,
+    "title": "Manager de production",
+    "company": "Mon Consultant Indépendant",
+    "tjm_min": 950,
+    "tjm_max": 1050,
+    "axis_id": "DIRECTEUR_PROGRAMME_DATA_IA",
+    "axis_label": "Directeur de programme Data & IA",
+    "lang": "fr",
+    "cv_path": "reprise/cv_finaux/FR_DIRECTEUR_PROGRAMME_DATA_IA.docx",
+    "fit": 70,
+    "value": 84,
+    "decision_score": 77,
+    "verdict": "apply",
+    "reasons": [
+      "compétences couvertes 100%",
+      "intitulé 55%",
+      "proximité textuelle 29%",
+      "TJM plancher 950 € ≥ 650 €"
+    ],
+    "skills_matched": [
+      "Direction",
+      "Management",
+      "Pilotage"
+    ],
+    "skills_missing": [],
+    "runners_up": [
+      [
+        "Architecte d'entreprise / Urbaniste SI",
+        25
+      ],
+      [
+        "Architecte IA & IA Générative",
+        24
+      ]
+    ]
+  },
+  {
+    "aid": 6271383,
+    "title": "Directeur de programme IA ",
+    "company": "Groupe Aptenia",
+    "tjm_min": 800,
+    "tjm_max": 850,
+    "axis_id": "ARCHITECTE_IA_GENAI",
+    "axis_label": "Architecte IA & IA Générative",
+    "lang": "fr",
+    "cv_path": "reprise/cv_finaux/FR_ARCHITECTE_IA_GENAI.docx",
+    "fit": 70,
+    "value": 82,
+    "decision_score": 76,
+    "verdict": "apply",
+    "reasons": [
+      "compétences couvertes 100%",
+      "intitulé 55%",
+      "proximité textuelle 31%",
+      "TJM plancher 800 € ≥ 650 €"
+    ],
+    "skills_matched": [
+      "AI"
+    ],
+    "skills_missing": [],
+    "runners_up": [
+      [
+        "Consultant Data & BI",
+        65
+      ],
+      [
+        "Directeur de programme Data & IA",
+        60
+      ]
+    ]
+  },
+  {
+    "aid": 6893079,
+    "title": "Architect Data (Lausanne en Suisse 3 jours par semaine mini obligatoire) ",
+    "company": "Cherry Pick",
+    "tjm_min": 900,
+    "tjm_max": 900,
+    "axis_id": "ARCHITECTE_ENTREPRISE_URBANISTE",
+    "axis_label": "Architecte d'entreprise / Urbaniste SI",
+    "lang": "fr",
+    "cv_path": "reprise/cv_finaux/FR_ARCHITECTE_ENTREPRISE_URBANISTE.docx",
+    "fit": 57,
+    "value": 94,
+    "decision_score": 76,
+    "verdict": "apply",
+    "reasons": [
+      "compétences couvertes 71%",
+      "intitulé 55%",
+      "proximité textuelle 28%",
+      "TJM plancher 900 € ≥ 650 €"
+    ],
+    "skills_matched": [
+      "Architecture",
+      "Azure",
+      "Databricks"
+    ],
+    "skills_missing": [],
+    "runners_up": [
+      [
+        "Architecte IA & IA Générative",
+        50
+      ],
+      [
+        "Consultant Data & BI",
+        49
+      ]
+    ]
+  },
+  {
+    "aid": 7497742,
+    "title": "Ingénieur DevOps / Cloud – Freelance",
+    "company": "Groupe Aptenia",
+    "tjm_min": 880,
+    "tjm_max": 1000,
+    "axis_id": "CONSULTANT_DATA_BI",
+    "axis_label": "Consultant Data & BI",
+    "lang": "fr",
+    "cv_path": "reprise/cv_finaux/FR_CONSULTANT_DATA_BI.docx",
+    "fit": 52,
+    "value": 100,
+    "decision_score": 76,
+    "verdict": "apply",
+    "reasons": [
+      "compétences couvertes 67%",
+      "intitulé 55%",
+      "proximité textuelle 21%",
+      "TJM plancher 880 € ≥ 650 €"
+    ],
+    "skills_matched": [
+      "AWS Cloud",
+      "Azure"
+    ],
+    "skills_missing": [],
+    "runners_up": [
+      [
+        "Architecte IA & IA Générative",
+        52
+      ],
+      [
+        "Architecte d'entreprise / Urbaniste SI",
+        37
+      ]
+    ]
+  },
+  {
+    "aid": 7710276,
+    "title": "Directeur de programme RGPD",
+    "company": "Cherry Pick",
+    "tjm_min": 800,
+    "tjm_max": 850,
+    "axis_id": "DIRECTEUR_PROGRAMME_DATA_IA",
+    "axis_label": "Directeur de programme Data & IA",
+    "lang": "fr",
+    "cv_path": "reprise/cv_finaux/FR_DIRECTEUR_PROGRAMME_DATA_IA.docx",
+    "fit": 71,
+    "value": 82,
+    "decision_score": 76,
+    "verdict": "apply",
+    "reasons": [
+      "compétences couvertes 67%",
+      "intitulé 100%",
+      "proximité textuelle 39%",
+      "TJM plancher 800 € ≥ 650 €"
+    ],
+    "skills_matched": [
+      "RGPD"
+    ],
+    "skills_missing": [],
+    "runners_up": [
+      [
+        "Consultant Data & BI",
+        52
+      ],
+      [
+        "Architecte IA & IA Générative",
+        45
+      ]
+    ]
+  },
+  {
+    "aid": 9010441,
+    "title": "Directeur de programme IT",
+    "company": "Cherry Pick",
+    "tjm_min": 800,
+    "tjm_max": 900,
+    "axis_id": "DIRECTEUR_PROGRAMME_DATA_IA",
+    "axis_label": "Directeur de programme Data & IA",
+    "lang": "fr",
+    "cv_path": "reprise/cv_finaux/FR_DIRECTEUR_PROGRAMME_DATA_IA.docx",
+    "fit": 69,
+    "value": 82,
+    "decision_score": 76,
+    "verdict": "apply",
+    "reasons": [
+      "compétences couvertes 67%",
+      "intitulé 100%",
+      "proximité textuelle 32%",
+      "TJM plancher 800 € ≥ 650 €"
+    ],
+    "skills_matched": [
+      "Méthode Agile"
+    ],
+    "skills_missing": [],
+    "runners_up": [
+      [
+        "Architecte IA & IA Générative",
+        42
+      ],
+      [
+        "Consultant Data & BI",
+        41
+      ]
+    ]
+  },
+  {
+    "aid": 6320716,
+    "title": "Lead business analyst concepteur ! (H/F)",
+    "company": "ALLEGIS GROUP",
+    "tjm_min": 1060,
+    "tjm_max": 1560,
+    "axis_id": "CONSULTANT_DATA_BI",
+    "axis_label": "Consultant Data & BI",
+    "lang": "fr",
+    "cv_path": "reprise/cv_finaux/FR_CONSULTANT_DATA_BI.docx",
+    "fit": 56,
+    "value": 94,
+    "decision_score": 75,
+    "verdict": "apply",
+    "reasons": [
+      "compétences couvertes 47%",
+      "intitulé 100%",
+      "proximité textuelle 20%",
+      "TJM plancher 1060 € ≥ 650 €"
+    ],
+    "skills_matched": [
+      "Business Analyst"
+    ],
+    "skills_missing": [],
+    "runners_up": [
+      [
+        "Architecte IA & IA Générative",
+        19
+      ],
+      [
+        "Directeur de programme Data & IA",
+        3
+      ]
+    ]
+  },
+  {
+    "aid": 7682756,
+    "title": "Architecte Entreprise ",
+    "company": "Cherry Pick",
+    "tjm_min": 730,
+    "tjm_max": 780,
+    "axis_id": "ARCHITECTE_ENTREPRISE_URBANISTE",
+    "axis_label": "Architecte d'entreprise / Urbaniste SI",
+    "lang": "fr",
+    "cv_path": "reprise/cv_finaux/FR_ARCHITECTE_ENTREPRISE_URBANISTE.docx",
+    "fit": 86,
+    "value": 65,
+    "decision_score": 75,
+    "verdict": "apply",
+    "reasons": [
+      "compétences couvertes 100%",
+      "intitulé 100%",
+      "proximité textuelle 36%",
+      "TJM plancher 730 € ≥ 650 €"
+    ],
+    "skills_matched": [
+      "Architecture"
+    ],
+    "skills_missing": [],
+    "runners_up": [
+      [
+        "Architecte IA & IA Générative",
+        43
+      ],
+      [
+        "Directeur de programme Data & IA",
+        26
+      ]
+    ]
+  },
+  {
+    "aid": 7977510,
+    "title": "Directeur de programme Finance Assurance",
+    "company": "Mon Consultant Indépendant",
+    "tjm_min": 980,
+    "tjm_max": 1000,
+    "axis_id": "DIRECTEUR_PROGRAMME_DATA_IA",
+    "axis_label": "Directeur de programme Data & IA",
+    "lang": "fr",
+    "cv_path": "reprise/cv_finaux/FR_DIRECTEUR_PROGRAMME_DATA_IA.docx",
+    "fit": 56,
+    "value": 94,
+    "decision_score": 75,
+    "verdict": "apply",
+    "reasons": [
+      "compétences couvertes 47%",
+      "intitulé 100%",
+      "proximité textuelle 14%",
+      "TJM plancher 980 € ≥ 650 €"
+    ],
+    "skills_matched": [
+      "Finance"
+    ],
+    "skills_missing": [],
+    "runners_up": [
+      [
+        "Architecte d'entreprise / Urbaniste SI",
+        44
+      ],
+      [
+        "Architecte IA & IA Générative",
+        40
+      ]
+    ]
+  },
+  {
+    "aid": 7977562,
+    "title": "Delivery Lead – Service Delivery (H/F)",
+    "company": "HOXTON PARTNERS",
+    "tjm_min": 800,
+    "tjm_max": 900,
+    "axis_id": "DIRECTEUR_PROGRAMME_DATA_IA",
+    "axis_label": "Directeur de programme Data & IA",
+    "lang": "en",
+    "cv_path": "reprise/cv_finaux/EN_DATA_AI_PROGRAMME_DIRECTOR.docx",
+    "fit": 67,
+    "value": 82,
+    "decision_score": 75,
+    "verdict": "apply",
+    "reasons": [
+      "compétences couvertes 67%",
+      "intitulé 100%",
+      "proximité textuelle 25%",
+      "TJM plancher 800 € ≥ 650 €"
+    ],
+    "skills_matched": [
+      "KPI"
+    ],
+    "skills_missing": [],
+    "runners_up": [
+      [
+        "Architecte IA & IA Générative",
+        20
+      ],
+      [
+        "Consultant Data & BI",
+        20
+      ]
+    ]
+  },
+  {
+    "aid": 8273682,
+    "title": "Directeur de Projet Data (secteur de l'assurance)",
+    "company": "Cherry Pick",
+    "tjm_min": 830,
+    "tjm_max": 880,
+    "axis_id": "DIRECTEUR_PROGRAMME_DATA_IA",
+    "axis_label": "Directeur de programme Data & IA",
+    "lang": "fr",
+    "cv_path": "reprise/cv_finaux/FR_DIRECTEUR_PROGRAMME_DATA_IA.docx",
+    "fit": 61,
+    "value": 89,
+    "decision_score": 75,
+    "verdict": "apply",
+    "reasons": [
+      "compétences couvertes 50%",
+      "intitulé 100%",
+      "proximité textuelle 31%",
+      "TJM plancher 830 € ≥ 650 €"
+    ],
+    "skills_matched": [
+      "Direction de projet"
+    ],
+    "skills_missing": [
+      "Infrastructure"
+    ],
+    "runners_up": [
+      [
+        "Architecte IA & IA Générative",
+        32
+      ],
+      [
+        "Consultant Data & BI",
+        20
+      ]
+    ]
+  },
+  {
+    "aid": 9085829,
+    "title": "Directeur de Projet / Programme Sénior",
+    "company": "Signe +",
+    "tjm_min": 800,
+    "tjm_max": 800,
+    "axis_id": "DIRECTEUR_PROGRAMME_DATA_IA",
+    "axis_label": "Directeur de programme Data & IA",
+    "lang": "fr",
+    "cv_path": "reprise/cv_finaux/FR_DIRECTEUR_PROGRAMME_DATA_IA.docx",
+    "fit": 69,
+    "value": 82,
+    "decision_score": 75,
+    "verdict": "apply",
+    "reasons": [
+      "compétences couvertes 67%",
+      "intitulé 100%",
+      "proximité textuelle 30%",
+      "TJM plancher 800 € ≥ 650 €"
+    ],
+    "skills_matched": [
+      "JIRA"
+    ],
+    "skills_missing": [],
+    "runners_up": [
+      [
+        "Architecte IA & IA Générative",
+        25
+      ],
+      [
+        "Consultant Data & BI",
+        23
+      ]
+    ]
+  },
+  {
+    "aid": 6709746,
+    "title": "Data Engineer F/H ",
+    "company": "Izyfree",
+    "tjm_min": null,
+    "tjm_max": null,
+    "axis_id": "CONSULTANT_DATA_BI",
+    "axis_label": "Consultant Data & BI",
+    "lang": "fr",
+    "cv_path": "reprise/cv_finaux/FR_CONSULTANT_DATA_BI.docx",
+    "fit": 87,
+    "value": 61,
+    "decision_score": 74,
+    "verdict": "apply",
+    "reasons": [
+      "compétences couvertes 100%",
+      "intitulé 100%",
+      "proximité textuelle 47%",
+      "TJM non communiqué"
+    ],
+    "skills_matched": [
+      "Snowflake"
+    ],
+    "skills_missing": [],
+    "runners_up": [
+      [
+        "Architecte IA & IA Générative",
+        56
+      ],
+      [
+        "Directeur de programme Data & IA",
+        49
+      ]
+    ]
+  },
+  {
+    "aid": 6893052,
+    "title": "Architecte d'entreprise (H/F)",
+    "company": "LeHibou",
+    "tjm_min": 750,
+    "tjm_max": 850,
+    "axis_id": "ARCHITECTE_ENTREPRISE_URBANISTE",
+    "axis_label": "Architecte d'entreprise / Urbaniste SI",
+    "lang": "fr",
+    "cv_path": "reprise/cv_finaux/FR_ARCHITECTE_ENTREPRISE_URBANISTE.docx",
+    "fit": 87,
+    "value": 60,
+    "decision_score": 74,
+    "verdict": "apply",
+    "reasons": [
+      "compétences couvertes 100%",
+      "intitulé 100%",
+      "proximité textuelle 43%",
+      "TJM plancher 750 € ≥ 650 €"
+    ],
+    "skills_matched": [
+      "Architecture"
+    ],
+    "skills_missing": [],
+    "runners_up": [
+      [
+        "Architecte IA & IA Générative",
+        46
+      ],
+      [
+        "Directeur de programme Data & IA",
+        32
+      ]
+    ]
+  },
+  {
+    "aid": 7977521,
+    "title": "Directeur de Projet IT",
+    "company": "Sapiens Group",
+    "tjm_min": 800,
+    "tjm_max": 950,
+    "axis_id": "DIRECTEUR_PROGRAMME_DATA_IA",
+    "axis_label": "Directeur de programme Data & IA",
+    "lang": "fr",
+    "cv_path": "reprise/cv_finaux/FR_DIRECTEUR_PROGRAMME_DATA_IA.docx",
+    "fit": 67,
+    "value": 78,
+    "decision_score": 73,
+    "verdict": "apply",
+    "reasons": [
+      "compétences couvertes 67%",
+      "intitulé 100%",
+      "proximité textuelle 25%",
+      "TJM plancher 800 € ≥ 650 €"
+    ],
+    "skills_matched": [
+      "RGPD"
+    ],
+    "skills_missing": [],
+    "runners_up": [
+      [
+        "Architecte d'entreprise / Urbaniste SI",
+        36
+      ],
+      [
+        "Consultant Data & BI",
+        32
+      ]
+    ]
+  },
+  {
+    "aid": 8547471,
+    "title": "Chief Data Officer de transition - Mission longue - Grand groupe Retail",
+    "company": "KatchMe Consulting",
+    "tjm_min": 900,
+    "tjm_max": 1200,
+    "axis_id": "ARCHITECTE_IA_GENAI",
+    "axis_label": "Architecte IA & IA Générative",
+    "lang": "fr",
+    "cv_path": "reprise/cv_finaux/FR_ARCHITECTE_IA_GENAI.docx",
+    "fit": 52,
+    "value": 94,
+    "decision_score": 73,
+    "verdict": "apply",
+    "reasons": [
+      "compétences couvertes 67%",
+      "intitulé 55%",
+      "proximité textuelle 21%",
+      "TJM plancher 900 € ≥ 650 €"
+    ],
+    "skills_matched": [
+      "AWS Cloud",
+      "Databricks"
+    ],
+    "skills_missing": [],
+    "runners_up": [
+      [
+        "Consultant Data & BI",
+        51
+      ],
+      [
+        "Directeur de programme Data & IA",
+        46
+      ]
+    ]
+  },
+  {
+    "aid": 9870522,
+    "title": "Senior Data Platform Product Manager",
+    "company": "JCW Search Ltd",
+    "tjm_min": 760,
+    "tjm_max": 1260,
+    "axis_id": "ARCHITECTE_IA_GENAI",
+    "axis_label": "Architecte IA & IA Générative",
+    "lang": "fr",
+    "cv_path": "reprise/cv_finaux/FR_ARCHITECTE_IA_GENAI.docx",
+    "fit": 73,
+    "value": 72,
+    "decision_score": 73,
+    "verdict": "apply",
+    "reasons": [
+      "compétences couvertes 100%",
+      "intitulé 55%",
+      "proximité textuelle 41%",
+      "TJM plancher 760 € ≥ 650 €"
+    ],
+    "skills_matched": [
+      "AI"
+    ],
+    "skills_missing": [],
+    "runners_up": [
+      [
+        "Consultant Data & BI",
+        70
+      ],
+      [
+        "Directeur de programme Data & IA",
+        51
+      ]
+    ]
+  },
+  {
+    "aid": 9870531,
+    "title": "Manager de transition Data Privacy & Compliance",
+    "company": "LeHibou",
+    "tjm_min": 800,
+    "tjm_max": 800,
+    "axis_id": "DIRECTEUR_PROGRAMME_DATA_IA",
+    "axis_label": "Directeur de programme Data & IA",
+    "lang": "fr",
+    "cv_path": "reprise/cv_finaux/FR_DIRECTEUR_PROGRAMME_DATA_IA.docx",
+    "fit": 78,
+    "value": 69,
+    "decision_score": 73,
+    "verdict": "apply",
+    "reasons": [
+      "compétences couvertes 83%",
+      "intitulé 100%",
+      "proximité textuelle 36%",
+      "TJM plancher 800 € ≥ 650 €"
+    ],
+    "skills_matched": [
+      "Gouvernance, gestion des risques et conformité (GRC)",
+      "RGPD"
+    ],
+    "skills_missing": [],
+    "runners_up": [
+      [
+        "Architecte d'entreprise / Urbaniste SI",
+        36
+      ],
+      [
+        "Consultant Data & BI",
+        35
+      ]
+    ]
+  },
+  {
+    "aid": 6320809,
+    "title": "51644-1 : Business Analyst – Oracle Cloud Financials & Procurement - Freelance - 423",
+    "company": "ISUPPLIER",
+    "tjm_min": 833,
+    "tjm_max": 925,
+    "axis_id": "CONSULTANT_DATA_BI",
+    "axis_label": "Consultant Data & BI",
+    "lang": "fr",
+    "cv_path": "reprise/cv_finaux/FR_CONSULTANT_DATA_BI.docx",
+    "fit": 59,
+    "value": 85,
+    "decision_score": 72,
+    "verdict": "apply",
+    "reasons": [
+      "compétences couvertes 50%",
+      "intitulé 100%",
+      "proximité textuelle 25%",
+      "TJM plancher 833 € ≥ 650 €"
+    ],
+    "skills_matched": [],
+    "skills_missing": [],
+    "runners_up": [
+      [
+        "Directeur de programme Data & IA",
+        26
+      ],
+      [
+        "Architecte d'entreprise / Urbaniste SI",
+        26
+      ]
+    ]
+  },
+  {
+    "aid": 7841681,
+    "title": "Architecte d'entreprise Grand compte assurance",
+    "company": "CAT-AMANIA",
+    "tjm_min": 700,
+    "tjm_max": 710,
+    "axis_id": "ARCHITECTE_ENTREPRISE_URBANISTE",
+    "axis_label": "Architecte d'entreprise / Urbaniste SI",
+    "lang": "fr",
+    "cv_path": "reprise/cv_finaux/FR_ARCHITECTE_ENTREPRISE_URBANISTE.docx",
+    "fit": 86,
+    "value": 58,
+    "decision_score": 72,
+    "verdict": "apply",
+    "reasons": [
+      "compétences couvertes 100%",
+      "intitulé 100%",
+      "proximité textuelle 39%",
+      "TJM plancher 700 € ≥ 650 €"
+    ],
+    "skills_matched": [
+      "Architecture",
+      "TOGAF"
+    ],
+    "skills_missing": [],
+    "runners_up": [
+      [
+        "Architecte IA & IA Générative",
+        33
+      ],
+      [
+        "Directeur de programme Data & IA",
+        16
+      ]
+    ]
+  },
+  {
+    "aid": 7977565,
+    "title": "Delivery Lead",
+    "company": "Signe +",
+    "tjm_min": 910,
+    "tjm_max": 910,
+    "axis_id": "DIRECTEUR_PROGRAMME_DATA_IA",
+    "axis_label": "Directeur de programme Data & IA",
+    "lang": "en",
+    "cv_path": "reprise/cv_finaux/EN_DATA_AI_PROGRAMME_DIRECTOR.docx",
+    "fit": 65,
+    "value": 80,
+    "decision_score": 72,
+    "verdict": "apply",
+    "reasons": [
+      "compétences couvertes 100%",
+      "intitulé 55%",
+      "proximité textuelle 9%",
+      "TJM plancher 910 € ≥ 650 €"
+    ],
+    "skills_matched": [
+      "Gouvernance"
+    ],
+    "skills_missing": [],
+    "runners_up": [
+      [
+        "Architecte IA & IA Générative",
+        43
+      ],
+      [
+        "Consultant Data & BI",
+        41
+      ]
+    ]
+  },
+  {
+    "aid": 9789289,
+    "title": "Manager de transition Data Viz",
+    "company": "Cherry Pick",
+    "tjm_min": 700,
+    "tjm_max": 750,
+    "axis_id": "DIRECTEUR_PROGRAMME_DATA_IA",
+    "axis_label": "Directeur de programme Data & IA",
+    "lang": "fr",
+    "cv_path": "reprise/cv_finaux/FR_DIRECTEUR_PROGRAMME_DATA_IA.docx",
+    "fit": 86,
+    "value": 58,
+    "decision_score": 72,
+    "verdict": "apply",
+    "reasons": [
+      "compétences couvertes 100%",
+      "intitulé 100%",
+      "proximité textuelle 41%",
+      "TJM plancher 700 € ≥ 650 €"
+    ],
+    "skills_matched": [
+      "BI",
+      "Gestion de projet"
+    ],
+    "skills_missing": [],
+    "runners_up": [
+      [
+        "Consultant Data & BI",
+        56
+      ],
+      [
+        "Architecte IA & IA Générative",
+        44
+      ]
+    ]
+  }
+]

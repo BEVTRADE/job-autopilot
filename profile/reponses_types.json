@@ -1,0 +1,50 @@
+{
+  "_comment": "Banque de réponses aux questions filtrantes. Format validé en conditions réelles : 3 à 4 phrases, un fait vérifiable par phrase, une idée de point de vue en clôture. Les déclencheurs servent à l'appariement par recouvrement de vocabulaire.",
+  "reponses": [
+    {
+      "cle": "gouvernance_ia",
+      "declencheurs": ["cadre de gouvernance IA référentiel registre de systèmes processus d'évaluation des risques centre d'excellence", "avez-vous conçu déployé une gouvernance de l'intelligence artificielle"],
+      "texte": "Oui, dans deux contextes. À la Banque Internationale à Luxembourg, je travaille sur le cadre qui encadre la mise à disposition des capacités d'IA aux métiers : politiques d'accès, sélection des modèles, risque d'hallucination, auditabilité, RGPD et DORA. Les capacités LLM, RAG et agents y sont exposées comme des produits gouvernés, avec documentation, traçabilité, versionnement et surveillance de la dérive. Chez TotalEnergies, j'avais défini les standards d'architecture, les ADR et les pratiques MLOps qui cadraient l'industrialisation à l'échelle du groupe."
+    },
+    {
+      "cle": "experimentation_industrialisation",
+      "declencheurs": ["expérience concrète projets IA générative machine learning passage de l'expérimentation à l'industrialisation", "avez-vous industrialisé des modèles mise en production MVP"],
+      "texte": "Oui, c'est le cœur de mon métier. Chez TotalEnergies pendant cinq ans, j'ai fait passer des cas d'usage du MVP à la production : pipelines d'entraînement et de déploiement sur Databricks, MLflow, CI/CD, monitoring, plus des agents IA et des pipelines RAG. Même trajectoire aujourd'hui à BIL sur du scoring crédit et de la détection d'anomalies, avec orchestration multi-LLM et LLMOps. Ce qui bloque le passage à l'échelle n'est presque jamais le modèle, mais l'absence de socle gouverné et d'observabilité."
+    },
+    {
+      "cle": "ai_act_rgpd",
+      "declencheurs": ["connaissez-vous l'AI Act et le RGPD savez-vous les traduire en exigences opérationnelles concrètes conformité réglementaire"],
+      "texte": "Oui, en pratique quotidienne. Le RGPD, je le traduis en contrôles techniques : minimisation sur les jeux d'entraînement, pseudonymisation, RBAC et sécurité au niveau ligne, journalisation des accès et des inférences — auxquels s'ajoute DORA à BIL, notamment sur le risque fournisseur et la réversibilité. Pour l'AI Act, je pars de la classification par niveau de risque à l'entrée du cas d'usage, et j'en déduis les obligations : documentation, qualité des données, traçabilité, transparence, supervision humaine. Une exigence réglementaire ne vaut que si elle devient un critère de passage en production."
+    },
+    {
+      "cle": "architectures_llm",
+      "declencheurs": ["expérience concrète architectures LLM RAG agents embeddings production POC avancés recherche vectorielle"],
+      "texte": "Oui, en production et pas seulement en POC. À la Banque Internationale à Luxembourg, j'exploite une plateforme d'IA d'entreprise avec orchestration multi-LLM — routage, mise en cache, repli, maîtrise de la latence —, des pipelines RAG et Document AI et des agents IA, le tout industrialisé en LLMOps. Côté recherche : embeddings et recherche vectorielle sur FAISS, PGVector et OpenSearch, recherche hybride BM25, reranking, et évaluation par RAGAS, Hit Rate, MRR et nDCG. Ce qui sépare un POC d'une solution exploitable est rarement le modèle : c'est le versionnement des prompts et des index, l'observabilité et les garde-fous."
+    },
+    {
+      "cle": "disponibilite_mobilite",
+      "declencheurs": ["êtes-vous en mesure d'intervenir en freelance à Paris ou en mode hybride présence partielle sur site dès que possible disponibilité mobilité"],
+      "texte": "Oui. Je suis freelance, basé à Paris et en Île-de-France, et disponible immédiatement. Le mode hybride avec présence partielle sur site me convient parfaitement — c'est le rythme de mes missions actuelles."
+    },
+    {
+      "cle": "python_niveau",
+      "declencheurs": ["quel est votre niveau en Python asyncio typage Pydantic exemple de réalisation récente développement"],
+      "texte": "Python est mon langage principal depuis quinze ans, en production comme en R&D. L'orchestration multi-LLM que j'exploite à BIL repose sur des appels concurrents avec délais de garde, repli sur modèle secondaire et mise en cache — la latence et la gestion des échecs y sont le cœur du sujet. J'utilise FastAPI et Pydantic pour valider les schémas d'entrée et de sortie des API de modèles et typer les réponses structurées des LLM, seul moyen fiable de rendre exploitable une sortie générative. Réalisation récente : le maillage multi-LLM de la plateforme Data et IA de BIL — routage selon le cas d'usage, cache, repli, exposition par API sécurisées, supervision de la latence, du coût et de la qualité."
+    },
+    {
+      "cle": "management_equipe",
+      "declencheurs": ["avez-vous encadré une équipe management taille combien de personnes leadership technique"],
+      "texte": "Oui. J'encadre techniquement des équipes pluridisciplinaires d'une vingtaine de personnes — Data Scientists, Machine Learning Engineers, Data Engineers, architecture, cloud et DevOps — avec pilotage des partenaires externes. Cela passe par les revues de code et d'architecture, la validation des choix techniques et la définition des standards. Sur le programme MSM réunissant RATP, Alstom, Renault et l'IRT SystemX, j'ai coordonné les équipes de plusieurs organisations jusqu'au démonstrateur déployé à Paris-La Défense."
+    },
+    {
+      "cle": "secteur_bancaire",
+      "declencheurs": ["expérience secteur bancaire finance assurance environnement régulé banque"],
+      "texte": "Oui, huit ans en environnement financier régulé. Actuellement à la Banque Internationale à Luxembourg sur la plateforme Data et IA d'entreprise : scoring crédit, prédiction du risque, détection d'anomalies, conformité RGPD et DORA. Auparavant en banque et assurance sur la lutte contre le blanchiment et le financement du terrorisme, la détection de fraude et la gestion des alertes, sanctions et embargos. Les contraintes d'auditabilité et de traçabilité y structurent la conception dès le départ, pas après coup."
+    },
+    {
+      "cle": "anglais",
+      "declencheurs": ["quel est votre niveau d'anglais english level langues parlées"],
+      "texte": "Anglais courant, à l'écrit comme à l'oral. Ma mission actuelle se déroule au Luxembourg en contexte international, et j'ai publié dix-huit articles scientifiques et participé à sept conférences en anglais."
+    }
+  ]
+}

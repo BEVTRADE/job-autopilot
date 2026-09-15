@@ -1,0 +1,530 @@
+{
+  "_comment": "Catalogue des CV. 'titles' = intitulés de mission qui appellent ce CV. 'core' = compétences signature (poids fort). 'plus' = compétences renforçantes. 'clusters' = clusters de candidatures.db affiliés.",
+  "axes": [
+    {
+      "id": "ARCHITECTE_ENTREPRISE_URBANISTE",
+      "label": "Architecte d'entreprise / Urbaniste SI",
+      "clusters": [
+        10
+      ],
+      "priority": 1,
+      "titles": [
+        "architecte d'entreprise",
+        "architecte entreprise",
+        "urbaniste",
+        "urbanisation",
+        "enterprise architect",
+        "architecte si",
+        "architecte solution",
+        "solution architect",
+        "architecte fonctionnel",
+        "architecte applicatif",
+        "architecte technique",
+        "architecte integration",
+        "architecte cible",
+        "cartographie applicative"
+      ],
+      "core": [
+        "architecture",
+        "urbanisme",
+        "urbanisation",
+        "cartographie applicative",
+        "togaf",
+        "archimate",
+        "architecture d'entreprise",
+        "schema directeur",
+        "trajectoire",
+        "dossier d'architecture",
+        "autorite de conception",
+        "portefeuille applicatif",
+        "rationalisation",
+        "decommissionnement",
+        "patterns d'integration"
+      ],
+      "plus": [
+        "api",
+        "event driven",
+        "kafka",
+        "cloud",
+        "azure",
+        "aws",
+        "gcp",
+        "rgpd",
+        "dora",
+        "gouvernance",
+        "securite",
+        "microservices",
+        "data mesh",
+        "data governance",
+        "safe",
+        "copilot studio",
+        "finops",
+        "optimisation des couts",
+        "cout des plateformes"
+      ],
+      "files": {
+        "fr": "reprise/cv_finaux/FR_ARCHITECTE_ENTREPRISE_URBANISTE.docx",
+        "en": "reprise/cv_finaux/EN_ENTERPRISE_ARCHITECT.docx"
+      },
+      "strategic_boost": 12
+    },
+    {
+      "id": "DIRECTEUR_PROGRAMME_DATA_IA",
+      "label": "Directeur de programme Data & IA",
+      "clusters": [
+        3,
+        5
+      ],
+      "priority": 2,
+      "titles": [
+        "directeur de programme",
+        "directeur de projet",
+        "programme manager",
+        "programme director",
+        "chef de programme",
+        "manager de transition",
+        "responsable de programme",
+        "pmo",
+        "directeur data",
+        "head of data",
+        "responsable transformation",
+        "delivery manager",
+        "chef de projet senior"
+      ],
+      "core": [
+        "gestion de projet",
+        "direction de projet",
+        "pilotage",
+        "programme",
+        "roadmap",
+        "feuille de route",
+        "budget",
+        "arbitrage",
+        "comite de pilotage",
+        "gouvernance",
+        "conduite du changement",
+        "business case",
+        "portefeuille",
+        "migration",
+        "management",
+        "trajectoire",
+        "risques",
+        "dependances",
+        "safe",
+        "scaled agile framework"
+      ],
+      "plus": [
+        "agile",
+        "scrum",
+        "safe",
+        "jira",
+        "reporting",
+        "kpi",
+        "prince2",
+        "pmp",
+        "transformation",
+        "decommissionnement",
+        "rgpd",
+        "dora",
+        "finops",
+        "optimisation des couts",
+        "cout des plateformes"
+      ],
+      "files": {
+        "fr": "reprise/cv_finaux/FR_DIRECTEUR_PROGRAMME_DATA_IA.docx",
+        "en": "reprise/cv_finaux/EN_DATA_AI_PROGRAMME_DIRECTOR.docx"
+      },
+      "strategic_boost": 0
+    },
+    {
+      "id": "ARCHITECTE_IA_GENAI",
+      "label": "Architecte IA & IA Générative",
+      "clusters": [
+        7,
+        8
+      ],
+      "priority": 3,
+      "titles": [
+        "architecte ia",
+        "ai architect",
+        "architecte data",
+        "lead ia",
+        "tech lead ia",
+        "lead data scientist",
+        "machine learning engineer",
+        "mlops",
+        "llmops",
+        "ingenieur ia",
+        "expert ia",
+        "consultant ia",
+        "genai",
+        "ia generative",
+        "data scientist senior",
+        "principal data scientist",
+        "head of ai",
+        "responsable gouvernance ia",
+        "gouvernance ia",
+        "ai governance",
+        "responsable ia",
+        "ai risk",
+        "conformite ia",
+        "responsable conformite ia",
+        "ai act",
+        "head of ai governance",
+        "data & ai governance",
+        "data scientist",
+        "lead data scientist",
+        "ml engineer",
+        "ai engineer",
+        "ingenieur ia",
+        "coach ia",
+        "ai developer",
+        "data scientist senior"
+      ],
+      "core": [
+        "ia",
+        "intelligence artificielle",
+        "machine learning",
+        "deep learning",
+        "large language model",
+        "llm",
+        "rag",
+        "agent ia",
+        "genai",
+        "ia generative",
+        "mlops",
+        "llmops",
+        "mlflow",
+        "langchain",
+        "llamaindex",
+        "bedrock",
+        "openai",
+        "vector",
+        "embedding",
+        "fine tuning",
+        "pytorch",
+        "transformers",
+        "gouvernance ia",
+        "ai governance",
+        "ai act",
+        "auditabilite",
+        "tracabilite",
+        "explicabilite",
+        "shap",
+        "hallucination",
+        "politiques d'acces",
+        "selection des modeles",
+        "conformite",
+        "rgpd",
+        "dora",
+        "risque modele",
+        "model risk",
+        "documentation des modeles",
+        "reproductibilite",
+        "registre des modeles",
+        "copilot studio",
+        "microsoft copilot",
+        "copilot",
+        "detection de fraude",
+        "fraude",
+        "blanchiment",
+        "lcb-ft",
+        "aml",
+        "anti-blanchiment",
+        "sanctions",
+        "embargos",
+        "faux positifs",
+        "alertes",
+        "detection d'anomalies",
+        "scoring",
+        "risque de credit",
+        "scoring credit",
+        "modeles predictifs",
+        "classification",
+        "prediction",
+        "nlp",
+        "matching",
+        "elasticsearch",
+        "acculturation",
+        "formation",
+        "montee en competences",
+        "mcp",
+        "model context protocol",
+        "tool calling",
+        "serveur mcp",
+        "prompt engineering",
+        "system prompt",
+        "guardrails",
+        "structured output",
+        "human in the loop",
+        "langgraph"
+      ],
+      "plus": [
+        "python",
+        "databricks",
+        "snowflake",
+        "kubernetes",
+        "docker",
+        "terraform",
+        "airflow",
+        "spark",
+        "api",
+        "fastapi",
+        "aws",
+        "azure",
+        "gcp",
+        "data science",
+        "nlp",
+        "computer vision",
+        "ocr",
+        "rbac",
+        "securite au niveau ligne",
+        "confidentialite",
+        "banque",
+        "regule",
+        "comite",
+        "instances de gouvernance",
+        "standards",
+        "ia responsable",
+        "safe",
+        "scaled agile",
+        "agile",
+        "scrum",
+        "finops",
+        "optimisation des couts",
+        "cout des plateformes",
+        "cybersecurite",
+        "soc",
+        "secops",
+        "kyc",
+        "conformite",
+        "risque",
+        "xgboost",
+        "lightgbm",
+        "scikit-learn",
+        "shap",
+        "tf-idf",
+        "recommandation",
+        "on-premise",
+        "linux",
+        "kubernetes",
+        "docker",
+        "gpu",
+        "cuda",
+        "vllm"
+      ],
+      "files": {
+        "fr": "reprise/cv_finaux/FR_ARCHITECTE_IA_GENAI.docx",
+        "en": "reprise/cv_finaux/EN_AI_GENAI_ARCHITECT.docx"
+      },
+      "strategic_boost": 0
+    },
+    {
+      "id": "CONSULTANT_DATA_BI",
+      "label": "Consultant Data & BI",
+      "clusters": [
+        0,
+        4,
+        9
+      ],
+      "priority": 4,
+      "titles": [
+        "consultant bi",
+        "consultant data",
+        "data analyst",
+        "business intelligence",
+        "power bi",
+        "analytics",
+        "data engineer",
+        "ingenieur data",
+        "data lead",
+        "consultant decisionnel",
+        "expert bi",
+        "business analyst"
+      ],
+      "core": [
+        "power bi",
+        "dax",
+        "power query",
+        "etl",
+        "elt",
+        "snowflake",
+        "dataiku",
+        "cognos",
+        "tableau",
+        "qlik",
+        "modelisation",
+        "semantique",
+        "dbt",
+        "sql",
+        "datawarehouse",
+        "decisionnel",
+        "reporting",
+        "tableau de bord"
+      ],
+      "plus": [
+        "python",
+        "spark",
+        "airflow",
+        "databricks",
+        "azure",
+        "aws",
+        "gcp",
+        "kafka",
+        "data quality",
+        "data governance",
+        "rgpd",
+        "postgresql"
+      ],
+      "files": {
+        "fr": "reprise/cv_finaux/FR_CONSULTANT_DATA_BI.docx",
+        "en": "reprise/cv_finaux/EN_DATA_BI_CONSULTANT.docx"
+      },
+      "strategic_boost": 0
+    }
+  ],
+  "aliases": {
+    "google cloud platform (gcp)": [
+      "gcp",
+      "google cloud"
+    ],
+    "aws cloud": [
+      "aws",
+      "amazon web services"
+    ],
+    "microsoft power bi": [
+      "power bi",
+      "powerbi"
+    ],
+    "large language model (llm)": [
+      "llm",
+      "large language model"
+    ],
+    "ia generative": [
+      "genai",
+      "generative ai",
+      "ia generative"
+    ],
+    "methode agile": [
+      "agile",
+      "scrum"
+    ],
+    "apache spark": [
+      "spark",
+      "pyspark"
+    ],
+    "apache kafka": [
+      "kafka"
+    ],
+    "apache airflow": [
+      "airflow"
+    ],
+    "intelligence artificielle": [
+      "ia",
+      "ai"
+    ],
+    "machine learning": [
+      "ml",
+      "machine learning"
+    ],
+    "architecture": [
+      "architecture",
+      "architecte"
+    ],
+    "gestion de projet": [
+      "gestion de projet",
+      "project management",
+      "pilotage"
+    ],
+    "safe": [
+      "safe",
+      "scaled agile",
+      "scaled agile framework"
+    ],
+    "copilot studio": [
+      "copilot studio",
+      "microsoft copilot",
+      "m365 copilot",
+      "copilot"
+    ],
+    "finops": [
+      "finops",
+      "optimisation des couts",
+      "maitrise des couts"
+    ],
+    "mcp": [
+      "mcp",
+      "model context protocol"
+    ],
+    "prompt engineering": [
+      "prompt engineering",
+      "system prompt",
+      "prompting"
+    ]
+  },
+  "_strategic": "strategic_boost : points ajoutés à la décision tant que l'axe n'a pas de référence sur le CV. Sert à amorcer un positionnement rentable mais non encore prouvé. Mettre à 0 dès qu'une mission sur cet axe est décrochée.",
+  "domain_exclusions": {
+    "_comment": "Domaines étrangers au profil. Si l'un de ces marqueurs apparaît dans l'offre sans contrepartie dans le profil, la mission est déclassée : le titre peut correspondre (« directeur de projet ») alors que le métier n'a rien à voir.",
+    "groups": {
+      "industrie_epc": [
+        "epc",
+        "epcm",
+        "value engineering",
+        "design to cost",
+        "design-to-cost",
+        "capex",
+        "cost drivers",
+        "genie civil",
+        "génie civil",
+        "chantier",
+        "travaux neufs",
+        "ingenierie industrielle",
+        "sous-traitants",
+        "fournisseurs et sous-traitants"
+      ],
+      "broadcast": [
+        "broadcast",
+        "smpte",
+        "regie tv",
+        "régie tv",
+        "automate de production",
+        "audiovisuel",
+        "playout",
+        "st 2110"
+      ],
+      "erp_fonctionnel": [
+        "sap hcm",
+        "successfactors",
+        "ms dynamics",
+        "sage",
+        "oracle ebs",
+        "peoplesoft"
+      ],
+      "bpm_case": [
+        "pega",
+        "camunda",
+        "servicenow",
+        "power automate",
+        "case management"
+      ],
+      "comptabilite": [
+        "comptable",
+        "comptabilite",
+        "comptabilité",
+        "expert-comptable",
+        "paie"
+      ],
+      "reseau_infra": [
+        "ccna",
+        "bgp",
+        "mpls",
+        "wan",
+        "lan",
+        "datacenter physique",
+        "cablage"
+      ]
+    },
+    "penalty_per_group": 18,
+    "max_penalty": 36
+  }
+}

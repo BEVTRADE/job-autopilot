@@ -1,0 +1,600 @@
+HAKIM AREZKI, PhD
+
+DATA PLATFORM PRODUCT MANAGER — SNOWFLAKE & POWER BI
+
+Paris / Île-de-France · Freelance · [Phone] · [Email] · [LinkedIn]
+
+Available from 1 September 2026 · Open to international travel
+(Frankfurt, Tunis)
+
+Data Platform leader with 12+ years of experience (15+ including
+doctoral R&D) designing, migrating and operating enterprise Data & BI
+platforms in regulated environments, including banking and financial
+services (BIL, BPCE) and large-scale industrial groups (TotalEnergies).
+
+Proven track record leading the modernisation of legacy decision-support
+estates (IBM Cognos) towards a Snowflake and Power BI cloud data
+platform — from inventory and rationalisation of the reporting portfolio
+through data modelling, pipeline industrialisation (dbt, Spark),
+semantic layer rebuild, Row-Level Security, reconciliation and user
+adoption.
+
+Operates the data platform as a product: vision and roadmap, platform
+KPIs, reliability and service levels, cost control and FinOps,
+self-service enablement, data product model, catalog and lineage, and
+governance (IAM, RBAC/RLS, masking, GDPR, DORA).
+
+Also covers the AI layer — enterprise GenAI/LLM platforms, RAG, AI
+agents and LLMOps — enabling end-to-end alignment between the data
+foundation and enterprise AI use cases.
+
+BANKING & REGULATED ENVIRONMENTS
+
+-   BIL — Banque Internationale à Luxembourg (2026 – Present):
+    enterprise Data & AI platform, IBM Cognos to Snowflake / Power BI
+    migration, RBAC and Row-Level Security, GDPR, DORA.
+
+-   BPCE — Banking & Insurance (2017 – 2018): AML / CTF, sanctions and
+    embargo screening, fraud detection, enterprise data catalog and
+    lineage (Apache Atlas), GDPR compliance of financial data
+    processing.
+
+-   Cross-cutting: regulatory reporting, auditability and data
+    traceability, risk KPIs, IT governance and steering committees.
+
+CORE SKILLS
+
+Data Platform Product Management: Data Platform IT vision, roadmap and
+target operating model · Product-driven and federated model (core
+platform team + value stream teams) · Platform KPIs: adoption,
+reliability, time-to-data, cost · Backlog definition and prioritisation
+of platform capabilities · Platform budget planning and consumption
+monitoring
+
+Platform Run & Operations: Service levels (SLA / SLO), availability and
+performance management · Monitoring, alerting, incident management and
+lifecycle management of platform services · Capacity planning and
+scalability · FinOps: Snowflake warehouse sizing, resource monitors,
+credit consumption tracking, query optimisation, cost allocation per
+business domain
+
+Snowflake, Data Engineering & Data Management: Enterprise data platform
+architecture on Snowflake · Batch and streaming ingestion frameworks ·
+Data modelling and trusted / curated data layers · Industrialisation of
+transformation pipelines with dbt and Spark (Databricks, Kafka, Airflow)
+· MDM, data quality, reconciliation and data lineage
+
+BI, Power BI Cloud & Self-Service: Power BI Cloud platform
+administration: workspaces, capacities, deployment pipelines, gateways,
+dataset refresh strategy · Semantic models, Power Query transformations,
+DAX measures and business KPIs · Row-Level Security and governed access
+· Migration of legacy BI estates (IBM Cognos) to Power BI · Self-service
+analytics enablement, BI governance and dataset certification
+
+Data Product & Governance: Data product model: ownership, lifecycle and
+data contracts · Data catalog, data dictionary, lineage and marketplace
+(Apache Atlas, enterprise metadata) · Alignment with the Data Office on
+governance, compliance and quality
+
+Security, Risk & Compliance: IAM / SSO, RBAC and Row-Level Security ·
+Dynamic data masking and encryption · GDPR, DORA, auditability and
+traceability · Collaboration with Cybersecurity and Data Protection ·
+AML / CTF, sanctions and embargo screening, financial crime and risk
+data governance
+
+AI, Machine Learning & GenAI: Enterprise AI platform enablement and
+industrialisation of ML and Generative AI use cases · LLM integration,
+multi-LLM orchestration, RAG, AI agents and Document AI · MLOps /
+LLMOps: CI/CD, evaluation, monitoring, observability and governance
+
+Leadership, Delivery & Governance: Leadership of multi-disciplinary
+platform teams across Data, Engineering, Architecture, Cloud, DevOps and
+Business (teams of ~20 people) · Vendor and external partner management
+· Architecture governance, ADRs and technical standards · Executive and
+C-level communication · Agile delivery: Scrum, Kanban, Jira, Confluence,
+Miro
+
+TECHNOLOGY ENVIRONMENT
+
+Data Platform & Cloud: Snowflake, Databricks, dbt, Azure, GCP, AWS
+
+BI & Analytics: Power BI (Cloud, semantic models, Power Query, DAX, RLS,
+workspaces, deployment pipelines), IBM Cognos (migration source),
+Grafana
+
+Data Engineering: Python, SQL, Spark, PySpark, Kafka, Airflow
+
+Data Management & Governance: MDM, data quality, data lineage, data
+catalog, Apache Atlas, RBAC, RLS, masking, GDPR, DORA
+
+AI & Generative AI: OpenAI, Azure OpenAI, Claude, Mistral, LLaMA,
+Hugging Face, RAG, AI agents
+
+AI & ML Frameworks: LangChain, LlamaIndex, Semantic Kernel, MLflow,
+Dataiku
+
+MLOps & Observability: MLflow, OpenTelemetry, Prometheus, Grafana,
+Langfuse, Arize
+
+Infrastructure & DevOps: Docker, Kubernetes, Terraform, GitHub Actions,
+Azure DevOps, GitLab CI/CD
+
+Databases & Integration: Snowflake, PostgreSQL, MongoDB, Redis, REST
+APIs, event-driven architecture
+
+LANGUAGES
+
+-   French: bilingual / native-level proficiency
+
+-   English: fluent professional proficiency
+
+-   German: notions
+
+PROFESSIONAL EXPERIENCE
+
+DATA PLATFORM PRODUCT MANAGER / LEAD DATA & AI PLATFORM — BIL, Banque
+Internationale à Luxembourg
+
+01/2026 – Present
+
+Context
+
+Modernisation of the bank's enterprise decision-support landscape:
+migration of a legacy IBM Cognos BI estate towards a modern Snowflake
+and Power BI data platform, together with the design of GENIA, the
+secure enterprise Data & AI platform supporting analytics, Machine
+Learning and Generative AI use cases within a regulated banking
+environment.
+
+KEY ACHIEVEMENTS
+
+Cognos to Snowflake & Power BI migration and modernisation
+
+-   Led the modernisation of the legacy IBM Cognos decision-support
+    platform towards a modern, secure and scalable Data & BI
+    architecture based on Snowflake and Power BI.
+
+-   Ran the full inventory and dependency analysis of the existing
+    Cognos estate — reports, packages, data models, source systems and
+    embedded business rules — to map dependencies, rationalise the
+    reporting portfolio and define the migration strategy and
+    sequencing.
+
+-   Defined the target architecture and the progressive migration of
+    data and processing to Snowflake, including the redesign of data
+    models, transformation pipelines and consumption layers along secure
+    and scalable patterns.
+
+-   Rebuilt Cognos reports and dashboards in Power BI: design of
+    semantic models, Power Query transformations, DAX measures and
+    business KPIs, and access management through Row-Level Security.
+
+-   Established a reconciliation framework between Cognos and Power BI
+    outputs to guarantee figure-for-figure consistency, complemented by
+    performance testing and data quality controls before each go-live.
+
+-   Drove user enablement and change management, and implemented BI
+    governance covering ownership, modelling and naming standards,
+    dataset certification and lifecycle management — securing the
+    reliability, maintainability and adoption of the new platform.
+
+Enterprise Data Platform (Snowflake)
+
+-   Contributed to the Data Platform vision and target architecture,
+    translating business requirements into reusable platform
+    capabilities and data products.
+
+-   Designed and evolved Snowflake-based data capabilities supporting
+    analytics, reporting, Machine Learning and AI use cases.
+
+-   Worked with Data Engineering teams on data ingestion,
+    transformation, data modelling and integration pipelines feeding the
+    enterprise data platform.
+
+-   Defined trusted datasets and data products powering Power BI
+    dashboards, business KPIs and self-service analytics.
+
+-   Contributed to platform cost control and FinOps practices: warehouse
+    sizing, resource monitors and consumption monitoring across business
+    domains.
+
+-   Contributed to platform run activities: service levels, monitoring
+    and alerting, incident handling and lifecycle management of platform
+    services.
+
+Governance, security & compliance
+
+-   Implemented access and security controls across enterprise data
+    assets: RBAC, Row-Level Security, GDPR compliance, traceability and
+    auditability, in line with banking regulatory requirements including
+    DORA.
+
+-   Supported data quality and governance practices in collaboration
+    with the Data Office.
+
+AI platform enablement
+
+-   Industrialised Data Science, Machine Learning and Generative AI use
+    cases using Dataiku, Snowflake and enterprise data services.
+
+-   Designed a multi-LLM Mesh integrating OpenAI, Claude and open-source
+    models with intelligent routing, caching, fallback and latency
+    control.
+
+-   Designed RAG and Document AI pipelines consuming governed enterprise
+    and customer data.
+
+-   Integrated data and AI services through APIs and event-driven
+    architectures using Kafka and Redis Streams.
+
+-   Implemented MLOps / LLMOps practices covering CI/CD, evaluation,
+    monitoring, traceability and governance.
+
+Leadership
+
+-   Coordinated Data, Engineering, Architecture, AI, DevOps and business
+    stakeholders throughout the migration and the platform evolution.
+
+-   Drove the shift from individual use cases towards reusable and
+    self-service Data & AI platform capabilities.
+
+TECHNICAL ENVIRONMENT
+
+Snowflake · Power BI (semantic models, Power Query, DAX, RLS,
+workspaces, deployment pipelines) · IBM Cognos (source estate) · dbt ·
+Databricks · Dataiku · MLflow · Python, SQL, Spark, Kafka · Azure ·
+Docker, GitLab CI/CD · OpenAI, Azure OpenAI, Claude, Mistral, LLaMA,
+LangChain · FAISS, PGVector, hybrid search, reranking, RAGAS · Azure
+Document Intelligence, VLMs, Docling · FastAPI, REST APIs, Redis Streams
+· RBAC, RLS, GDPR, DORA, encryption, auditability
+
+DATA PLATFORM LEAD / LEAD DATA & AI PLATFORM — TotalEnergies
+
+12/2020 – 12/2025
+
+Context
+
+Design, industrialisation and evolution of an enterprise Data Platform
+on Snowflake serving multiple business domains (Retail, Human Resources,
+industrial operations), with a strong focus on Master Data Management,
+data quality, governance, BI and self-service analytics — and providing
+the data foundation for Machine Learning and Generative AI use cases.
+
+KEY ACHIEVEMENTS
+
+Platform & architecture
+
+-   Contributed to the design and evolution of the enterprise Data
+    Platform, supporting multiple business domains and large volumes of
+    heterogeneous data.
+
+-   Designed and managed data flows integrating data from multiple
+    enterprise applications and operational systems into Snowflake.
+
+-   Worked on Snowflake data architecture, data modelling and trusted
+    data layers supporting analytics, reporting, operational processes
+    and AI use cases.
+
+-   Designed and industrialised scalable data pipelines with Databricks,
+    PySpark, dbt, Airflow and Kafka, covering both batch and streaming
+    ingestion.
+
+-   Defined data architecture and technical standards covering data
+    modelling, MDM, APIs, governance, security and platform integration.
+
+Data products, BI & self-service
+
+-   Worked closely with Retail, HR and business stakeholders to
+    translate data and reporting requirements into reusable data
+    products and platform capabilities.
+
+-   Designed and maintained Power BI datasets, semantic models,
+    dashboards and KPIs used by business teams for operational
+    monitoring, performance analysis and decision-making.
+
+-   Enabled self-service analytics by providing governed and trusted
+    datasets to business users.
+
+Data management & governance
+
+-   Contributed to Master Data Management initiatives improving the
+    consistency, quality, governance and reuse of key enterprise data
+    across business domains.
+
+-   Implemented data quality, governance, lineage and access-control
+    practices across enterprise data assets, including RBAC, GDPR and
+    auditability.
+
+AI industrialisation
+
+-   Supported the industrialisation of Machine Learning use cases using
+    enterprise Data Platform capabilities, Databricks and MLflow.
+
+-   Built the data foundations required for Generative AI, including
+    document ingestion, knowledge bases and RAG pipelines.
+
+-   Designed and deployed AI agents and Document AI solutions for
+    information extraction, document analysis, summarisation and
+    business process automation.
+
+-   Implemented MLOps / LLMOps practices covering CI/CD, monitoring,
+    evaluation, observability and continuous improvement.
+
+Leadership
+
+-   Coordinated multidisciplinary teams of approximately 20 people
+    across business, Data Engineering, Data Science, Architecture, Cloud
+    and DevOps.
+
+-   Managed external partners and service providers contributing to
+    platform delivery.
+
+-   Supported the adoption and continuous evolution of data products, BI
+    capabilities and AI services across the organisation.
+
+TECHNICAL ENVIRONMENT
+
+Snowflake · Databricks · dbt · Azure · Python, SQL, PySpark, Spark,
+Kafka, Airflow · Power BI (datasets, dashboards, KPIs, self-service
+analytics) · MDM, data modelling, data quality, data governance, data
+lineage · MLflow, OpenAI, Claude, LLaMA, Mistral · LangChain,
+LlamaIndex, Azure Document Intelligence, Docling, Tesseract, OpenCV ·
+FAISS, PGVector, BM25, hybrid search, reranking · FastAPI, REST APIs,
+Kafka, Redis Streams · PostgreSQL, MongoDB, Redis · Prometheus, Grafana
+· RBAC, GDPR, auditability
+
+HEAD OF DATA / CHAPTER DATA LEAD — RATP, MSM programme (RATP, Alstom,
+Renault, IRT SystemX)
+
+08/2018 – 12/2020
+
+Context
+
+Data leadership within a large operational organisation and a
+multi-partner mobility programme, focused on building Data Platform
+capabilities, data products and business analytics, and on
+industrialising data-driven use cases for operational teams.
+
+KEY ACHIEVEMENTS
+
+-   Defined and implemented Data Platform capabilities supporting
+    operational reporting, analytics and Machine Learning use cases.
+
+-   Built and deployed a multi-layered Data Lake on Azure for scalable
+    data ingestion, processing and analytics, with Kafka for secure
+    streaming and real-time pipelines.
+
+-   Translated business requirements into data products, datasets, KPIs
+    and reusable data services.
+
+-   Developed and maintained Power BI dashboards and reporting
+    capabilities, translating operational requirements into actionable
+    KPIs and business visualisations.
+
+-   Designed microservices-based architectures for real-time supervision
+    and incident management.
+
+-   Developed predictive models (LSTM, Random Forest, K-Means) for
+    passenger flow, incident duration and operational planning, and OCR
+    / classification pipelines (Tesseract, OpenCV, RNN, CNN) for
+    unstructured data processing.
+
+-   Established data quality, governance and access-control practices
+    for reliable and secure business reporting, including anomaly
+    detection and log analysis for regulatory compliance.
+
+-   Managed internal and external project teams (AI engineers, data
+    scientists, developers): scope definition, resource planning,
+    roadmap alignment, technical governance and delivery standards.
+
+-   Provided training to business and technical teams on data platforms,
+    data visualisation and process automation.
+
+-   Delivered functional AI demonstrators for smart mobility supervision
+    at La Défense, improving operational safety and monitoring.
+
+TECHNICAL ENVIRONMENT
+
+Azure (Synapse Analytics, IoT, Functions, OneLake / Delta Lake) · GCP
+(BigQuery, Dataflow, Dataproc, Pub/Sub, AI Platform) · Kafka · Dataiku,
+Talend · Power BI · Python (TensorFlow, NLTK, OpenCV), OCR · Docker,
+GitLab · MongoDB, PostgreSQL, ELK stack
+
+Publication & references: Architecture of a Public Transport Supervision
+System Using Hybridization Models Based on Real and Predictive Data,
+IEEE / DSD 2020 (pp. 440–446) · MSM project:
+irt-systemx.fr/en/projets/msm
+
+LEAD DATA ENGINEER / DATA SCIENTIST — FINANCIAL CRIME & DATA GOVERNANCE
+— BPCE, Banking & Insurance
+
+01/2017 – 08/2018
+
+Context
+
+Data and AI programme within a major French banking and insurance group,
+covering anti-money-laundering (AML), counter-terrorism financing (CTF),
+sanctions and embargo screening, fraud detection and GDPR compliance of
+financial data processing. The mission combined the industrialisation of
+detection engines with the structuring of the group's data governance
+foundations.
+
+KEY ACHIEVEMENTS
+
+Data governance, catalog & lineage
+
+-   Designed and deployed the enterprise data dictionary (data catalog)
+    and data lineage capability using Apache Atlas, establishing
+    traceability of financial data assets from source systems through to
+    detection engines and regulatory reporting.
+
+-   Structured metadata, ownership and data definitions across AML,
+    sanctions and fraud domains, improving the discoverability and reuse
+    of trusted data assets.
+
+-   Implemented data quality controls, anomaly detection and log
+    analysis on financial data feeds, supporting auditability and
+    regulatory evidence.
+
+Regulatory compliance & risk data
+
+-   Ensured GDPR compliance of financial data processing chains,
+    covering access control, traceability and data protection
+    requirements.
+
+-   Delivered structured reports and Power BI monitoring dashboards for
+    fraud analytics and risk teams, translating detection outcomes into
+    risk KPIs used in steering committees.
+
+-   Defined key performance indicators for the detection systems
+    (precision, false-positive rate, alert throughput) and tracked them
+    as service-level metrics of the detection platform.
+
+-   Analysed fraud patterns and formulated preventive AI strategies
+    presented to risk and compliance stakeholders.
+
+Detection platform & AI industrialisation
+
+-   Built an end-to-end AI-driven anti-fraud engine for banking and
+    insurance operations, and automated the alerts, sanctions and
+    embargo management workflows through combined machine learning and
+    rule-based engines.
+
+-   Reduced false positives significantly through NLP-based
+    confusion-matrix analysis (TF-IDF, hashing vectorisation) and
+    classification models triaging alerts into PASSED and FAILED
+    categories.
+
+-   Developed a fuzzy and phonetic matching engine to identify high-risk
+    links between suspect entities and insurance clients — a core
+    screening capability for sanctions and watch-list monitoring.
+
+-   Deployed ElasticSearch / Kibana clusters for large-scale log
+    indexing, alert investigation and fraud visualisation.
+
+-   Enabled real-time monitoring and optimised resource allocation
+    across the detection pipeline through automated processes.
+
+Delivery & engineering practices
+
+-   Applied DevOps and TDD practices with GitLab CI/CD for continuous
+    integration, testing and deployment of models into production.
+
+-   Estimated defect-correction throughput and release reliability prior
+    to production go-live.
+
+-   Ran Agile Scrum adapted to data-centric delivery in a banking
+    environment: kickoff, steering committees, retrospectives, testing
+    and go-live reviews.
+
+TECHNICAL ENVIRONMENT
+
+Python (scikit-learn, NLTK, H2O.ai) · Spark · AWS · SQL · Apache Atlas
+(data catalog & lineage) · ElasticSearch, Logstash, Kibana · Power BI ·
+GitLab CI/CD · NLP, fuzzy and phonetic matching · AML / CTF, sanctions
+and embargo screening, GDPR · Agile Scrum, DevOps, TDD
+
+LEAD DATA SCIENTIST — Luxury Retail
+
+09/2015 – 01/2017
+
+KEY ACHIEVEMENTS
+
+-   Built a customer intelligence platform: CRM and transactional data
+    integration (Oracle SQL to Cassandra via Sqoop), Kafka streaming
+    ingestion, and enrichment with external web-crawled datasets for
+    customer segmentation.
+
+-   Defined and tracked retail performance indicators: sales by
+    category, return rates, churn and retention, store visit frequency,
+    and sales growth by item, store, department and country.
+
+-   Developed churn, behaviour prediction and recommendation models
+    (collaborative filtering), and industrialised the model code for
+    deployment.
+
+-   Monitored real-time KPIs (revenue, churn, customer satisfaction)
+    through Spark, Storm and Power BI dashboards, and delivered insights
+    to marketing and operations.
+
+TECHNICAL ENVIRONMENT
+
+Python (scikit-learn, NLTK, H2O) · Hadoop, Spark, Storm · Kafka ·
+Cassandra, Oracle SQL · Sqoop, ETL · Power BI
+
+DATA SCIENTIST — Beamlabs / Française des Jeux (FDJ)
+
+11/2014 – 09/2015
+
+KEY ACHIEVEMENTS
+
+-   Built a Big Data foundation for real-time marketing: distributed
+    Hadoop and HBase architecture, Kafka and ZooKeeper streaming
+    ingestion, Talend ingestion into ElasticSearch.
+
+-   Migrated and merged relational databases (Oracle SQL) to NoSQL
+    (Cassandra) using Sqoop, and enriched internal data through web
+    scraping and distributed crawling.
+
+-   Developed a real-time recommendation engine and predictive marketing
+    models based on player behaviour analysis, with hyperparameter
+    tuning and cross-validation.
+
+TECHNICAL ENVIRONMENT
+
+Python (scikit-learn, NLTK, H2O) · Spark · SQL · Hadoop, HBase,
+Hortonworks · Kafka, ZooKeeper · ElasticSearch, Kibana · Talend
+
+R&D ENGINEER — PhD, CentraleSupélec / École Polytechnique
+
+02/2010 – 10/2014
+
+KEY ACHIEVEMENTS
+
+-   Applied machine learning to the optimisation of photovoltaic cell
+    performance and to the modelling of graphene-based transistors;
+    conducted a market analysis of photovoltaic expansion in Europe.
+
+-   Developed simulation and data analysis algorithms in Python and R
+    (FEM, FDTD, crystallographic data analysis) and geographic /
+    scientific data visualisation with R-Shiny.
+
+TECHNICAL ENVIRONMENT
+
+Python · R, R-Shiny · Lumerical · Java
+
+EDUCATION
+
+-   PhD, CentraleSupélec — Université Paris-Saclay, Orsay (2011 – 2014)
+
+-   Master of Sciences, Université Pierre et Marie Curie — Paris VI
+    (2010 – 2011)
+
+-   Maîtrise en Sciences de l'Ingénieur, Université Paris Diderot —
+    Paris VII (2009 – 2010)
+
+COMMUNICATIONS & PUBLICATIONS
+
+-   Architecture of a Public Transport Supervision System Using
+    Hybridization Models Based on Real and Predictive Data — IEEE / DSD
+    2020, pp. 440–446
+
+-   Disruption Impact on the Offer and Demand on the Public Transport
+    Network in Paris
+
+-   Big Data Paris 2018 — speaker: "We can tell you by what external
+    context your sales are influenced"
+
+INSTRUCTOR EXPERIENCE
+
+-   Advanced Python for Machine Learning — 5 days, SQLI Institute, 2019
+
+-   Datalab — 3 days, Saagie, 2019
+
+-   SQL for Data Science — 4 days, Fitec, 2018
+
+-   ELK — 5 days, Fitec, 2017
+
+-   Kafka — 5 days, Air4Data / SQLI Institute, 2017
+
+-   DataViz (Tableau vs Power BI) — 4 days, SQLI Institute, 2017
