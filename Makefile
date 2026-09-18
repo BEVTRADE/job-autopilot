@@ -29,7 +29,7 @@ aide:
 	@echo "    make simu            chaîne complète, arrêt avant envoi"
 	@echo "    make rapport         rapport du jour"
 	@echo "    make attente         candidatures à reprendre à la main"
-	@echo "    make catalogue       écart vocabulaire CV / missions, docs/catalogue.md"
+	@echo "    make catalogue       écart vocabulaire CV / missions, data/catalogue.md"
 	@echo
 	@echo "  Planification"
 	@echo "    make planifier       installe la tâche de 7h30"
