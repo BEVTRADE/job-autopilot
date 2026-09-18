@@ -241,3 +241,108 @@ def test_empreinte_missions_sans_rapport_similarite_nulle():
     a = fingerprint(MEUDON_NICHOLSON.title, MEUDON_NICHOLSON.descr)
     b = fingerprint(REASSURANCE_KEONI.title, REASSURANCE_KEONI.descr)
     assert similarity(a, b) < 0.1
+
+
+# --------------------------------------------------------------------------- #
+#  EPIC-7 — correctif 1 : écart calculé seulement sur les annonces avec TJM,
+#  et nombre d'annonces sans TJM indiqué (docs/revues/epic2-empreinte.md)
+# --------------------------------------------------------------------------- #
+
+DATA_SEUL_TJM = RawMission(
+    source="freework", url="https://free-work.com/m/dpo-axone",
+    title="Data Product Owner Intermodal", company="AXONE BY SYNAPSE",
+    tjm_min=600, tjm_max=650, loc="Paris",
+    descr=("Data Product Owner pour une plateforme logistique intermodale. "
+           "Pilotage du backlog produit data, cadrage des cas d'usage "
+           "analytics, coordination avec les équipes ingénierie data et les "
+           "métiers logistique. Compétences attendues : gouvernance de "
+           "données, modélisation, animation d'ateliers, priorisation."))
+
+DATA_SANS_TJM_A = RawMission(
+    source="freework", url="https://free-work.com/m/dpo-skillwise",
+    title="Data Product Owner Intermodal", company="SKILLWISE",
+    tjm_min=None, tjm_max=None, loc="Paris",
+    descr=("Data Product Owner pour une plateforme logistique intermodale. "
+           "Pilotage du backlog produit data, cadrage des cas d'usage "
+           "analytics, coordination avec les équipes ingénierie data et les "
+           "métiers logistique. Compétences attendues : gouvernance de "
+           "données, modélisation, animation d'ateliers, priorisation."))
+
+DATA_SANS_TJM_B = RawMission(
+    source="freework", url="https://free-work.com/m/dpo-hunteed",
+    title="Data Product Owner Intermodal", company="HUNTEED",
+    tjm_min=None, tjm_max=None, loc="Paris",
+    descr=("Data Product Owner pour une plateforme logistique intermodale. "
+           "Pilotage du backlog produit data, cadrage des cas d'usage "
+           "analytics, coordination avec les équipes ingénierie data et les "
+           "métiers logistique. Compétences attendues : gouvernance de "
+           "données, modélisation, animation d'ateliers, priorisation."))
+
+
+def test_ecart_non_calcule_avec_une_seule_annonce_a_tjm():
+    """Une seule annonce affichant 600-650 ne doit pas rendre un écart de
+    50 : ce serait la largeur de sa fourchette, pas un écart entre
+    intermédiaires (revue EPIC-2, critère 1)."""
+    groups = group_missions([DATA_SEUL_TJM, DATA_SANS_TJM_A, DATA_SANS_TJM_B])
+    assert len(groups) == 1
+    grp = groups[0]
+    assert grp.spread is None
+    assert grp.nb_sans_tjm == 2
+    assert grp.best.company == "AXONE BY SYNAPSE"
+
+
+def test_ecart_ignore_les_annonces_sans_tjm_quand_deux_ou_plus_en_ont():
+    grp = group_missions(MEUDON_GROUP)[0]
+    assert grp.nb_sans_tjm == 0
+    assert grp.spread == 214
+
+
+# --------------------------------------------------------------------------- #
+#  EPIC-7 — correctif 2 : mieux-disant indéterminé si aucun TJM dans le groupe
+# --------------------------------------------------------------------------- #
+
+def test_mieux_disant_indetermine_sans_aucun_tjm():
+    groups = group_missions([DATA_SANS_TJM_A, DATA_SANS_TJM_B])
+    grp = groups[0]
+    assert grp.best is None
+    assert grp.spread is None
+    assert grp.nb_sans_tjm == 2
+    # le titre du groupe reste accessible même sans mieux-disant déterminé
+    assert grp.title == "Data Product Owner Intermodal"
+
+
+# --------------------------------------------------------------------------- #
+#  EPIC-7 — correctif 4 (ajouté à la revue d'EPIC-2, garde-fou hors des
+#  trois correctifs listés dans docs/epics.md) : dégradation trigramme ->
+#  unigramme sur texte court, cause du mega-groupe de 293 annonces mesuré
+#  sur les 1901 missions réelles (docs/revues/epic2-empreinte.md, critère 2)
+# --------------------------------------------------------------------------- #
+
+ARCHITECTE_SOLUTION_A = RawMission(
+    source="freework", url="https://free-work.com/m/architecte-solution-a",
+    title="Architecte Solution", company="STHREE", descr="")
+
+ARCHITECTE_SOLUTION_B = RawMission(
+    source="freework", url="https://free-work.com/m/architecte-solution-b",
+    title="Architecte Solutions", company="VISIAN", descr="")
+
+
+def test_titres_generiques_courts_sans_corps_non_regroupes():
+    """Deux titres génériques et courts, sans corps, ne doivent jamais se
+    regrouper : sans garde-fou, _shingles retombe sur des unigrammes et
+    'architecte'/'solution(s)' suffisent à dépasser le seuil, amalgamant des
+    métiers sans rapport (cause du mega-groupe de 293 annonces à l'échelle
+    réelle)."""
+    a = fingerprint(ARCHITECTE_SOLUTION_A.title, ARCHITECTE_SOLUTION_A.descr)
+    b = fingerprint(ARCHITECTE_SOLUTION_B.title, ARCHITECTE_SOLUTION_B.descr)
+    assert similarity(a, b) == 0.0
+    groups = group_missions([ARCHITECTE_SOLUTION_A, ARCHITECTE_SOLUTION_B])
+    assert len(groups) == 2
+
+
+def test_garde_fou_ninterfere_pas_avec_les_cas_reels():
+    """Le garde-fou ne doit pas casser les regroupements réels déjà
+    couverts : ils ont assez de mots significatifs pour former des
+    trigrammes."""
+    for lot in (MEUDON_GROUP, VOLT_GROUP, REASSURANCE_GROUP):
+        assert len(group_missions(lot)) == 1

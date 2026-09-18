@@ -8,6 +8,17 @@ qui varie d'un intermédiaire à l'autre pour une mission identique.
 
 Volontairement indépendant de src/matching/ : regrouper est une question
 d'identité, pas de notation par rapport à un CV.
+
+Limite connue, documentée plutôt que traitée (revue du 18 septembre 2026,
+docs/revues/epic2-empreinte.md) : deux annonces identiques dont une seule a
+un corps vide retombent sous DEFAULT_THRESHOLD (0,125 mesuré contre un seuil
+de 0,20) et ne se regroupent pas. La corriger proprement demanderait un
+canal de comparaison distinct pour le titre seul, calibré séparément sur des
+données réelles — DEFAULT_THRESHOLD lui-même n'est éprouvé que sur les
+fixtures. Le garde-fou anti sur-regroupement ajouté par EPIC-7 (voir
+_shingles) va dans le sens inverse : il durcit la comparaison sur texte
+court, ce qui aggraverait ce sous-regroupement si on le relâchait sans
+calibration. Hors périmètre d'EPIC-7 : nécessite un jeu de calibration réel.
 """
 from __future__ import annotations
 import re, unicodedata
@@ -46,8 +57,17 @@ def _significant_words(text: str) -> list[str]:
 
 
 def _shingles(words: list[str], k: int = _SHINGLE_SIZE) -> frozenset[str]:
+    """Trigrammes de mots significatifs. Pas de secours en unigrammes sous
+    la taille de shingle : c'est cette dégradation silencieuse qui amalgame
+    des titres génériques et courts (« Architecte Solution » / « Architecte
+    Solutions ») en un seul groupe sans rapport avec le contenu réel —
+    mesuré sur les 1901 missions réelles comme un mega-groupe de 293
+    annonces (revue EPIC-2, critère 2). Une empreinte trop courte pour
+    former un trigramme est jugée non comparable : elle ressort vide, et
+    similarity() traite toute empreinte vide comme non similaire à quoi que
+    ce soit, plutôt que de comparer sur un signal trop faible."""
     if len(words) < k:
-        return frozenset(words)
+        return frozenset()
     return frozenset(" ".join(words[i:i + k]) for i in range(len(words) - k + 1))
 
 
@@ -74,24 +94,45 @@ class MissionGroup:
     missions: list[RawMission]
 
     @property
-    def best(self) -> RawMission:
-        """L'intermédiaire le mieux-disant : le TJM haut le plus élevé,
-        l'écart au TJM bas départageant les ex æquo."""
-        return max(self.missions, key=lambda m: (m.tjm_max or -1, m.tjm_min or -1))
+    def _avec_tjm(self) -> list[RawMission]:
+        return [m for m in self.missions
+                if m.tjm_min is not None and m.tjm_max is not None]
+
+    @property
+    def nb_sans_tjm(self) -> int:
+        """Nombre d'annonces du groupe qui n'affichent aucun TJM — à
+        afficher à côté de `spread` pour ne jamais laisser croire que
+        l'écart couvre tout le groupe (revue EPIC-2, critère 1)."""
+        return len(self.missions) - len(self._avec_tjm)
+
+    @property
+    def best(self) -> RawMission | None:
+        """L'intermédiaire le mieux-disant parmi ceux qui affichent un
+        TJM : le TJM haut le plus élevé, l'écart au TJM bas départageant
+        les ex æquo. None si aucune annonce du groupe n'affiche de TJM —
+        le mieux-disant est alors indéterminé, jamais choisi arbitrairement
+        par l'ordre de tri (revue EPIC-2, critère 2)."""
+        pool = self._avec_tjm
+        if not pool:
+            return None
+        return max(pool, key=lambda m: (m.tjm_max, m.tjm_min))
 
     @property
     def spread(self) -> int | None:
-        """Écart de TJM dans le groupe : du plancher le plus bas au
-        plafond le plus haut proposés pour la même mission."""
-        maxes = [m.tjm_max for m in self.missions if m.tjm_max is not None]
-        mins = [m.tjm_min for m in self.missions if m.tjm_min is not None]
-        if not maxes or not mins:
+        """Écart de TJM entre intermédiaires, calculé uniquement sur les
+        annonces qui affichent un TJM. None s'il y a moins de deux annonces
+        comparables : avec une seule (ou zéro), le résultat serait la
+        largeur de sa propre fourchette, pas un écart entre intermédiaires
+        (revue EPIC-2, critère 1)."""
+        pool = self._avec_tjm
+        if len(pool) < 2:
             return None
-        return max(maxes) - min(mins)
+        return max(m.tjm_max for m in pool) - min(m.tjm_min for m in pool)
 
     @property
     def title(self) -> str:
-        return self.best.title
+        ref = self.best
+        return (ref or self.missions[0]).title
 
 
 def group_missions(missions: list[RawMission],

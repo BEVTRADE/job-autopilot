@@ -47,6 +47,23 @@ class Store:
                          ensure_ascii=False)))
         self.con.commit()
 
+    def recent_raw(self, days: int = 120) -> list[dict]:
+        """Champs bruts (dont le corps de l'annonce) des annonces vues
+        récemment, quel que soit l'intermédiaire. Sert à comparer l'empreinte
+        d'un groupe du jour à celle d'une annonce déjà vue sous un autre uid
+        (autre société) — sans ça, la même mission republiée par un nouvel
+        intermédiaire redéclencherait une candidature (EPIC-7, critère 6)."""
+        cut = (dt.datetime.now() - dt.timedelta(days=days)).isoformat()
+        rows = self.con.execute(
+            "select payload from seen where last_seen>=?", (cut,)).fetchall()
+        out = []
+        for r in rows:
+            try:
+                out.append(json.loads(r["payload"])["raw"])
+            except (KeyError, ValueError, TypeError):
+                continue
+        return out
+
     def log_run(self, source: str, started: str, stats: dict) -> None:
         self.con.execute("""
             insert into runs(started,finished,source,discovered,parsed,

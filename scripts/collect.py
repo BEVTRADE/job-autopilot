@@ -14,10 +14,12 @@ import argparse, datetime as dt, html, json, os, sys, time, webbrowser
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
-from src.matching.matcher import Matcher, Params            # noqa: E402
-from src.sources.freework import FreeWork                   # noqa: E402
-from src.sources.boamp import Boamp                         # noqa: E402
-from src.store import Store                                 # noqa: E402
+from src.matching.matcher import Matcher, Params             # noqa: E402
+from src.sources.freework import FreeWork                    # noqa: E402
+from src.sources.boamp import Boamp                          # noqa: E402
+from src.store import Store                                  # noqa: E402
+from src.grouping import (group_missions, fingerprint,       # noqa: E402
+                           similarity, DEFAULT_THRESHOLD, MissionGroup)
 
 SOURCES = {"freework": FreeWork(), "boamp": Boamp()}
 
@@ -39,6 +41,67 @@ def load_cv_texts():
     return out
 
 
+def former_groupes(raws: list, threshold: float = DEFAULT_THRESHOLD) -> list[MissionGroup]:
+    """Regroupement des annonces lues, après la lecture et avant la
+    notation (EPIC-7) : la même mission publiée par plusieurs intermédiaires
+    ne doit plus être traitée comme des missions distinctes."""
+    return group_missions(raws, threshold=threshold)
+
+
+def empreintes_historiques(store) -> list[frozenset]:
+    """Empreintes des annonces déjà vues récemment, tous intermédiaires
+    confondus. `None` (pas de store) donne un historique vide, donc aucun
+    blocage — comportement inchangé de `--no-store`."""
+    if store is None:
+        return []
+    return [fingerprint(r.get("title") or "", r.get("descr") or "")
+            for r in store.recent_raw()]
+
+
+def deja_connu(groupe: MissionGroup, historique: list[frozenset],
+               threshold: float = DEFAULT_THRESHOLD) -> bool:
+    """Un groupe est déjà connu si l'empreinte d'au moins une de ses
+    annonces recoupe une annonce vue récemment, quel que soit
+    l'intermédiaire. Sans ce contrôle au niveau du groupe (et non de
+    l'uid exact), la même mission relancerait une candidature à chaque
+    nouvel intermédiaire qui la republie — le point que vise le critère 6
+    d'EPIC-7."""
+    if not historique:
+        return False
+    fps = [fingerprint(m.title, m.descr) for m in groupe.missions]
+    return any(similarity(fp, hfp) >= threshold for fp in fps for hfp in historique)
+
+
+def noter_groupe(groupe: MissionGroup, matcher: Matcher):
+    """Note le groupe sur l'annonce du mieux-disant. Si le mieux-disant est
+    indéterminé (aucun TJM dans le groupe), note sur la première annonce —
+    sans jamais prétendre qu'elle est la mieux placée commercialement."""
+    ref = groupe.best or groupe.missions[0]
+    m = matcher.match({
+        "aid": ref.uid, "title": ref.title, "company": ref.company,
+        "job": ref.job_family, "skills": ref.skills, "descr": ref.descr,
+        "tjm_min": ref.tjm_min, "tjm_max": ref.tjm_max,
+        "remote": ref.remote, "dur_val": ref.dur_val, "dur_per": ref.dur_per,
+    })
+    return m, ref
+
+
+def noter_missions(all_raw: list, matcher: Matcher, store=None):
+    """Le cœur d'EPIC-7 : regroupe puis note une seule fois par groupe, sur
+    l'annonce du mieux-disant. Un groupe déjà connu de l'historique — même
+    mission vue via un autre intermédiaire, à une date antérieure — n'est ni
+    renoté ni republié (critère 6)."""
+    groupes = former_groupes(all_raw)
+    historique = empreintes_historiques(store)
+    resultats = []
+    for g in groupes:
+        if deja_connu(g, historique):
+            continue
+        m, ref = noter_groupe(g, matcher)
+        resultats.append((m, ref, g))
+    return resultats
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--source", action="append", choices=list(SOURCES))
@@ -52,10 +115,10 @@ def main():
     matcher = Matcher(cv_texts=load_cv_texts(), params=Params())
     store = None if args.no_store else Store(os.path.join(ROOT, "data", "radar.db"))
 
-    results, stats_all = [], {}
+    all_raw, stats_all, started_all = [], {}, {}
     for name in names:
         src = SOURCES[name]
-        started = dt.datetime.now().isoformat(timespec="seconds")
+        started_all[name] = dt.datetime.now().isoformat(timespec="seconds")
         print(f"\n── {name} ─────────────────────────────────")
         try:
             urls = src.discover({"max_urls": args.limit})
@@ -64,8 +127,8 @@ def main():
             continue
         print(f"   {len(urls)} URL candidates")
 
-        stats = {"discovered": len(urls), "parsed": 0,
-                 "apply": 0, "shortlist": 0, "reject": 0, "skipped": 0}
+        stats = {"discovered": len(urls), "parsed": 0, "skipped": 0,
+                 "apply": 0, "shortlist": 0, "reject": 0}
 
         for i, url in enumerate(urls, 1):
             raw = src.parse(url)
@@ -75,59 +138,85 @@ def main():
             if store and store.is_known(raw.uid):
                 stats["skipped"] += 1
                 continue
-
-            m = matcher.match({
-                "aid": raw.uid, "title": raw.title, "company": raw.company,
-                "job": raw.job_family, "skills": raw.skills, "descr": raw.descr,
-                "tjm_min": raw.tjm_min, "tjm_max": raw.tjm_max,
-                "remote": raw.remote, "dur_val": raw.dur_val, "dur_per": raw.dur_per,
-            })
-            stats[m.verdict] += 1
-            if store:
-                store.record(raw, m)
-            if m.verdict in ("apply", "shortlist"):
-                results.append((m, raw))
+            all_raw.append(raw)
             if i % 25 == 0:
-                print(f"   {i}/{len(urls)}  retenues {stats['apply']+stats['shortlist']}")
+                print(f"   {i}/{len(urls)} lues")
             time.sleep(args.delay)
 
-        if store:
-            store.log_run(name, started, stats)
         stats_all[name] = stats
-        print(f"   lues {stats['parsed']} · déjà vues {stats['skipped']} · "
-              f"apply {stats['apply']} · shortlist {stats['shortlist']} · "
-              f"rejetées {stats['reject']}")
+        print(f"   lues {stats['parsed']} · déjà vues {stats['skipped']}")
+
+    # regroupement, après la lecture des annonces et avant la notation
+    resultats_notes = noter_missions(all_raw, matcher, store)
+
+    results = []
+    for m, ref, groupe in resultats_notes:
+        source_stats = stats_all.get(ref.source)
+        if source_stats is not None:
+            source_stats[m.verdict] += 1
+        if store:
+            for membre in groupe.missions:
+                store.record(membre, m)
+        if m.verdict in ("apply", "shortlist"):
+            results.append((m, ref, groupe))
+
+    for name in names:
+        if store and name in stats_all:
+            store.log_run(name, started_all[name], stats_all[name])
+        if name in stats_all:
+            s = stats_all[name]
+            print(f"   {name} · apply {s['apply']} · shortlist {s['shortlist']} · "
+                  f"rejetées {s['reject']}")
 
     results.sort(key=lambda x: -x[0].decision_score)
     path = write_report(results, stats_all)
-    print(f"\n{len(results)} missions retenues → {path}")
+    print(f"\n{len(results)} missions retenues (regroupées) → {path}")
     if args.open:
         webbrowser.open(f"file://{path}")
 
 
 # --------------------------------------------------------------------------- #
 
-def write_report(results, stats) -> str:
+def write_report(results, stats, out_dir: str | None = None) -> str:
     day = dt.date.today().isoformat()
-    out_dir = os.path.join(ROOT, "data", "output", day)
+    out_dir = out_dir or os.path.join(ROOT, "data", "output", day)
     os.makedirs(out_dir, exist_ok=True)
 
-    json.dump([{"match": m.to_dict(), "raw": r.to_dict()} for m, r in results],
+    def groupe_to_dict(groupe: MissionGroup) -> list[dict]:
+        return [{"company": mm.company, "url": mm.url,
+                 "tjm_min": mm.tjm_min, "tjm_max": mm.tjm_max}
+                for mm in groupe.missions]
+
+    json.dump([{"match": m.to_dict(), "raw": r.to_dict(),
+                "groupe": groupe_to_dict(g)} for m, r, g in results],
               open(os.path.join(out_dir, "retenues.json"), "w", encoding="utf-8"),
               ensure_ascii=False, indent=2)
 
     e = html.escape
     rows = []
-    for m, r in results:
+    for m, r, g in results:
         badge = "apply" if m.verdict == "apply" else "short"
-        tjm = f"{m.tjm_min or '?'}–{m.tjm_max or '?'} €" if m.tjm_min else "non communiqué"
+
+        if g.best is None:
+            tjm_txt = "mieux-disant indéterminé (aucun TJM affiché)"
+        elif g.spread is None:
+            tjm_txt = f"{g.best.tjm_min}–{g.best.tjm_max} € (un seul TJM connu)"
+        else:
+            tjm_txt = f"{g.best.tjm_min}–{g.best.tjm_max} € · écart {g.spread} €"
+        if g.nb_sans_tjm:
+            tjm_txt += f" · {g.nb_sans_tjm} sans TJM"
+
+        intermediaires = ", ".join(
+            f"{mm.company or '?'} ({mm.tjm_min}-{mm.tjm_max} €)"
+            if mm.tjm_min is not None else f"{mm.company or '?'} (TJM ?)"
+            for mm in g.missions)
         miss = ", ".join(m.skills_missing[:6]) or "—"
         rows.append(f"""
         <tr class="{badge}">
           <td class="sc"><b>{m.decision_score}</b><small>fit {m.fit} · val {m.value}</small></td>
-          <td><a href="{e(r.url)}" target="_blank">{e(m.title[:90])}</a>
-              <small>{e(m.company or r.source)}</small></td>
-          <td>{e(tjm)}</td>
+          <td><a href="{e(r.url)}" target="_blank">{e(g.title[:90])}</a>
+              <small>{e(intermediaires)}</small></td>
+          <td>{e(tjm_txt)}</td>
           <td>{e(m.axis_label)}<small>{e(m.lang.upper())}</small></td>
           <td class="miss"><small>{e(miss)}</small></td>
         </tr>""")
