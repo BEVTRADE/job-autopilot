@@ -1,0 +1,175 @@
+# Epics
+
+Six lots de travail, rédigés pour être passés à Spec Kit. Chaque epic est
+autonome : il peut être spécifié, planifié et implémenté sans attendre les
+autres, sauf dépendance indiquée.
+
+L'ordre recommandé est celui de la numérotation. EPIC-1 conditionne la valeur
+de tous les autres : tant qu'aucune candidature n'est partie, le reste
+améliore un système qui ne produit rien.
+
+---
+
+## EPIC-1 — Première candidature vérifiée de bout en bout
+
+**Problème.** Le pipeline de soumission est écrit, testé unitairement, jamais
+exécuté en envoi réel. Le DOM de Free-Work a pu changer depuis l'écriture du
+code début septembre. Quatre missions préparées attendent depuis une semaine.
+
+**Valeur.** Passer d'un système qui prépare à un système qui agit.
+
+**Périmètre.** Exécuter `make simu` de bout en bout, diagnostiquer et corriger
+tout écart entre le code et le formulaire réel, puis envoyer une candidature
+unique sur une mission peu stratégique et la vérifier.
+
+**Critères d'acceptation.**
+
+1. `make simu` s'exécute sans erreur technique et produit un log, au moins une
+   capture d'écran et un rapport.
+2. Sur la capture, le CV sélectionné est celui décidé par le moteur, les
+   réponses aux questions filtrantes sont présentes et complètes.
+3. Une candidature réelle est envoyée et apparaît dans « Mes candidatures ».
+4. Le journal contient une ligne de statut `envoyee` pour cette mission.
+5. Le CV de repos est restauré après la série.
+
+**Hors périmètre.** L'envoi en série, la planification automatique.
+
+**Risque identifié.** Les sélecteurs CSS de `src/apply/freework.py` sont
+datés du 4 septembre. Les corriger fait partie du lot.
+
+---
+
+## EPIC-2 — Regroupement des annonces par empreinte de contenu
+
+**Problème.** L'identité d'une mission est aujourd'hui son URL. La même
+mission publiée par trois intermédiaires produit trois entrées distinctes :
+observé le 8 septembre (Meudon, trois ESN, 286 à 500 €), le 9 (VOLT/AMIA en
+deux grades) et le 15 (réassurance, KEONI 750 € contre CAT-AMANIA 500-720 €).
+
+**Valeur.** Ne plus candidater deux fois au même client final, et surtout
+choisir l'intermédiaire le mieux-disant — l'écart observé atteint 250 € par
+jour pour un travail identique.
+
+**Périmètre.** Calculer une empreinte sur le titre normalisé et le corps de
+l'annonce. Regrouper sans supprimer : chaque annonce du groupe reste visible
+avec sa société et son TJM. Le rapport affiche le groupe, pas la première
+annonce vue.
+
+**Critères d'acceptation.**
+
+1. Deux annonces de sociétés différentes décrivant la même mission sont
+   regroupées.
+2. Deux missions réellement distinctes au titre proche ne sont pas regroupées.
+3. Le groupe expose l'intermédiaire le mieux-disant et l'écart de TJM.
+4. Aucune annonce n'est supprimée ni masquée.
+5. Des tests couvrent les trois cas réels d'septembre, en données figées.
+
+**Dépendances.** Aucune. `src/store.py` et `scripts/collect.py`.
+
+---
+
+## EPIC-3 — Sources supplémentaires
+
+**Problème.** Deux sources actives, Free-Work et BOAMP. Le registre
+`docs/sources.md` en liste quatre à intégrer : Freelance-Informatique,
+Freelance-Day, FreelanceRepublik, TED.
+
+**Valeur.** Free-Work seul donne environ six missions qualifiées par mois au
+plancher de 650 €. Élargir le flux est le seul moyen d'augmenter ce chiffre
+sans baisser le plancher.
+
+**Périmètre.** Une classe par source dans `src/sources/`, sur le modèle de
+`freework.py` : découverte des URL, lecture d'une annonce, extraction du
+titre, de la société, du TJM, du lieu, du télétravail et de la durée.
+Déclaration dans `scripts/collect.py`.
+
+**Critères d'acceptation.**
+
+1. Chaque source implémentée remonte au moins vingt annonces réelles.
+2. Le TJM est extrait correctement, y compris les fourchettes et les
+   séparateurs typographiques inhabituels.
+3. Une source en panne n'interrompt pas la collecte des autres.
+4. Des tests d'extraction tournent sur des pages enregistrées, sans réseau.
+
+**Dépendances.** EPIC-2 de préférence : multiplier les sources multiplie les
+doublons.
+
+---
+
+## EPIC-4 — Passe systématique sur le catalogue de compétences
+
+**Problème.** Trois points aveugles trouvés en une seule journée début
+septembre — gouvernance IA, fraude et LCB-FT, acculturation. Chacun faisait
+chuter le score d'adéquation de missions pertinentes, l'un de 51 à 90 après
+correction. Ils ont été trouvés par hasard.
+
+**Valeur.** Un point aveugle coûte des missions qualifiées invisibles. Les
+chercher méthodiquement vaut mieux que les découvrir par accident.
+
+**Périmètre.** Confronter le vocabulaire des huit CV à celui des 1901 missions
+déjà collectées. Produire la liste des termes fréquents dans les missions et
+absents du catalogue, classés par fréquence et par TJM médian associé.
+
+**Critères d'acceptation.**
+
+1. Une commande `make catalogue` produit un rapport de termes manquants.
+2. Chaque terme est accompagné de sa fréquence, du TJM médian des missions qui
+   le portent, et d'un exemple d'annonce.
+3. Le rapport distingue ce qui relève d'une compétence réelle non déclarée de
+   ce qui est hors profil.
+4. Aucune modification automatique du catalogue : la décision reste humaine.
+
+**Dépendances.** Aucune. `scripts/calibrate.py` fournit la matière.
+
+---
+
+## EPIC-5 — Personnalisation du CV par mission
+
+**Problème.** Le script envoie le CV d'axe tel quel. Les CV adaptés à la main
+— Enedis, KEONI, BTI, CAT-AMANIA, VISIAN — sont nettement plus proches de
+l'annonce, mais demandent une intervention humaine à chaque fois.
+
+**Valeur.** Rapprocher la qualité automatique de la qualité manuelle sans
+intervention.
+
+**Périmètre.** Appeler `claude -p` depuis le script pour produire les
+substitutions à appliquer au CV d'axe : titre, accroche, ordre des sections de
+compétences. Le rendu reste assuré par `src/cv/render.py`, par remplacement
+XML, afin de préserver la mise en forme.
+
+**Critères d'acceptation.**
+
+1. Le CV produit est un docx valide, sans gras ajouté, mise en forme préservée.
+2. Aucune compétence absente du profil maître n'apparaît dans le CV généré.
+3. En cas d'échec ou d'indisponibilité de `claude -p`, le CV d'axe est envoyé
+   tel quel et le rapport le signale.
+4. Le coût tire sur l'abonnement, pas sur des crédits API.
+5. Un mode de comparaison permet de juger CV d'axe contre CV adapté avant de
+   généraliser.
+
+**Dépendances.** EPIC-1. Inutile tant que rien ne part.
+
+---
+
+## EPIC-6 — File d'attente et validation
+
+**Problème.** Les candidatures bloquées — question hors banque, relecture
+discordante, CV non basculé — atterrissent dans `file_attente.json` et n'en
+ressortent que si quelqu'un lit le fichier.
+
+**Valeur.** Une candidature bloquée est une mission perdue si personne ne la
+reprend. C'est aussi la matière première pour enrichir la banque de réponses.
+
+**Périmètre.** Une vue des candidatures en attente, avec pour chacune le
+motif, la capture d'écran, l'annonce et le CV prévu. Une action simple pour
+ajouter une réponse à la banque et reprendre la candidature.
+
+**Critères d'acceptation.**
+
+1. Chaque candidature bloquée est visible avec son motif et sa capture.
+2. Une question hors banque peut être répondue et la réponse ajoutée au
+   référentiel `profile/reponses_types.json`.
+3. Une candidature reprise après enrichissement aboutit sans repartir de zéro.
+4. Rien n'est envoyé depuis cette interface sans action humaine explicite.
+
+**Dépendances.** EPIC-1.
