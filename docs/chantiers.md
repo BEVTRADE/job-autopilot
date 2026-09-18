@@ -11,6 +11,7 @@ les cibles disponibles.
 | Chaîne du matin, sans envoi | `docs/autonomie.md` | `make simu` |
 | Candidature réelle | `docs/autonomie.md` | `make candidater-pour-de-vrai` |
 | Rapport consolidé | `docs/autonomie.md` | `make rapport`, `make attente` |
+| Passe catalogue de compétences | `docs/catalogue.md` | `make catalogue` |
 | Tests hors ligne | `docs/autonomie.md` | `make test` |
 | Planification quotidienne | `docs/autonomie.md` | `make planifier`, `make deplanifier` |
 | Arrêt d'urgence | `docs/README-architecture.md` | `make stop`, `make reprendre` |
@@ -23,14 +24,6 @@ Le seul blocage véritable. `scripts/apply.py` n'a jamais envoyé.
 Spécification : `docs/autonomie.md`, étapes 1 à 4.
 Commandes : `make install`, `make login`, `make test`, `make simu`, puis
 `MAX=1 make candidater-pour-de-vrai` sur une mission peu stratégique.
-
-### Chantier 2 — passe systématique sur le catalogue
-
-Confronter les huit CV au vocabulaire des 1901 missions collectées. Trois
-points aveugles trouvés en une seule journée début septembre : gouvernance IA,
-fraude et LCB-FT, acculturation. Il en reste probablement.
-Spécification à écrire : `docs/catalogue.md`.
-Commande à créer : `make catalogue` s'appuyant sur `scripts/calibrate.py`.
 
 ### Chantier 3 — sources restantes
 

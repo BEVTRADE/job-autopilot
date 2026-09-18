@@ -14,7 +14,7 @@ JOUR := $(shell date +%F)
 
 .DEFAULT_GOAL := aide
 .PHONY: aide install login test veille simu candidater-pour-de-vrai rapport \
-        attente planifier deplanifier etat stop reprendre propre
+        attente catalogue planifier deplanifier etat stop reprendre propre
 
 aide:
 	@echo "Radar de missions — cibles disponibles"
@@ -29,6 +29,7 @@ aide:
 	@echo "    make simu            chaîne complète, arrêt avant envoi"
 	@echo "    make rapport         rapport du jour"
 	@echo "    make attente         candidatures à reprendre à la main"
+	@echo "    make catalogue       écart vocabulaire CV / missions, data/catalogue.md"
 	@echo
 	@echo "  Planification"
 	@echo "    make planifier       installe la tâche de 7h30"
@@ -74,6 +75,10 @@ attente:
 	@f=data/output/$(JOUR)/file_attente.json; \
 	if [ -s "$$f" ]; then $(PY) -m json.tool "$$f"; \
 	else echo "aucune candidature en attente pour le $(JOUR)"; fi
+
+catalogue:
+	$(PY) scripts/catalogue.py
+	@echo "rapport : data/catalogue.md — aucune modification du catalogue, décision humaine"
 
 # ---------------------------------------------------------------- planification
 

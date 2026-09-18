@@ -147,6 +147,14 @@ class Matcher:
             return 0.5, [], []
         return _clip(got / total), matched, missing
 
+    def covers(self, term: str) -> bool:
+        """Le terme est-il déjà couvert par au moins un axe (catalogue + CV) ?
+
+        Réutilise la même règle de correspondance que le score de FIT, pour
+        qu'un terme jugé « couvert » ici le soit aussi au moment du matching.
+        """
+        return any(self._skill_score(a["id"], [term])[1] for a in self.axes)
+
     def _title_score(self, axis_id, title, job):
         na = self._norm_axis[axis_id]
         hay = f"{norm(title)} {norm(job)}"
