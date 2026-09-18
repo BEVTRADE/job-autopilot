@@ -13,7 +13,7 @@ Les rendements par famille sont mesurés sur candidatures.db :
   Architecte de base de données            25 %
 """
 from __future__ import annotations
-import re
+import json, re
 
 from .base import (Source, RawMission, fetch, html_to_text,
                    parse_tjm, parse_duration, parse_remote)
@@ -40,6 +40,7 @@ _JOB_URL = re.compile(r"/job-mission/([^/]+)/([^/?#]+)")
 _TITLE = re.compile(r"(?is)<h1[^>]*>(.*?)</h1>")
 _OGTITLE = re.compile(r'(?i)<meta[^>]+property=["\']og:title["\'][^>]+content=["\'](.*?)["\']')
 _SKILL = re.compile(r"(?i)/jobs/([a-z0-9\-]+)\"[^>]*>\s*([^<]{2,40})\s*<")
+_JSONLD = re.compile(r'(?is)<script[^>]+type=["\']application/ld\+json["\'][^>]*>(.*?)</script>')
 
 
 class FreeWork(Source):
@@ -92,19 +93,20 @@ class FreeWork(Source):
 
         fam = _JOB_URL.search(url)
         skills = self._skills(html)
+        ld = self._job_posting_ld(html)
 
         return RawMission(
             source=self.name,
             url=url,
             title=title,
-            company=self._company(text),
+            company=self._company_from(ld, text),
             job_family=fam.group(1).replace("-", " ") if fam else None,
             tjm_min=lo, tjm_max=hi,
             remote=parse_remote(head) or parse_remote(text),
             loc=self._location(head),
             dur_val=dv, dur_per=dp,
             skills=skills,
-            descr=text[:6000],
+            descr=self._descr_from(ld, text),
         )
 
     # ---------------- extracteurs spécifiques ----------------
@@ -119,6 +121,42 @@ class FreeWork(Source):
                 seen.add(k)
                 out.append(s)
         return out[:25]
+
+    @staticmethod
+    def _job_posting_ld(html: str) -> dict | None:
+        """Bloc JSON-LD JobPosting de la page, quand présent : corps et
+        société y sont propres (schema.org), contrairement au texte de page
+        entier utilisé jusqu'ici, qui noie l'annonce sous le menu, le pied
+        de page et les liens promotionnels communs à toutes les pages —
+        vérifié en pratique le 18 septembre 2026 : ce texte partagé faisait
+        dépasser le seuil de similarité entre annonces sans rapport (EPIC-7,
+        collecte réelle)."""
+        for raw in _JSONLD.findall(html):
+            try:
+                data = json.loads(raw)
+            except (ValueError, TypeError):
+                continue
+            for d in (data if isinstance(data, list) else [data]):
+                t = d.get("@type") if isinstance(d, dict) else None
+                if t == "JobPosting" or (isinstance(t, list) and "JobPosting" in t):
+                    return d
+        return None
+
+    @staticmethod
+    def _descr_from(ld: dict | None, text: str) -> str:
+        d = (ld or {}).get("description")
+        if d:
+            return html_to_text(d)[:6000]
+        return text[:6000]
+
+    @classmethod
+    def _company_from(cls, ld: dict | None, text: str) -> str | None:
+        org = (ld or {}).get("hiringOrganization")
+        if isinstance(org, dict):
+            name = (org.get("name") or "").strip()
+            if name:
+                return name
+        return cls._company(text)
 
     @staticmethod
     def _company(text: str) -> str | None:
