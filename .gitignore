@@ -10,6 +10,7 @@ data/live/
 data/*.db
 data/*.db-journal
 data/journal.jsonl
+data/catalogue.md
 
 # Sorties bureautiques temporaires
 *.tmp

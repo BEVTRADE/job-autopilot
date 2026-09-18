@@ -173,3 +173,51 @@ ajouter une réponse à la banque et reprendre la candidature.
 4. Rien n'est envoyé depuis cette interface sans action humaine explicite.
 
 **Dépendances.** EPIC-1.
+
+---
+
+## EPIC-7 — Branchement du regroupement dans la chaîne
+
+**Problème.** `src/grouping.py` est correct, testé, et inerte : rien ne
+l'appelle. La revue du 18 septembre l'a établi — ni `scripts/collect.py` ni
+`src/store.py` ne le référencent. La déduplication réelle continue de se faire
+sur l'URL, donc la même mission publiée par trois intermédiaires passe toujours
+trois fois.
+
+**Valeur.** C'est ce lot, et non EPIC-2, qui produit l'effet annoncé :
+candidater une seule fois par mission, et chez l'intermédiaire le mieux-disant.
+
+**Périmètre.** Appeler le regroupement dans la chaîne de collecte, après la
+lecture des annonces et avant la notation. Le rapport affiche les groupes, pas
+les annonces isolées : une ligne par mission, avec les intermédiaires en
+regard, leurs TJM, et l'écart. La notation s'applique au groupe, en retenant
+l'annonce du mieux-disant.
+
+Trois correctifs à porter en même temps, issus de la revue :
+
+- L'écart ne doit être calculé que sur les annonces ayant un TJM, et le nombre
+  d'annonces sans TJM doit être indiqué. Aujourd'hui un groupe où une seule
+  annonce affiche 600-650 renvoie un écart de 50, qui n'est pas un écart entre
+  intermédiaires mais la largeur d'une fourchette.
+- Le mieux-disant doit être marqué indéterminé quand aucune annonce du groupe
+  n'affiche de TJM, au lieu d'être choisi arbitrairement.
+- La sensibilité de l'empreinte à un corps d'annonce absent doit être traitée
+  ou documentée : deux annonces identiques dont l'une sans description tombent
+  sous le seuil et ne se regroupent pas.
+
+**Critères d'acceptation.**
+
+1. Une collecte réelle produit un rapport dont les lignes sont des groupes.
+2. Une mission publiée par plusieurs intermédiaires n'apparaît qu'une fois,
+   avec tous ses intermédiaires visibles et leurs TJM.
+3. La notation s'applique au groupe, sur l'annonce du mieux-disant.
+4. L'écart affiché ne mélange jamais largeur de fourchette et écart entre
+   intermédiaires.
+5. Un groupe sans aucun TJM est signalé comme tel.
+6. L'historique ne déclenche pas deux candidatures pour deux annonces du même
+   groupe.
+7. Des tests couvrent le passage collecte, regroupement, notation, rapport,
+   sur données figées.
+
+**Dépendances.** EPIC-2 fusionnée. À faire avant EPIC-3 : ajouter quatre
+sources avant le branchement multiplierait les doublons au lieu de les réduire.
