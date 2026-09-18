@@ -17,11 +17,20 @@ sys.path.insert(0, ROOT)
 from src.matching.matcher import Matcher, Params             # noqa: E402
 from src.sources.freework import FreeWork                    # noqa: E402
 from src.sources.boamp import Boamp                          # noqa: E402
+from src.sources.freelance_informatique import FreelanceInformatique  # noqa: E402
+from src.sources.ted import Ted                               # noqa: E402
+from src.sources.freelancerepublik import FreelanceRepublik   # noqa: E402
 from src.store import Store                                  # noqa: E402
 from src.grouping import (group_missions, fingerprint,       # noqa: E402
                            similarity, DEFAULT_THRESHOLD, MissionGroup)
 
-SOURCES = {"freework": FreeWork(), "boamp": Boamp()}
+SOURCES = {
+    "freework": FreeWork(),
+    "boamp": Boamp(),
+    "freelance_informatique": FreelanceInformatique(),
+    "ted": Ted(),
+    "freelancerepublik": FreelanceRepublik(),
+}
 
 AXIS_MD = {
     "ARCHITECTE_ENTREPRISE_URBANISTE": "FR_ARCHITECTE_ENTREPRISE_URBANISTE.md",

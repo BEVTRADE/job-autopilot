@@ -63,7 +63,11 @@ class Ted(Source):
     def discover(self, cfg: dict) -> list[str]:
         self._cache = {}
         limit = min(cfg.get("max_urls", 80), 100)
-        cpv = ",".join(cfg.get("cpv_codes", CPV_CODES))
+        # Un `IN (...)` sans espace après la virgule est rejeté par l'API
+        # ("not supported for search field 'classification-cpv'") : vérifié
+        # le 18 septembre 2026 lors de la première collecte réelle, alors
+        # que chaque code isolé passe.
+        cpv = ", ".join(cfg.get("cpv_codes", CPV_CODES))
         since = cfg.get("since", "20260101")
         query = (f"buyer-country=FRA AND classification-cpv IN ({cpv}) "
                  f"AND publication-date >= {since}")
