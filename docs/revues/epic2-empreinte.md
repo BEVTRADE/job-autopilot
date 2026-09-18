@@ -207,3 +207,42 @@ test qui rejoue le cas réel du corps vide asymétrique, et le branchement
 effectif sur `scripts/collect.py` avec une preuve que le rapport produit
 regroupe réellement sans rien masquer — pas seulement `MissionGroup` en
 isolation.
+
+---
+
+## Suite — sur-regroupement traité le 18 septembre 2026
+
+Le sur-regroupement signalé par cette revue a été diagnostiqué puis corrigé.
+
+**Cause.** Les quatre plus gros groupes formés sur les 1901 missions de
+calibration — 45, 14, 12 et 10 annonces — étaient composés **à 100 %
+d'annonces sans corps**, de sociétés et de clients différents : des « Lead
+Data Engineer Senior », « Tech Lead Data Engineer Azure », « Data engineer
+Databricks » agglomérés par transitivité. Quand la description est vide,
+l'empreinte se réduit au titre, et deux intitulés courants du même métier
+franchissent le seuil sans être la même mission.
+
+**Correctif.** Un garde-fou, `_rapprochables` : quand au moins une des deux
+annonces n'a pas de corps, le rapprochement exige l'égalité du titre
+normalisé — seul signal restant qui soit discriminant. Sur deux annonces
+pourvues d'un corps, rien ne change : le seuil gouverne comme avant. Ni
+`DEFAULT_THRESHOLD` ni la calibration ne sont touchés.
+
+**Mesure avant et après**, sur les mêmes 1901 missions :
+
+| | Groupes | Plus gros groupe | Annonces conservées |
+|---|---|---|---|
+| Avant EPIC-7 | 1237 | 293, toutes sans corps | 1901 / 1901 |
+| Après EPIC-7 | 1529 | 45, toutes sans corps | 1901 / 1901 |
+| Après garde-fou | **1771** | **8, même intermédiaire, titre identique** | 1901 / 1901 |
+
+Le plus gros groupe restant est légitime : huit publications de PROPULSE IT
+portant exactement le même intitulé. C'est précisément ce que le
+regroupement doit faire.
+
+**Tests ajoutés** — quatre cas : deux Data Engineer de clients différents ne
+se regroupent pas ; deux annonces au titre exactement identique se
+regroupent toujours ; l'égalité de titre reste insensible à la casse et aux
+accents ; une annonce sans corps n'absorbe pas un groupe pourvu.
+
+20 tests de regroupement au total, tous passants.

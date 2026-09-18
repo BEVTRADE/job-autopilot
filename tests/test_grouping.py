@@ -346,3 +346,47 @@ def test_garde_fou_ninterfere_pas_avec_les_cas_reels():
     trigrammes."""
     for lot in (MEUDON_GROUP, VOLT_GROUP, REASSURANCE_GROUP):
         assert len(group_missions(lot)) == 1
+
+
+# --------------------------------------------------------------------------
+# Garde-fou sur les annonces sans corps (mesure du 18/09/2026 sur les 1901
+# missions de calibration : les quatre plus gros groupes, de 45 à 10 annonces,
+# étaient composés à 100 % d'annonces sans corps, de clients différents).
+
+def _sans_corps(societe, titre, tjm_min=None, tjm_max=None):
+    return RawMission(source="t", url=societe + titre, title=titre,
+                      company=societe, descr="", tjm_min=tjm_min,
+                      tjm_max=tjm_max)
+
+
+def test_sans_corps_titres_differents_non_regroupes():
+    """Deux Data Engineer de clients différents ne sont pas la même mission."""
+    lot = [_sans_corps("PROPULSE IT", "Lead Data Engineer Senior"),
+           _sans_corps("Groupe Aptenia", "Tech Lead Data Engineer Azure"),
+           _sans_corps("VISIAN", "Data engineer Databricks")]
+    groups = group_missions(lot)
+    assert len(groups) == 3, "sur-regroupement sur titre seul"
+
+
+def test_sans_corps_titre_identique_regroupe():
+    """Même intitulé exact chez deux intermédiaires : toujours regroupé."""
+    lot = [_sans_corps("Nicholson SAS", "AI Agent Architect", 500, 500),
+           _sans_corps("Craftman data", "AI Agent Architect", 300, 500)]
+    groups = group_missions(lot)
+    assert len(groups) == 1
+    assert {m.company for m in groups[0].missions} == {"Nicholson SAS",
+                                                       "Craftman data"}
+
+
+def test_sans_corps_titre_identique_insensible_casse_accents():
+    lot = [_sans_corps("A", "Architecte IA Générative"),
+           _sans_corps("B", "ARCHITECTE IA GENERATIVE")]
+    assert len(group_missions(lot)) == 1
+
+
+def test_une_seule_annonce_sans_corps_ne_contamine_pas():
+    """Une annonce sans corps ne doit pas absorber un groupe pourvu."""
+    avec = MEUDON_NICHOLSON
+    lot = [avec, _sans_corps("Autre ESN", "Data Engineer Senior")]
+    groups = group_missions(lot)
+    assert len(groups) == 2

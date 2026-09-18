@@ -9,6 +9,14 @@ qui varie d'un intermédiaire à l'autre pour une mission identique.
 Volontairement indépendant de src/matching/ : regrouper est une question
 d'identité, pas de notation par rapport à un CV.
 
+Sur-regroupement sur titre seul : traité le 18 septembre 2026. Quand au
+moins une des deux annonces n'a pas de corps, le rapprochement exige
+l'égalité du titre normalisé (voir `_rapprochables`). Mesure avant et après
+sur les 1901 missions de calibration : 1529 groupes et un plus gros groupe
+de 45 annonces sans corps, contre 1771 groupes et un plus gros groupe de 8,
+toutes du même intermédiaire republiant le même intitulé. Aucune annonce
+perdue, 1901 sur 1901 conservées, et le seuil n'a pas bougé.
+
 Limite connue, documentée plutôt que traitée (revue du 18 septembre 2026,
 docs/revues/epic2-empreinte.md) : deux annonces identiques dont une seule a
 un corps vide retombent sous DEFAULT_THRESHOLD (0,125 mesuré contre un seuil
@@ -135,6 +143,29 @@ class MissionGroup:
         return (ref or self.missions[0]).title
 
 
+
+def _rapprochables(sans_corps_a: bool, sans_corps_b: bool,
+                   titre_a: str, titre_b: str) -> bool:
+    """Deux annonces sont-elles comparables par empreinte ?
+
+    Quand au moins une des deux n'a pas de corps d'annonce, l'empreinte se
+    réduit au titre : deux missions distinctes portant un intitulé courant
+    — « Data Engineer Senior », « Architecte technique » — franchissent alors
+    le seuil sans être la même mission. Mesuré sur les 1901 missions de
+    calibration : les quatre plus gros groupes, de 45 à 10 annonces, étaient
+    composés à 100 % d'annonces sans corps, de sociétés et de clients
+    différents.
+
+    Dans ce cas on exige l'égalité du titre normalisé, seul signal restant
+    qui soit discriminant. Sur deux annonces pourvues d'un corps, le
+    rapprochement reste gouverné par le seuil de similarité : ce garde-fou
+    ne touche ni au seuil ni à la calibration.
+    """
+    if not (sans_corps_a or sans_corps_b):
+        return True
+    return titre_a == titre_b and bool(titre_a)
+
+
 def group_missions(missions: list[RawMission],
                     threshold: float = DEFAULT_THRESHOLD) -> list[MissionGroup]:
     """Regroupe des annonces par empreinte de contenu, sans rien supprimer.
@@ -160,8 +191,14 @@ def group_missions(missions: list[RawMission],
         if ri != rj:
             parent[ri] = rj
 
+    titres = [normalize_title(m.title) for m in missions]
+    sans_corps = [not (m.descr or "").strip() for m in missions]
+
     for i in range(n):
         for j in range(i + 1, n):
+            if not _rapprochables(sans_corps[i], sans_corps[j],
+                                  titres[i], titres[j]):
+                continue
             if similarity(fps[i], fps[j]) >= threshold:
                 union(i, j)
 
