@@ -91,3 +91,47 @@ Les missions d'architecture et de direction de programme au-delà de 800 € son
 largement **off-market** : réseau, cooptation, cabinets de transition. Ce radar
 garantit de ne rien rater de ce qui est publié — ce qui a de la valeur — mais
 ne remplace pas ces canaux.
+
+## Reconnaissance du 18 septembre 2026 — les deux sources restantes
+
+Vérification faite avant d'écrire les extracteurs, pour ne pas construire sur
+une hypothèse.
+
+### FreelanceRepublik — automatisable, à intégrer
+
+**Le domaine du registre était faux.** Le site est `freelancerepublik.com`,
+sans tiret. `freelance-republik.com` ne résout pas.
+
+Les missions sont **publiques, sans connexion**. Chaque annonce de la liste
+porte le titre, la ville, la modalité de télétravail, la durée en mois et le
+TJM. Les pages de détail suivent `/missions/<titre-slugifie>-<id hexadécimal>`,
+par exemple `/missions/data-analyst-f075f842`.
+
+Rien ne s'oppose à un extracteur sur le modèle de `freework.py`.
+
+### Freelance-Day — à reclasser en canal entrant
+
+`freelance-day.eu/missions/` renvoie une **page de connexion**, pas une liste.
+L'accès aux missions suppose un compte et une authentification.
+
+Cela le sort de la catégorie « à intégrer » : un extracteur exigerait de
+stocker et rejouer des identifiants, ce que le système ne fait pour aucune
+source. Freelance-Day rejoint la catégorie des **canaux entrants non
+automatisables**, au même titre que Malt ou Comet — consultable à la main,
+pas par le radar.
+
+C'est d'autant plus notable que l'annonce Enedis repérée le 7 septembre
+provenait de ce site : le canal a de la valeur, il n'est simplement pas
+automatisable dans les termes actuels.
+
+### Conséquence sur EPIC-3
+
+Le périmètre passe de quatre sources à trois : Freelance-Informatique et TED,
+déjà écrites, plus FreelanceRepublik. Freelance-Day sort du lot.
+
+### Limite de la reconnaissance
+
+Faite depuis un agent, qui ne peut pas récupérer le HTML brut : les domaines
+sont refusés par la politique de sortie côté conteneur, et le shell de la
+machine n'a pas de réseau. Les pages de référence nécessaires aux tests
+d'extraction doivent être enregistrées depuis le Mac.
