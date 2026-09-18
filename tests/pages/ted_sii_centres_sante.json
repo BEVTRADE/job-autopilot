@@ -1,0 +1,148 @@
+{
+ "estimated-value-lot": [
+  "340000",
+  "175000"
+ ],
+ "publication-number": "534822-2026",
+ "estimated-value-cur-lot": [
+  "EUR"
+ ],
+ "place-of-performance-city-lot": [
+  "bobigny",
+  "Tremblay-en-France"
+ ],
+ "buyer-country": [
+  "FRA"
+ ],
+ "place-of-performance-country-lot": [
+  "FRA",
+  "FRA"
+ ],
+ "PD": "2026-08-03+02:00",
+ "TI": {
+  "hun": "Franciaország – IT-szolgáltatások: tanácsadás, szoftverfejlesztés, internet és támogatás – Solution de gestion pour les Centres Municipaux de Santé de Tremblay-en-France et Bobigny- Remplacement du logiciel métier MAIDIS",
+  "lav": "Francija – IT pakalpojumi konsultēšana, programmatūras izstrāde, internets un atbalsts – Solution de gestion pour les Centres Municipaux de Santé de Tremblay-en-France et Bobigny- Remplacement du logiciel métier MAIDIS",
+  "swe": "Frankrike – IT-tjänster: konsultverksamhet, programvaruutveckling, Internet och stöd – Solution de gestion pour les Centres Municipaux de Santé de Tremblay-en-France et Bobigny- Remplacement du logiciel métier MAIDIS",
+  "gle": "An Fhrainc – IT services: consulting, software development, Internet and support – Solution de gestion pour les Centres Municipaux de Santé de Tremblay-en-France et Bobigny- Remplacement du logiciel métier MAIDIS",
+  "ell": "Γαλλία – Υπηρεσίες τεχνολογίας των πληροφοριών: παροχή συμβουλών, ανάπτυξη λογισμικού, Διαδίκτυο και υποστήριξη – Solution de gestion pour les Centres Municipaux de Santé de Tremblay-en-France et Bobigny- Remplacement du logiciel métier MAIDIS",
+  "spa": "Francia – Servicios TI: consultoría, desarrollo de software, Internet y apoyo – Solution de gestion pour les Centres Municipaux de Santé de Tremblay-en-France et Bobigny- Remplacement du logiciel métier MAIDIS",
+  "est": "Prantsusmaa – IT-teenused: nõuande-, tarkvaraarendus-, Interneti- ja tugiteenused – Solution de gestion pour les Centres Municipaux de Santé de Tremblay-en-France et Bobigny- Remplacement du logiciel métier MAIDIS",
+  "nld": "Frankrijk – IT-diensten: adviezen, softwareontwikkeling, internet en ondersteuning – Solution de gestion pour les Centres Municipaux de Santé de Tremblay-en-France et Bobigny- Remplacement du logiciel métier MAIDIS",
+  "fin": "Ranska – Tietotekniset palvelut: neuvonta, ohjelmistojen kehittäminen, Internet ja tuki – Solution de gestion pour les Centres Municipaux de Santé de Tremblay-en-France et Bobigny- Remplacement du logiciel métier MAIDIS",
+  "pol": "Francja – Usługi informatyczne: konsultacyjne, opracowywania oprogramowania, internetowe i wsparcia – Solution de gestion pour les Centres Municipaux de Santé de Tremblay-en-France et Bobigny- Remplacement du logiciel métier MAIDIS",
+  "hrv": "Francuska – Usluge informacijske tehnologije: savjetovanje, razvoj programske podrške, internet i podrška – Solution de gestion pour les Centres Municipaux de Santé de Tremblay-en-France et Bobigny- Remplacement du logiciel métier MAIDIS",
+  "ces": "Francie – Informační technologie: poradenství, vývoj programového vybavení, internet a podpora – Solution de gestion pour les Centres Municipaux de Santé de Tremblay-en-France et Bobigny- Remplacement du logiciel métier MAIDIS",
+  "dan": "Frankrig – It-tjenester: rådgivning, programmeludvikling, internet og support – Solution de gestion pour les Centres Municipaux de Santé de Tremblay-en-France et Bobigny- Remplacement du logiciel métier MAIDIS",
+  "ron": "Franţa – Servicii IT: consultanţă, dezvoltare de software, internet şi asistenţă – Solution de gestion pour les Centres Municipaux de Santé de Tremblay-en-France et Bobigny- Remplacement du logiciel métier MAIDIS",
+  "por": "França – Serviços de TI: consultoria, desenvolvimento de software, Internet e apoio – Solution de gestion pour les Centres Municipaux de Santé de Tremblay-en-France et Bobigny- Remplacement du logiciel métier MAIDIS",
+  "slk": "Francúzsko – Služby informačných technológií: konzultácie, vývoj softvéru, internet a podpora – Solution de gestion pour les Centres Municipaux de Santé de Tremblay-en-France et Bobigny- Remplacement du logiciel métier MAIDIS",
+  "fra": "France – Services de technologies de l'information, conseil, développement de logiciels, internet et appui – Solution de gestion pour les Centres Municipaux de Santé de Tremblay-en-France et Bobigny- Remplacement du logiciel métier MAIDIS",
+  "mlt": "Franza – Servizzi ta' IT: konsulenza, żvilupp ta' softwer, Internet u appoġġ – Solution de gestion pour les Centres Municipaux de Santé de Tremblay-en-France et Bobigny- Remplacement du logiciel métier MAIDIS",
+  "deu": "Frankreich – IT-Dienste: Beratung, Software-Entwicklung, Internet und Hilfestellung – Solution de gestion pour les Centres Municipaux de Santé de Tremblay-en-France et Bobigny- Remplacement du logiciel métier MAIDIS",
+  "lit": "Prancūzija – IT paslaugos: konsultavimas, programinės įrangos kūrimas, internetas ir aptarnavimo paslaugos – Solution de gestion pour les Centres Municipaux de Santé de Tremblay-en-France et Bobigny- Remplacement du logiciel métier MAIDIS",
+  "ita": "Francia – Servizi informatici: consulenza, sviluppo di software, Internet e supporto – Solution de gestion pour les Centres Municipaux de Santé de Tremblay-en-France et Bobigny- Remplacement du logiciel métier MAIDIS",
+  "bul": "Фpaнция – ИТ услуги: консултации, разработване на софтуер, Интернет и поддръжка – Solution de gestion pour les Centres Municipaux de Santé de Tremblay-en-France et Bobigny- Remplacement du logiciel métier MAIDIS",
+  "slv": "Francija – Storitve informacijske tehnologije: svetovanje, razvoj programske opreme, internet in podpora – Solution de gestion pour les Centres Municipaux de Santé de Tremblay-en-France et Bobigny- Remplacement du logiciel métier MAIDIS",
+  "eng": "France – IT services: consulting, software development, Internet and support – Solution de gestion pour les Centres Municipaux de Santé de Tremblay-en-France et Bobigny- Remplacement du logiciel métier MAIDIS"
+ },
+ "classification-cpv": [
+  "72000000",
+  "72000000",
+  "72000000"
+ ],
+ "ND": "534822-2026",
+ "buyer-name": {
+  "fra": [
+   "SII Syndicat Mixte des Systèmes d'Information"
+  ]
+ },
+ "links": {
+  "xml": {
+   "MUL": "https://ted.europa.eu/en/notice/534822-2026/xml"
+  },
+  "pdf": {
+   "BUL": "https://ted.europa.eu/bg/notice/534822-2026/pdf",
+   "SPA": "https://ted.europa.eu/es/notice/534822-2026/pdf",
+   "CES": "https://ted.europa.eu/cs/notice/534822-2026/pdf",
+   "DAN": "https://ted.europa.eu/da/notice/534822-2026/pdf",
+   "DEU": "https://ted.europa.eu/de/notice/534822-2026/pdf",
+   "EST": "https://ted.europa.eu/et/notice/534822-2026/pdf",
+   "ELL": "https://ted.europa.eu/el/notice/534822-2026/pdf",
+   "ENG": "https://ted.europa.eu/en/notice/534822-2026/pdf",
+   "FRA": "https://ted.europa.eu/fr/notice/534822-2026/pdf",
+   "GLE": "https://ted.europa.eu/ga/notice/534822-2026/pdf",
+   "HRV": "https://ted.europa.eu/hr/notice/534822-2026/pdf",
+   "ITA": "https://ted.europa.eu/it/notice/534822-2026/pdf",
+   "LAV": "https://ted.europa.eu/lv/notice/534822-2026/pdf",
+   "LIT": "https://ted.europa.eu/lt/notice/534822-2026/pdf",
+   "HUN": "https://ted.europa.eu/hu/notice/534822-2026/pdf",
+   "MLT": "https://ted.europa.eu/mt/notice/534822-2026/pdf",
+   "NLD": "https://ted.europa.eu/nl/notice/534822-2026/pdf",
+   "POL": "https://ted.europa.eu/pl/notice/534822-2026/pdf",
+   "POR": "https://ted.europa.eu/pt/notice/534822-2026/pdf",
+   "RON": "https://ted.europa.eu/ro/notice/534822-2026/pdf",
+   "SLK": "https://ted.europa.eu/sk/notice/534822-2026/pdf",
+   "SLV": "https://ted.europa.eu/sl/notice/534822-2026/pdf",
+   "FIN": "https://ted.europa.eu/fi/notice/534822-2026/pdf",
+   "SWE": "https://ted.europa.eu/sv/notice/534822-2026/pdf"
+  },
+  "pdfs": {
+   "FRA": "https://ted.europa.eu/fr/notice/534822-2026/pdfs"
+  },
+  "html": {
+   "BUL": "https://ted.europa.eu/bg/notice/-/detail/534822-2026",
+   "SPA": "https://ted.europa.eu/es/notice/-/detail/534822-2026",
+   "CES": "https://ted.europa.eu/cs/notice/-/detail/534822-2026",
+   "DAN": "https://ted.europa.eu/da/notice/-/detail/534822-2026",
+   "DEU": "https://ted.europa.eu/de/notice/-/detail/534822-2026",
+   "EST": "https://ted.europa.eu/et/notice/-/detail/534822-2026",
+   "ELL": "https://ted.europa.eu/el/notice/-/detail/534822-2026",
+   "ENG": "https://ted.europa.eu/en/notice/-/detail/534822-2026",
+   "FRA": "https://ted.europa.eu/fr/notice/-/detail/534822-2026",
+   "GLE": "https://ted.europa.eu/ga/notice/-/detail/534822-2026",
+   "HRV": "https://ted.europa.eu/hr/notice/-/detail/534822-2026",
+   "ITA": "https://ted.europa.eu/it/notice/-/detail/534822-2026",
+   "LAV": "https://ted.europa.eu/lv/notice/-/detail/534822-2026",
+   "LIT": "https://ted.europa.eu/lt/notice/-/detail/534822-2026",
+   "HUN": "https://ted.europa.eu/hu/notice/-/detail/534822-2026",
+   "MLT": "https://ted.europa.eu/mt/notice/-/detail/534822-2026",
+   "NLD": "https://ted.europa.eu/nl/notice/-/detail/534822-2026",
+   "POL": "https://ted.europa.eu/pl/notice/-/detail/534822-2026",
+   "POR": "https://ted.europa.eu/pt/notice/-/detail/534822-2026",
+   "RON": "https://ted.europa.eu/ro/notice/-/detail/534822-2026",
+   "SLK": "https://ted.europa.eu/sk/notice/-/detail/534822-2026",
+   "SLV": "https://ted.europa.eu/sl/notice/-/detail/534822-2026",
+   "FIN": "https://ted.europa.eu/fi/notice/-/detail/534822-2026",
+   "SWE": "https://ted.europa.eu/sv/notice/-/detail/534822-2026"
+  },
+  "htmlDirect": {
+   "BUL": "https://ted.europa.eu/bg/notice/534822-2026/html",
+   "SPA": "https://ted.europa.eu/es/notice/534822-2026/html",
+   "CES": "https://ted.europa.eu/cs/notice/534822-2026/html",
+   "DAN": "https://ted.europa.eu/da/notice/534822-2026/html",
+   "DEU": "https://ted.europa.eu/de/notice/534822-2026/html",
+   "EST": "https://ted.europa.eu/et/notice/534822-2026/html",
+   "ELL": "https://ted.europa.eu/el/notice/534822-2026/html",
+   "ENG": "https://ted.europa.eu/en/notice/534822-2026/html",
+   "FRA": "https://ted.europa.eu/fr/notice/534822-2026/html",
+   "GLE": "https://ted.europa.eu/ga/notice/534822-2026/html",
+   "HRV": "https://ted.europa.eu/hr/notice/534822-2026/html",
+   "ITA": "https://ted.europa.eu/it/notice/534822-2026/html",
+   "LAV": "https://ted.europa.eu/lv/notice/534822-2026/html",
+   "LIT": "https://ted.europa.eu/lt/notice/534822-2026/html",
+   "HUN": "https://ted.europa.eu/hu/notice/534822-2026/html",
+   "MLT": "https://ted.europa.eu/mt/notice/534822-2026/html",
+   "NLD": "https://ted.europa.eu/nl/notice/534822-2026/html",
+   "POL": "https://ted.europa.eu/pl/notice/534822-2026/html",
+   "POR": "https://ted.europa.eu/pt/notice/534822-2026/html",
+   "RON": "https://ted.europa.eu/ro/notice/534822-2026/html",
+   "SLK": "https://ted.europa.eu/sk/notice/534822-2026/html",
+   "SLV": "https://ted.europa.eu/sl/notice/534822-2026/html",
+   "FIN": "https://ted.europa.eu/fi/notice/534822-2026/html",
+   "SWE": "https://ted.europa.eu/sv/notice/534822-2026/html"
+  }
+ },
+ "description-proc": {
+  "fra": "Le présent marché a pour objet le remplacement du logiciel métier MAIDIS utilisé par les Centres Municipaux de Santé de Bobigny et de Tremblay-en-France, suite à la liquidation judiciaire de la société éditrice le 29 mai 2026. Il porte sur la fourniture, l'installation, la migration des données et la maintenance d'une solution de gestion du dossier patient, couvrant notamment la médecine générale et spécialisée, les soins dentaires, les soins infirmiers, l'imagerie médicale, ainsi que les dispositifs de santé publique du centre (PASS, CSS, IPA...), avec une exigence de reprise complète des données existantes, incluant la facturation. Le présent marché est constitué d'une consultation allotie portant sur le remplacement du logiciel métier MAIDIS pour l'ensemble des centres municipaux de santé membres du Syndicat Mixte des Systèmes d'Information (SII)."
+ }
+}
