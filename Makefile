@@ -15,7 +15,8 @@ JOUR := $(shell date +%F)
 
 .DEFAULT_GOAL := aide
 .PHONY: aide install login test sonde veille simu candidater-pour-de-vrai rapport \
-        attente catalogue verifier-llm planifier deplanifier etat stop reprendre propre
+        attente catalogue verifier-llm planifier deplanifier etat stop reprendre propre \
+        diag-session diag-planifier diag-deplanifier
 
 aide:
 	@echo "Radar de missions — cibles disponibles"
@@ -33,6 +34,10 @@ aide:
 	@echo "    make attente         candidatures à reprendre à la main"
 	@echo "    make catalogue       écart vocabulaire CV / missions, data/catalogue.md"
 	@echo "    make verifier-llm    modèle local Ollama + serveurs MCP, rien n'est envoyé"
+	@echo
+	@echo "  Mesure de durée de session (EPIC-12, temporaire)"
+	@echo "    make diag-session    une visite de connecté, une ligne dans data/diag-session.jsonl"
+	@echo "    make diag-planifier  la répète toutes les 6 h ; make diag-deplanifier la retire"
 	@echo
 	@echo "  Planification"
 	@echo "    make planifier       installe la tâche de 7h30"
@@ -91,6 +96,13 @@ attente:
 catalogue:
 	$(PY) scripts/catalogue.py
 	@echo "rapport : data/catalogue.md — aucune modification du catalogue, décision humaine"
+
+# ---------------------------------------------------------------- mesure de durée (EPIC-12)
+
+# Une visite d'une page de connecté, une ligne dans data/diag-session.jsonl :
+# présence, longueur et expiration de jwt_s, jwt_hp, refresh_token. Jamais une valeur.
+diag-session:
+	$(PY) scripts/diag_session.py --visiter
 
 # ---------------------------------------------------------------- planification
 

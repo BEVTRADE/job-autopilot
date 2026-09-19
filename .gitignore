@@ -24,3 +24,6 @@ _a_supprimer/
 
 # Instantanés de la sonde : captures personnelles, régénérées par make sonde
 tests/pages/freework/*.png
+
+# Mesure de durée de session (EPIC-12) : dates de connexion, non versionnées
+data/diag-session.jsonl

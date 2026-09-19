@@ -11,17 +11,32 @@ nom, sa longueur et son expiration. Chaque passage écrit un instantané dans
 
     python scripts/diag_session.py             # relevé
     python scripts/diag_session.py --comparer  # ce qui a disparu entre les deux derniers
+    python scripts/diag_session.py --visiter   # mesure de durée : une ligne dans data/diag-session.jsonl
+
+Mesure de durée (EPIC-12, suite) : `--visiter` ouvre une page réservée aux
+connectés, laisse le site renouveler ce qu'il veut renouveler, puis relève
+l'état des trois cookies d'authentification. Une ligne par passage dans
+data/diag-session.jsonl : présence, longueur et expiration, jamais une valeur.
+Le passage prend le verrou du matin (~/.job-autopilot/verrou) et respecte le
+kill-switch : il ne croise jamais une exécution du radar.
 """
 from __future__ import annotations
 import argparse, datetime as dt, glob, json, os, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
-from src.apply.base import HOME, PROFILE                 # noqa: E402
-from src.apply.freework import FreeWorkApplier, BASE     # noqa: E402
+from src.apply.base import HOME, PROFILE, STOP           # noqa: E402
+from src.apply.freework import FreeWorkApplier, BASE, CANDIDATURES, SEL  # noqa: E402
 
 DOMAINE = "free-work.com"
 DOSSIER = os.path.join(HOME, "diag")
+
+# Mesure de durée. Le verrou est celui de scripts/matin.sh (un dossier, créé
+# par mkdir, atomique) : les deux ne se croisent jamais, et le profil
+# Chromium n'est jamais ouvert deux fois.
+VERROU = os.path.join(HOME, "verrou")
+JOURNAL = os.path.join(ROOT, "data", "diag-session.jsonl")
+COOKIES_AUTH = ("jwt_s", "jwt_hp", "refresh_token")
 
 
 def _expiration(ts: float) -> str:
@@ -112,10 +127,96 @@ def comparer(avant: dict, apres: dict) -> list[str]:
     return lignes
 
 
+# ------------------------------------------------------------ mesure de durée
+
+def _expire_iso(ts) -> str | None:
+    """Expiration à la seconde (le renouvellement se lit à la minute près, pas mieux)."""
+    if ts is None or ts < 0:
+        return None
+    return dt.datetime.fromtimestamp(ts).isoformat(timespec="seconds")
+
+
+def ligne_journal(connecte: bool, cookies: list[dict], chemin: str,
+                  maintenant: dt.datetime | None = None) -> dict:
+    """Une ligne du journal de durée.
+
+    Construite champ par champ à partir du nom, de la longueur et de
+    l'expiration : la valeur d'un cookie n'est jamais recopiée, il n'existe
+    aucun chemin qui la transporte jusqu'au fichier. `chemin` est le chemin de
+    la page d'arrivée, sans paramètres (une redirection vers la connexion en
+    porte parfois).
+    """
+    par_nom = {c["name"]: c for c in cookies if DOMAINE in (c.get("domain") or "")}
+    auth = {}
+    for nom in COOKIES_AUTH:
+        c = par_nom.get(nom)
+        auth[nom] = {
+            "present": c is not None,
+            "longueur": len(c.get("value") or "") if c else 0,
+            "expire": _expire_iso(c.get("expires")) if c else None,
+        }
+    return {
+        "date": (maintenant or dt.datetime.now()).isoformat(timespec="seconds"),
+        "connecte": bool(connecte),
+        "page": chemin,
+        **auth,
+    }
+
+
+def ajouter_journal(ligne: dict, fichier: str = JOURNAL) -> None:
+    os.makedirs(os.path.dirname(fichier), exist_ok=True)
+    with open(fichier, "a", encoding="utf-8") as f:
+        f.write(json.dumps(ligne, ensure_ascii=False) + "\n")
+    os.chmod(fichier, 0o600)
+
+
+def prendre_verrou(verrou: str = VERROU) -> bool:
+    """Même protocole que matin.sh : mkdir échoue si le dossier existe."""
+    os.makedirs(os.path.dirname(verrou), exist_ok=True)
+    try:
+        os.mkdir(verrou)
+        return True
+    except FileExistsError:
+        return False
+
+
+def visiter(page, ctx) -> dict:
+    """Ouvre la page des candidatures, attend le réseau, puis relève.
+
+    Le relevé des cookies vient après l'attente : c'est ce que le site a
+    renouvelé pendant la visite qu'on veut voir.
+    """
+    page.goto(CANDIDATURES, wait_until="domcontentloaded")
+    try:
+        page.wait_for_load_state("networkidle", timeout=30_000)
+    except Exception:                                        # noqa: BLE001
+        pass                                                 # page bavarde : on relève quand même
+    try:
+        page.locator(SEL["session"]).first.wait_for(timeout=8_000)
+        connecte = True
+    except Exception:                                        # noqa: BLE001
+        connecte = False
+    chemin = page.url.split("?", 1)[0].split("#", 1)[0].removeprefix(BASE)
+    return ligne_journal(connecte, ctx.cookies(), chemin)
+
+
+def afficher_ligne(l: dict) -> None:
+    print(f"{l['date']}  connecté : {'OUI' if l['connecte'] else 'NON'}  page : {l['page']}")
+    for nom in COOKIES_AUTH:
+        c = l[nom]
+        if c["present"]:
+            print(f"  {nom:<14} {c['longueur']:>5} car.  expire {c['expire']}")
+        else:
+            print(f"  {nom:<14} absent")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--comparer", action="store_true",
                     help="compare les deux derniers relevés, sans ouvrir le navigateur")
+    ap.add_argument("--visiter", action="store_true",
+                    help="mesure de durée : visite une page de connecté, "
+                         "ajoute une ligne à data/diag-session.jsonl")
     ap.add_argument("--headless", action="store_true")
     args = ap.parse_args()
 
@@ -128,6 +229,26 @@ def main():
         print("\n".join(comparer(av, ap_)))
         return
 
+    if args.visiter and os.path.exists(STOP):
+        sys.exit(f"kill-switch présent ({STOP}) — aucune visite")
+    verrou_pris = False
+    if args.visiter:
+        if not prendre_verrou():
+            print(f"une exécution est déjà en cours ({VERROU}) — visite abandonnée")
+            return
+        verrou_pris = True
+
+    try:
+        _ouvrir_et_relever(args)
+    finally:
+        if verrou_pris:
+            try:
+                os.rmdir(VERROU)
+            except OSError:
+                pass
+
+
+def _ouvrir_et_relever(args) -> None:
     from playwright.sync_api import sync_playwright
     os.makedirs(PROFILE, exist_ok=True)
     print(f"profil : {PROFILE}")
@@ -145,10 +266,15 @@ def main():
                      f"{str(e).splitlines()[0]}")
         try:
             page = ctx.pages[0] if ctx.pages else ctx.new_page()
-            r = releve(page, ctx)
+            r = visiter(page, ctx) if args.visiter else releve(page, ctx)
         finally:
             ctx.close()
 
+    if args.visiter:
+        ajouter_journal(r)
+        afficher_ligne(r)
+        print(f"\nligne ajoutée : {JOURNAL}")
+        return
     afficher(r)
     os.makedirs(DOSSIER, exist_ok=True)
     chemin = os.path.join(DOSSIER, dt.datetime.now().strftime("%Y%m%d-%H%M%S") + ".json")
