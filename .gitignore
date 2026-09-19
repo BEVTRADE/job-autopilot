@@ -21,3 +21,6 @@ data/catalogue.md
 # Archives et rebuts
 _a_supprimer/
 *.zip
+
+# Instantanés de la sonde : captures personnelles, régénérées par make sonde
+tests/pages/freework/*.png
