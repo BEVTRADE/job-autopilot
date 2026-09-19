@@ -68,3 +68,7 @@ CV d'axe générique sélectionné, formulaire sans question filtrante. Capture
 2. Ne jamais laisser entendre une pratique de 3DEXPERIENCE ou d'Ansys.
 3. TJM : la fourchette est large. Viser 850 €, justifié par la double lecture
    simulation et architecture que peu de profils cumulent.
+
+**19/09/2026, 9h50** — Premier envoi bloqué : « CV partagé non basculé ». Le
+CV dédié n'était pas déposé sur Free-Work. Rien n'est parti. Chemin de dépôt
+ajouté au script dans la foulée, option `--cv-fichier`.

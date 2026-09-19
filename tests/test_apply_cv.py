@@ -38,3 +38,45 @@ def test_nom_attendu_court_ne_matche_pas_un_fichier_plus_long():
 def test_vide_refuse():
     assert not meme_cv(None, LONG)
     assert not meme_cv("", LONG)
+
+
+# --------------------------------------------------------------------------
+# Contrôle du fichier local avant dépôt (chemin de dépôt du 19/09/2026)
+
+import tempfile
+from src.apply.freework import verifier_fichier_cv
+
+
+def _fichier(nom, contenu=b"%PDF-1.4 contenu"):
+    d = tempfile.mkdtemp()
+    p = os.path.join(d, nom)
+    open(p, "wb").write(contenu)
+    return p
+
+
+def test_fichier_pdf_valide():
+    ok, raison = verifier_fichier_cv(_fichier("cv.pdf"))
+    assert ok and raison == "ok"
+
+
+def test_fichier_docx_valide():
+    assert verifier_fichier_cv(_fichier("cv.docx"))[0]
+
+
+def test_fichier_absent_refuse():
+    ok, raison = verifier_fichier_cv("/nulle/part/cv.pdf")
+    assert not ok and "introuvable" in raison
+
+
+def test_format_refuse():
+    ok, raison = verifier_fichier_cv(_fichier("cv.png"))
+    assert not ok and "format" in raison
+
+
+def test_fichier_vide_refuse():
+    ok, raison = verifier_fichier_cv(_fichier("cv.pdf", b""))
+    assert not ok and "vide" in raison
+
+
+def test_aucun_chemin_refuse():
+    assert not verifier_fichier_cv(None)[0]

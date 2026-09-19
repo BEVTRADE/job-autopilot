@@ -40,10 +40,20 @@ def main():
     ap.add_argument("--from", dest="src", help="fichier de missions notées")
     ap.add_argument("--max", type=int, default=5)
     ap.add_argument("--min-fit", type=int, default=70)
-    ap.add_argument("--cv", default="FR_ARCHITECTE_IA_GENAI.pdf")
+    ap.add_argument("--cv", default=None,
+                    help="nom du CV sur Free-Work (défaut : axe générique, "
+                         "ou nom du fichier si --cv-fichier)")
+    ap.add_argument("--cv-fichier", default=None,
+                    help="chemin local d'un CV à déposer sur Free-Work "
+                         "s'il n'y est pas encore")
     ap.add_argument("--envoyer", action="store_true", help="lève le dry-run")
     ap.add_argument("--headless", action="store_true")
     args = ap.parse_args()
+    if args.cv_fichier:
+        args.cv_fichier = os.path.abspath(os.path.expanduser(args.cv_fichier))
+    if not args.cv:
+        args.cv = (os.path.basename(args.cv_fichier) if args.cv_fichier
+                   else "FR_ARCHITECTE_IA_GENAI.pdf")
 
     pw, ctx = contexte(args.headless)
     page = ctx.pages[0] if ctx.pages else ctx.new_page()
@@ -74,7 +84,8 @@ def main():
             m, raw = d["match"], d["raw"]
             print(f"\n[{i}/{len(lot)}] {raw['title'][:64]}")
             try:
-                r = agent.postuler(raw["url"], m["aid"], raw["title"], args.cv)
+                r = agent.postuler(raw["url"], m["aid"], raw["title"], args.cv,
+                                   cv_fichier=args.cv_fichier)
             except KillSwitch as e:
                 print(f"  ARRÊT — {e}"); break
             except Exception as e:                            # noqa: BLE001

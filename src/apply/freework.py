@@ -53,6 +53,26 @@ def meme_cv(affiche: str | None, attendu: str) -> bool:
     return len(a) >= 20 and b.startswith(a)
 
 
+EXTENSIONS_CV = (".pdf", ".docx", ".doc")
+TAILLE_MAX_CV = 10 * 1024 * 1024        # prudence : limite Free-Work non documentée
+
+
+def verifier_fichier_cv(chemin: str | None) -> tuple[bool, str]:
+    """Le fichier local peut-il être déposé ? Renvoie (ok, raison)."""
+    if not chemin:
+        return False, "aucun fichier fourni"
+    if not os.path.isfile(chemin):
+        return False, f"fichier introuvable : {chemin}"
+    if not chemin.lower().endswith(EXTENSIONS_CV):
+        return False, f"format refusé, attendu {', '.join(EXTENSIONS_CV)} : {chemin}"
+    taille = os.path.getsize(chemin)
+    if taille == 0:
+        return False, f"fichier vide : {chemin}"
+    if taille > TAILLE_MAX_CV:
+        return False, f"fichier trop lourd, {taille // 1024} Ko : {chemin}"
+    return True, "ok"
+
+
 class FreeWorkApplier:
     """Pilote une session Free-Work déjà authentifiée."""
 
@@ -73,9 +93,17 @@ class FreeWorkApplier:
                 return t
         return None
 
-    def choisir_cv(self, nom: str) -> bool:
-        """Bascule le CV partagé. Relit l'état et ne renvoie True qu'après concordance."""
+    def choisir_cv(self, nom: str, chemin: str | None = None) -> bool:
+        """Bascule le CV partagé. Relit l'état et ne renvoie True qu'après concordance.
+
+        Si le CV n'est pas encore sur Free-Work et qu'un `chemin` local est
+        fourni, il est déposé depuis le poste puis sélectionné. Fournir le
+        chemin vaut consentement au dépôt : c'est une écriture sur le compte,
+        faite même en dry-run, puisque le dry-run ne porte que sur l'envoi
+        de la candidature.
+        """
         self.cv_vus: list[str] = []
+        self.depot_tente = False
         if meme_cv(self.cv_partage(), nom):
             return True
         guard()
@@ -92,6 +120,18 @@ class FreeWorkApplier:
                     self.cv_vus.append(nom_carte)
                 if carte is None and meme_cv(nom_carte, nom):
                     carte = cartes.nth(k)
+            if carte is None and chemin and not self.depot_tente:
+                self.depot_tente = True
+                if self.deposer_cv(chemin):
+                    self.cv_vus = []
+                    cartes = self.page.locator(SEL["carte_cv"])
+                    for k in range(cartes.count()):
+                        texte = (cartes.nth(k).inner_text() or "").strip()
+                        nom_carte = texte.splitlines()[0] if texte else ""
+                        if nom_carte:
+                            self.cv_vus.append(nom_carte)
+                        if carte is None and meme_cv(nom_carte, nom):
+                            carte = cartes.nth(k)
             if carte is not None:
                 carte.click()
                 humanize()
@@ -103,6 +143,54 @@ class FreeWorkApplier:
             self.page.keyboard.press("Escape")
             humanize(0.3, 0.7)
         return False
+
+    def deposer_cv(self, chemin: str) -> bool:
+        """Dépose un CV local dans la fenêtre d'édition ouverte.
+
+        Deux stratégies, dans l'ordre : un champ <input type=file> présent
+        dans la page, même masqué, rempli directement ; sinon un bouton
+        d'ajout qui ouvre le sélecteur de fichiers du système. Le DOM de ce
+        panneau n'a pas encore été observé en conditions réelles : en cas
+        d'échec, le HTML et une capture sont enregistrés pour permettre de
+        corriger les sélecteurs sur pièce, et non par supposition.
+        """
+        ok, raison = verifier_fichier_cv(chemin)
+        if not ok:
+            self.depot_detail = raison
+            return False
+        guard()
+        nom = os.path.basename(chemin)
+        try:
+            champs = self.page.locator("input[type=file]")
+            if champs.count():
+                champs.first.set_input_files(chemin)
+            else:
+                bouton = self.page.get_by_role(
+                    "button", name=re.compile(
+                        r"ajouter|importer|t[ée]l[ée]charger|d[ée]poser|nouveau", re.I))
+                if not bouton.count():
+                    raise RuntimeError("ni champ fichier ni bouton d'ajout trouvé")
+                with self.page.expect_file_chooser(timeout=8000) as fc:
+                    bouton.first.click()
+                fc.value.set_files(chemin)
+            self.page.wait_for_timeout(4000)          # téléversement puis rafraîchissement
+            cartes = self.page.locator(SEL["carte_cv"])
+            for k in range(cartes.count()):
+                texte = (cartes.nth(k).inner_text() or "").strip()
+                if texte and meme_cv(texte.splitlines()[0], nom):
+                    self.depot_detail = f"déposé : {nom}"
+                    return True
+            raise RuntimeError("fichier envoyé mais absent de la liste des CV")
+        except Exception as e:                          # noqa: BLE001
+            self.depot_detail = f"dépôt échoué : {e}"
+            base = os.path.join(out_dir(), "depot-echec")
+            try:
+                open(base + ".html", "w", encoding="utf-8").write(self.page.content())
+                self.page.screenshot(path=base + ".png", full_page=True)
+                self.depot_detail += f" — DOM enregistré dans {base}.html"
+            except Exception:                           # noqa: BLE001
+                pass
+            return False
 
     def questions(self) -> list[dict]:
         """
@@ -143,6 +231,7 @@ class FreeWorkApplier:
     # ------------------------------------------------------------------ #
 
     def postuler(self, url: str, uid: str, titre: str, cv: str,
+                 cv_fichier: str | None = None,
                  message: str | None = None) -> Result:
         guard()
         self.page.goto(url, wait_until="domcontentloaded")
@@ -152,11 +241,13 @@ class FreeWorkApplier:
             return self._fin(Result(uid, url, titre, "deja_postule",
                                     "bouton d'envoi absent — probablement déjà candidat"))
 
-        if not self.choisir_cv(cv):
+        if not self.choisir_cv(cv, cv_fichier):
             return self._fin(Result(uid, url, titre, "bloquee",
                                     f"CV partagé non basculé sur {cv} — CV présents "
                                     f"sur Free-Work : {', '.join(getattr(self, 'cv_vus', [])) or 'aucun lu'}. "
-                                    f"Si le fichier n'y figure pas, le déposer d'abord.",
+                                    + (f"Dépôt : {getattr(self, 'depot_detail', '')}."
+                                       if cv_fichier else
+                                       "Si le fichier n'y figure pas, relancer avec --cv-fichier."),
                                     cv=cv))
 
         # questions filtrantes
