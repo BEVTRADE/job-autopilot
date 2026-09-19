@@ -4,7 +4,7 @@ set -e
 cd "$(dirname "$0")/.."
 python3 -m venv .venv
 .venv/bin/pip install --upgrade pip
-.venv/bin/pip install playwright
+.venv/bin/pip install -r requirements.txt   # playwright, python-docx, mcp<2, docx-mcp-server…
 .venv/bin/playwright install chromium
 mkdir -p ~/.job-autopilot
 echo

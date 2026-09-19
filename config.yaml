@@ -18,7 +18,9 @@ llm:
   # Modèle local (EPIC-14, ADR-011) : aucune donnée du candidat ne quitte le poste.
   provider: "ollama"
   base_url: "http://127.0.0.1:11434"   # adresse locale obligatoire, toute autre est refusée
-  model: "gpt-oss:20b"                 # voir docs/llm-local.md pour choisir selon la mémoire
+  # Poste à 24 Go, pas de téléchargement : on utilise les modèles déjà installés (ollama list).
+  model: "qwen2.5-coder:14b"           # Qwen en premier (choix du 19/09)
+  model_comparaison: "mistral-small3.2:24b"   # Mistral, comparé à Qwen à l'étape 4 d'EPIC-14
   num_ctx: 16384                       # la valeur par défaut d'Ollama est trop courte
   timeout_s: 300
   cv_test: "FR_ARCHITECTE_IA_GENAI.docx"

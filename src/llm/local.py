@@ -28,7 +28,7 @@ def _verifier_local(base_url: str) -> str:
 
 
 class LLMLocal:
-    def __init__(self, base_url: str = "http://127.0.0.1:11434", model: str = "gpt-oss:20b",
+    def __init__(self, base_url: str = "http://127.0.0.1:11434", model: str = "qwen2.5-coder:14b",
                  num_ctx: int = 16384, timeout: int = 300, temperature: float = 0.0):
         self.base_url = _verifier_local(base_url)
         self.model, self.num_ctx, self.timeout, self.temperature = model, num_ctx, timeout, temperature
@@ -38,7 +38,7 @@ class LLMLocal:
         l = (cfg or {}).get("llm", {})
         if l.get("provider") != "ollama":
             raise ValueError("llm.provider doit valoir « ollama » pour le modèle local")
-        return cls(l.get("base_url", "http://127.0.0.1:11434"), l.get("model", "gpt-oss:20b"),
+        return cls(l.get("base_url", "http://127.0.0.1:11434"), l.get("model", "qwen2.5-coder:14b"),
                    int(l.get("num_ctx", 16384)), int(l.get("timeout_s", 300)))
 
     def _post(self, chemin: str, corps: dict | None = None) -> dict:
