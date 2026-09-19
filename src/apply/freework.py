@@ -26,6 +26,12 @@ SEL = {
     "editer_cv": "button:has-text('Éditer')",
     "partager_cv": "button:has-text('Partager le CV')",
     "carte_cv": "figure",
+    # Relevés sur le DOM réel de la modale « Éditer » le 19/09/2026
+    # (data/output/2026-09-19/candidatures/depot-echec.html) :
+    "carte_fichier": "fw-modal [data-testid^='file-item-']",
+    "nom_fichier": "figcaption",
+    "ajouter_cv": "[data-testid='add-resume-button']",
+    "valider_modale": "fw-modal form button[type=submit]",
 }
 
 
@@ -93,6 +99,34 @@ class FreeWorkApplier:
                 return t
         return None
 
+    def _cartes(self) -> list[tuple[str, object]]:
+        """(nom affiché, élément cliquable) pour chaque CV de la modale."""
+        out = []
+        cartes = self.page.locator(SEL["carte_fichier"])
+        if cartes.count():
+            for k in range(cartes.count()):
+                c = cartes.nth(k)
+                cap = c.locator(SEL["nom_fichier"])
+                nom = (cap.first.inner_text() if cap.count() else c.inner_text()) or ""
+                out.append((nom.strip().splitlines()[0] if nom.strip() else "", c))
+            return out
+        cartes = self.page.locator(SEL["carte_cv"])          # ancien repli
+        for k in range(cartes.count()):
+            t = (cartes.nth(k).inner_text() or "").strip()
+            out.append((t.splitlines()[0] if t else "", cartes.nth(k)))
+        return out
+
+    def _valider_selection(self) -> bool:
+        """Confirme le CV choisi. Le 19/09, le bouton réel était « Joindre le
+        document » ; « Partager le CV » est conservé au cas où le libellé change."""
+        for sel in (SEL["partager_cv"], SEL["valider_modale"]):
+            b = self.page.locator(sel)
+            if b.count() and b.first.is_enabled():
+                b.first.click()
+                self.page.wait_for_timeout(2500)
+                return True
+        return False
+
     def choisir_cv(self, nom: str, chemin: str | None = None) -> bool:
         """Bascule le CV partagé. Relit l'état et ne renvoie True qu'après concordance.
 
@@ -111,37 +145,27 @@ class FreeWorkApplier:
         for i in range(btns.count()):
             btns.nth(i).click()
             humanize()
-            cartes = self.page.locator(SEL["carte_cv"])
-            carte = None
-            for k in range(cartes.count()):
-                texte = (cartes.nth(k).inner_text() or "").strip()
-                nom_carte = texte.splitlines()[0] if texte else ""
-                if nom_carte and nom_carte not in self.cv_vus:
-                    self.cv_vus.append(nom_carte)
-                if carte is None and meme_cv(nom_carte, nom):
-                    carte = cartes.nth(k)
+            cartes = self._cartes()
+            self.cv_vus = [n for n, _ in cartes if n]
+            carte = next((c for n, c in cartes if meme_cv(n, nom)), None)
             if carte is None and chemin and not self.depot_tente:
                 self.depot_tente = True
                 if self.deposer_cv(chemin):
-                    self.cv_vus = []
-                    cartes = self.page.locator(SEL["carte_cv"])
-                    for k in range(cartes.count()):
-                        texte = (cartes.nth(k).inner_text() or "").strip()
-                        nom_carte = texte.splitlines()[0] if texte else ""
-                        if nom_carte:
-                            self.cv_vus.append(nom_carte)
-                        if carte is None and meme_cv(nom_carte, nom):
-                            carte = cartes.nth(k)
+                    cartes = self._cartes()
+                    self.cv_vus = [n for n, _ in cartes if n]
+                    carte = next((c for n, c in cartes if meme_cv(n, nom)), None)
             if carte is not None:
                 carte.click()
                 humanize()
-                part = self.page.locator(SEL["partager_cv"])
-                if part.count():
-                    part.first.click()
-                    self.page.wait_for_timeout(2500)
+                if self._valider_selection():
                     return meme_cv(self.cv_partage(), nom)   # relecture obligatoire
+            if not self.cv_vus:
+                self.page.keyboard.press("Escape")
+                humanize(0.3, 0.7)
+                continue
             self.page.keyboard.press("Escape")
             humanize(0.3, 0.7)
+            break
         return False
 
     def deposer_cv(self, chemin: str) -> bool:
@@ -161,25 +185,39 @@ class FreeWorkApplier:
         guard()
         nom = os.path.basename(chemin)
         try:
-            champs = self.page.locator("input[type=file]")
-            if champs.count():
-                champs.first.set_input_files(chemin)
-            else:
-                bouton = self.page.get_by_role(
-                    "button", name=re.compile(
-                        r"ajouter|importer|t[ée]l[ée]charger|d[ée]poser|nouveau", re.I))
-                if not bouton.count():
-                    raise RuntimeError("ni champ fichier ni bouton d'ajout trouvé")
-                with self.page.expect_file_chooser(timeout=8000) as fc:
+            # Le 19/09, l'ancienne recherche par libellé prenait « Ajouter un
+            # document », premier dans le DOM, au lieu de « Ajouter un CV ».
+            bouton = self.page.locator(SEL["ajouter_cv"])
+            if not bouton.count():
+                bouton = self.page.get_by_role("button", name=re.compile(r"ajouter un cv", re.I))
+            if not bouton.count():
+                raise RuntimeError("bouton « Ajouter un CV » introuvable")
+            envoye = False
+            try:
+                with self.page.expect_file_chooser(timeout=5000) as fc:
                     bouton.first.click()
                 fc.value.set_files(chemin)
+                envoye = True
+            except Exception:                           # noqa: BLE001
+                # Pas de sélecteur système : le clic a pu révéler un champ fichier
+                champs = self.page.locator("input[type=file]")
+                if champs.count():
+                    champs.first.set_input_files(chemin)
+                    envoye = True
+            if not envoye:
+                raise RuntimeError("ni sélecteur de fichiers ni champ fichier après « Ajouter un CV »")
             self.page.wait_for_timeout(4000)          # téléversement puis rafraîchissement
-            cartes = self.page.locator(SEL["carte_cv"])
-            for k in range(cartes.count()):
-                texte = (cartes.nth(k).inner_text() or "").strip()
-                if texte and meme_cv(texte.splitlines()[0], nom):
+            # Certains panneaux demandent une confirmation après le choix du fichier
+            for n, _ in self._cartes():
+                if meme_cv(n, nom):
                     self.depot_detail = f"déposé : {nom}"
                     return True
+            if self._valider_selection():
+                self.page.wait_for_timeout(2000)
+                for n, _ in self._cartes():
+                    if meme_cv(n, nom):
+                        self.depot_detail = f"déposé après confirmation : {nom}"
+                        return True
             raise RuntimeError("fichier envoyé mais absent de la liste des CV")
         except Exception as e:                          # noqa: BLE001
             self.depot_detail = f"dépôt échoué : {e}"
