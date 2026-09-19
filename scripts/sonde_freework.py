@@ -34,7 +34,8 @@ from apply import CV_REPOS                              # noqa: E402
 
 OFFRE = (f"{BASE}/fr/tech-it/job-mission/"
          "architecte-de-base-de-donnees/architecte-de-domaine-simulation")
-CANDIDATURES = f"{BASE}/fr/applications"
+# /fr/applications redirige vers /fr/login (vérifié le 19/09) : mauvaise route.
+CANDIDATURES = f"{BASE}/fr/tech-it/dashboard/applications"
 OUT = os.path.join(ROOT, "tests", "pages", "freework")
 
 CV_DEFAUT = os.path.join(
