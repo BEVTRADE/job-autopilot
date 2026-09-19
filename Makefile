@@ -104,6 +104,28 @@ catalogue:
 diag-session:
 	$(PY) scripts/diag_session.py --visiter
 
+# Agent launchd TEMPORAIRE : une visite toutes les 6 h, verrou du matin partagé.
+# À retirer (make diag-deplanifier) une fois la mesure lue.
+DIAG_LABEL := fr.kiras.jobautopilot.diag-session
+DIAG_PLIST := $$HOME/Library/LaunchAgents/$(DIAG_LABEL).plist
+
+diag-planifier:
+	@d="$$HOME/Library/LaunchAgents"; mkdir -p "$$d" data/logs; \
+	py="$(abspath $(PY))"; \
+	[ -x "$$py" ] || py="$$(command -v python3)"; \
+	sed -e "s#@RACINE@#$$PWD#g" -e "s#@PYTHON@#$$py#g" \
+	  scripts/launchd/diag-session.plist > "$(DIAG_PLIST)"; \
+	plutil -lint "$(DIAG_PLIST)" >/dev/null || { echo "plist invalide"; exit 1; }; \
+	launchctl unload "$(DIAG_PLIST)" 2>/dev/null || true; \
+	launchctl load "$(DIAG_PLIST)"; \
+	echo "mesure lancée : un relevé maintenant, puis toutes les 6 h"; \
+	echo "lecture : data/diag-session.jsonl — arrêt : make diag-deplanifier"
+
+diag-deplanifier:
+	@launchctl unload "$(DIAG_PLIST)" 2>/dev/null \
+	  && echo "mesure arrêtée" || echo "aucune mesure chargée"; \
+	rm -f "$(DIAG_PLIST)"
+
 # ---------------------------------------------------------------- planification
 
 planifier:
@@ -122,7 +144,8 @@ deplanifier:
 etat:
 	@echo "dépôt    : $$(git log --oneline -1 2>/dev/null || echo 'pas de dépôt')"
 	@echo "modifié  : $$(git status --short 2>/dev/null | wc -l | tr -d ' ') fichier(s)"
-	@echo "tâche    : $$(launchctl list 2>/dev/null | grep -c jobautopilot | tr -d ' ') chargée(s)"
+	@echo "tâche    : $$(launchctl list 2>/dev/null | grep -c 'fr.kiras.jobautopilot$$' | tr -d ' ') chargée(s)"
+	@echo "mesure   : $$(launchctl list 2>/dev/null | grep -q 'jobautopilot.diag-session' && echo 'EN COURS (make diag-deplanifier)' || echo inactive)"
 	@echo "session  : $$([ -d $$HOME/.job-autopilot/browser-profile ] && echo présente || echo ABSENTE)"
 	@echo "stop     : $$([ -e $$HOME/.job-autopilot/STOP ] && echo ACTIF || echo inactif)"
 	@echo "retenues : $$([ -s data/output/$(JOUR)/retenues.json ] && \

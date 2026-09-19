@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Agent TEMPORAIRE de mesure de durée de session (EPIC-12).
+  Installé par `make diag-planifier`, retiré par `make diag-deplanifier`.
+  @RACINE@ et @PYTHON@ sont remplacés à l'installation.
+
+  Toutes les 6 heures, ouvre une page de connecté et ajoute une ligne à
+  data/diag-session.jsonl. Prend le verrou ~/.job-autopilot/verrou, celui de
+  scripts/matin.sh : si l'exécution de 7h30 tourne, la visite s'abstient.
+  RunAtLoad : un premier relevé dès l'installation, point de départ de la mesure.
+  Si le Mac dort à l'échéance, launchd rattrape au réveil (une seule visite).
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>fr.kiras.jobautopilot.diag-session</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>@PYTHON@</string>
+    <string>@RACINE@/scripts/diag_session.py</string>
+    <string>--visiter</string>
+  </array>
+
+  <key>StartInterval</key>
+  <integer>21600</integer>
+
+  <key>RunAtLoad</key>
+  <true/>
+
+  <key>WorkingDirectory</key>
+  <string>@RACINE@</string>
+
+  <key>StandardOutPath</key>
+  <string>@RACINE@/data/logs/diag-session.out</string>
+  <key>StandardErrorPath</key>
+  <string>@RACINE@/data/logs/diag-session.err</string>
+</dict>
+</plist>

@@ -117,3 +117,13 @@ def test_visiter_redirige_vers_la_connexion():
     ligne = d.visiter(_Page(False, url), _Ctx())
     assert not ligne["connecte"] and ligne["page"] == "/fr/login"
     assert "SECRET" not in json.dumps(ligne)
+
+
+def test_agent_launchd_toutes_les_6_heures():
+    import plistlib
+    brut = open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                             "scripts", "launchd", "diag-session.plist"), encoding="utf-8").read()
+    p = plistlib.loads(brut.replace("@RACINE@", "/r").replace("@PYTHON@", "/p").encode())
+    assert p["StartInterval"] == 6 * 3600
+    assert p["ProgramArguments"][-1] == "--visiter"
+    assert p["Label"] != "fr.kiras.jobautopilot"          # ne remplace pas l'agent du matin
