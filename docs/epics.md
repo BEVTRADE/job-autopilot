@@ -386,7 +386,8 @@ candidat est inscrit dans le code. Inventaire du 19 septembre :
    - *Serveur dédié* — Linux, navigateur sans affichage, timer systemd,
      notification par courriel puisqu'il n'y a pas d'écran. La connexion aux
      sites se fait une fois depuis un navigateur visible, puis la session est
-     transférée ; le serveur ne demande et ne stocke jamais de mot de passe.
+     transférée. Si une reconnexion automatique s'avère nécessaire, voir
+     EPIC-12 : identifiants dans le trousseau du système, jamais en clair.
      Risque à évaluer : certains sites traitent les adresses de centres de
      données avec méfiance.
 5. **Migration de l'installation actuelle** vers ce modèle, sans rupture : le
@@ -403,7 +404,8 @@ candidat est inscrit dans le code. Inventaire du 19 septembre :
    personnelle.
 4. L'installation fonctionne sur macOS et sur un serveur Linux sans écran, avec
    une planification et une notification adaptées à chacun.
-5. Aucun mot de passe n'est jamais demandé, écrit ou journalisé.
+5. Aucun mot de passe n'est jamais écrit en clair ni journalisé ; seul le
+   trousseau du système peut en conserver, voir EPIC-12.
 6. Le candidat migré retrouve exactement ses scores actuels, vérifié par
    `scripts/calibrate.py` avant et après.
 7. Un test échoue si une valeur propre au candidat réapparaît en dur dans le
@@ -481,3 +483,68 @@ ne se prête pas à l'automatisation.
 
 **Dépendances.** EPIC-10 pour que le type de contrat et le salaire soient
 lus dans `candidat.yaml`. France Travail peut démarrer avant.
+
+---
+
+## EPIC-12 — Session durable, sans reconnexion manuelle
+
+**Problème.** Le 19 septembre, l'envoi réel a demandé une connexion alors
+qu'une session avait été ouverte par `make login`. Un système qui exige de se
+reconnecter à la main n'est pas autonome : la tâche planifiée échouerait
+silencieusement le premier matin où la session a expiré — ou, depuis EPIC-9,
+s'arrêterait proprement, mais s'arrêterait quand même.
+
+**Hypothèse principale, à vérifier avant tout code.** Tous les scripts ouvrent
+le même profil persistant, `~/.job-autopilot/browser-profile`, via
+`launch_persistent_context`. Chromium n'y conserve pas les **cookies de
+session** — ceux sans date d'expiration — à la fermeture du navigateur. Si le
+jeton d'authentification de Free-Work est de ce type, la connexion est perdue
+à chaque fin d'exécution, quel que soit le profil. D'autres causes restent
+possibles : jeton de courte durée sans renouvellement, profil verrouillé par
+un navigateur resté ouvert, deux profils différents entre `make login` et
+`apply.py`.
+
+**Périmètre, en trois niveaux, du plus simple au plus lourd.** On ne passe au
+niveau suivant que si le précédent ne suffit pas, preuve à l'appui.
+
+1. **Diagnostic.** Après connexion, inventorier ce qui porte
+   l'authentification : cookies, avec leur domaine et leur date d'expiration,
+   stockage local, stockage de session. Fermer, rouvrir, et observer ce qui a
+   disparu. Mesurer ensuite la durée de vie réelle de la session sur plusieurs
+   jours.
+2. **Persistance de l'état.** Enregistrer l'état de connexion complet en fin de
+   chaque exécution réussie — cookies de session inclus — dans un fichier
+   protégé, lisible par le seul utilisateur, hors du dépôt. Le réinjecter à
+   l'ouverture. Rafraîchir cet état à chaque exécution, pour qu'une session
+   qui se renouvelle en naviguant reste vivante tant que le radar tourne.
+3. **Reconnexion automatique**, seulement si le niveau 2 ne tient pas la
+   durée. Identifiants conservés **dans le Trousseau macOS**, ou le trousseau
+   système sous Linux, jamais dans un fichier, jamais dans le dépôt, jamais
+   dans un journal ni une capture. Le candidat les saisit une fois, lui-même.
+   Quand la session est expirée, le script se reconnecte seul, puis reprend.
+
+**Limites fermes.**
+
+- Si le site présente un CAPTCHA, une vérification en deux étapes ou tout
+  contrôle anti-robot à la connexion, le script **s'arrête et alerte**. Il ne
+  tente jamais de le contourner.
+- Aucun mot de passe en clair, nulle part. Un test le vérifie.
+- Une connexion refusée n'est pas réessayée en boucle : un échec, une alerte,
+  arrêt. Plusieurs échecs rapprochés peuvent bloquer un compte.
+
+**Critères d'acceptation.**
+
+1. Le diagnostic est écrit dans `docs/sources.md` : où vit le jeton, sa durée
+   de vie mesurée, et ce qui le fait disparaître.
+2. Après une connexion unique, trois exécutions successives, navigateur fermé
+   entre chaque, tournent sans reconnexion.
+3. Une session tenue au moins sept jours consécutifs par la tâche planifiée,
+   sans intervention.
+4. Si le niveau 3 est nécessaire : une session volontairement invalidée est
+   rétablie automatiquement, sans intervention.
+5. Aucune occurrence du mot de passe dans le dépôt, les journaux, les rapports,
+   les captures ni les instantanés HTML — vérifié par un test.
+6. Un CAPTCHA ou une double authentification produit une alerte et un arrêt,
+   testés sur instantané.
+
+**Dépendances.** EPIC-8 fait. Complète EPIC-9, dont c'est la pièce manquante.
