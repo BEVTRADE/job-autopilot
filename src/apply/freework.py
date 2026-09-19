@@ -18,20 +18,38 @@ from .base import Result, guard, humanize, out_dir, journal, PROFILE
 from .answers import repondre
 
 BASE = "https://www.free-work.com"
-CANDIDATURES = f"{BASE}/fr/tech-it/dashboard/applications"
+# 04-modale-cv-ouverture, 11-mes-candidatures : l'ancienne URL,
+# /fr/tech-it/dashboard/applications, renvoyait un 404.
+CANDIDATURES = f"{BASE}/fr/applications"
 
+_M = "[data-testid='file-chooser-modal']"
+
+# Relevés sur le DOM réel le 19/09/2026 par scripts/sonde_freework.py ; chaque
+# entrée est testée contre l'instantané de son étape (tests/test_freework_dom.py)
+# et inventoriée dans docs/inventaire-selecteurs-freework.md.
 SEL = {
+    # 02-panneau-candidature
     "message": "#job-application-message",
-    "submit": "button[type=submit]:has-text('Je postule')",
-    "editer_cv": "button:has-text('Éditer')",
-    "partager_cv": "button:has-text('Partager le CV')",
-    "carte_cv": "figure",
-    # Relevés sur le DOM réel de la modale « Éditer » le 19/09/2026
-    # (data/output/2026-09-19/candidatures/depot-echec.html) :
-    "carte_fichier": "fw-modal [data-testid^='file-item-']",
+    # Ancré sur le formulaire : le bouton n'a ni id ni data-testid.
+    "submit": "form:has(#job-application-message) button[type=submit]",
+    # 02 : deux boutons « Éditer » (Profil, CV) ; seul celui du CV a un id.
+    "editer_cv": "#default-resume-edit",
+    "cv_partage_lien": "#default-resume-attachment",
+    "session": "[data-testid='user-menu']",
+    # 04 à 08 : modale des CV. Deux <form> y coexistent, la liste (« Partager
+    # le CV ») et le dépôt (« Envoyer mon CV ») : l'ancien `form button[type=submit]`
+    # renvoyait les deux, et « Mettre à jour » dans la modale Profil (03).
+    "modale_cv": _M,
+    "carte_fichier": f"{_M} [data-testid='file-list'] > [data-testid^='file-item-']",
     "nom_fichier": "figcaption",
+    "partager_cv": f"{_M} form:has([data-testid='file-list']) button[type=submit]",
+    # « Ajouter un CV » est un accordéon OUVERT à l'ouverture de la modale (04) ;
+    # cliquer dessus le referme (05). N'y cliquer que si « Parcourir… » est absent.
     "ajouter_cv": "[data-testid='add-resume-button']",
-    "valider_modale": "fw-modal form button[type=submit]",
+    # Seul sélecteur à libellé : « Parcourir… » et « Changer » (06) partagent le
+    # même conteneur, sans attribut propre.
+    "parcourir": f"{_M} [data-testid='file-upload-input'] button:has-text('Parcourir')",
+    "envoyer_cv": f"{_M} form:has([data-testid='file-upload-input']) button[type=submit]",
 }
 
 
@@ -94,50 +112,66 @@ class FreeWorkApplier:
     def session_active(self) -> bool:
         """La session Free-Work est-elle ouverte ?
 
-        Marqueur relevé dans le DOM réel du 19/09 : le menu utilisateur de
-        l'en-tête, `[data-testid=user-menu]`, n'existe que connecté.
+        Marqueur : le menu utilisateur de l'en-tête n'existe que connecté
+        (instantanés 01 à 11, tous connectés).
         """
         try:
             self.page.goto(f"{BASE}/fr/tech-it", wait_until="domcontentloaded")
             self.page.wait_for_timeout(2000)
-            return self.page.locator("[data-testid='user-menu']").count() > 0
+            return self.page.locator(SEL["session"]).count() > 0
         except Exception:                                    # noqa: BLE001
             return False
 
     def cv_partage(self) -> str | None:
         """Nom du CV actuellement partagé, lu dans le panneau de candidature."""
-        for a in self.page.locator("a[href*='/users/documents/']").all():
-            t = (a.inner_text() or "").strip()
-            if t.lower().endswith((".pdf", ".docx")):
-                return t
-        return None
+        lien = self.page.locator(SEL["cv_partage_lien"])
+        if not lien.count():
+            return None
+        return (lien.first.inner_text() or "").strip() or None
 
     def _cartes(self) -> list[tuple[str, object]]:
         """(nom affiché, élément cliquable) pour chaque CV de la modale."""
         out = []
         cartes = self.page.locator(SEL["carte_fichier"])
-        if cartes.count():
-            for k in range(cartes.count()):
-                c = cartes.nth(k)
-                cap = c.locator(SEL["nom_fichier"])
-                nom = (cap.first.inner_text() if cap.count() else c.inner_text()) or ""
-                out.append((nom.strip().splitlines()[0] if nom.strip() else "", c))
-            return out
-        cartes = self.page.locator("fw-modal " + SEL["carte_cv"])   # repli, dans la modale seulement
         for k in range(cartes.count()):
-            t = (cartes.nth(k).inner_text() or "").strip()
-            out.append((t.splitlines()[0] if t else "", cartes.nth(k)))
+            c = cartes.nth(k)
+            out.append(((c.locator(SEL["nom_fichier"]).first.inner_text() or "").strip(), c))
         return out
 
-    def _valider_selection(self) -> bool:
-        """Confirme le CV choisi. Le 19/09, le bouton réel était « Joindre le
-        document » ; « Partager le CV » est conservé au cas où le libellé change."""
-        for sel in (SEL["partager_cv"], SEL["valider_modale"]):
-            b = self.page.locator(sel)
-            if b.count() and b.first.is_enabled():
+    def _modale_cv_ouverte(self) -> bool:
+        return self.page.locator(SEL["modale_cv"]).count() > 0
+
+    def _ouvrir_modale_cv(self) -> bool:
+        """Ouvre la modale des CV par son bouton « Éditer » (celui du CV partagé,
+        pas celui du Profil : `#default-resume-edit` est unique, 02)."""
+        if not self._modale_cv_ouverte():
+            bouton = self.page.locator(SEL["editer_cv"])
+            if not bouton.count():
+                return False
+            bouton.first.click()
+            humanize()
+        return self._modale_cv_ouverte()
+
+    def _cliquer_actif(self, cle: str, attente_ms: int = 3000) -> bool:
+        """Clique le bouton `cle` une fois actif : « Partager le CV » et « Envoyer
+        mon CV » sont désactivés à l'ouverture (04) et s'activent après le choix
+        d'une carte (08) ou d'un fichier (06)."""
+        b = self.page.locator(SEL[cle])
+        if not b.count():
+            return False
+        for _ in range(attente_ms // 250):
+            if b.first.is_enabled():
                 b.first.click()
-                self.page.wait_for_timeout(2500)
                 return True
+            self.page.wait_for_timeout(250)
+        return False
+
+    def _valider_selection(self) -> bool:
+        """Confirme le CV choisi par « Partager le CV » (08). Le libellé
+        « Joindre le document » n'existe dans aucun instantané."""
+        if self._cliquer_actif("partager_cv"):
+            self.page.wait_for_timeout(2500)         # la modale se ferme (09)
+            return True
         return False
 
     def choisir_cv(self, nom: str, chemin: str | None = None) -> bool:
@@ -154,47 +188,43 @@ class FreeWorkApplier:
         if meme_cv(self.cv_partage(), nom):
             return True
         guard()
-        btns = self.page.locator(SEL["editer_cv"])
-        for i in range(btns.count()):
-            btns.nth(i).click()
+        # `#default-resume-edit` désigne sans ambiguïté le bouton du CV partagé,
+        # pas celui du Profil (02) : plus de boucle sur les boutons « Éditer ».
+        if not self._ouvrir_modale_cv():
+            self.depot_detail = "modale des CV non ouverte"
+            return False
+        cartes = self._cartes()
+        self.cv_vus = [n for n, _ in cartes if n]
+        carte = next((c for n, c in cartes if meme_cv(n, nom)), None)
+        if carte is None and chemin and not self.depot_tente:
+            self.depot_tente = True
+            if self.deposer_cv(chemin):
+                self._ouvrir_modale_cv()             # au cas où le dépôt l'a refermée
+                cartes = self._cartes()
+                self.cv_vus = [n for n, _ in cartes if n]
+                carte = next((c for n, c in cartes if meme_cv(n, nom)), None)
+        if carte is not None:
+            carte.click()
             humanize()
-            cartes = self._cartes()
-            # Deux boutons « Éditer » coexistent : Profil (visibilité,
-            # disponibilité) puis CV partagé. Le 19/09, le dépôt a été tenté
-            # dans la modale du profil, où il n'y a ni CV ni bouton d'ajout.
-            # On reconnaît la modale des CV à ses cartes ou à son bouton.
-            modale_cv = bool(cartes) or self.page.locator(SEL["ajouter_cv"]).count() > 0
-            if not modale_cv:
-                self.page.keyboard.press("Escape")
-                humanize(0.3, 0.7)
-                continue
-            self.cv_vus = [n for n, _ in cartes if n]
-            carte = next((c for n, c in cartes if meme_cv(n, nom)), None)
-            if carte is None and chemin and not self.depot_tente:
-                self.depot_tente = True
-                if self.deposer_cv(chemin):
-                    cartes = self._cartes()
-                    self.cv_vus = [n for n, _ in cartes if n]
-                    carte = next((c for n, c in cartes if meme_cv(n, nom)), None)
-            if carte is not None:
-                carte.click()
-                humanize()
-                if self._valider_selection():
-                    return meme_cv(self.cv_partage(), nom)   # relecture obligatoire
+            if self._valider_selection():
+                return meme_cv(self.cv_partage(), nom)   # relecture obligatoire
+        if self._modale_cv_ouverte():
             self.page.keyboard.press("Escape")
             humanize(0.3, 0.7)
-            break
         return False
 
     def deposer_cv(self, chemin: str) -> bool:
         """Dépose un CV local dans la fenêtre d'édition ouverte.
 
-        Deux stratégies, dans l'ordre : un champ <input type=file> présent
-        dans la page, même masqué, rempli directement ; sinon un bouton
-        d'ajout qui ouvre le sélecteur de fichiers du système. Le DOM de ce
-        panneau n'a pas encore été observé en conditions réelles : en cas
-        d'échec, le HTML et une capture sont enregistrés pour permettre de
-        corriger les sélecteurs sur pièce, et non par supposition.
+        Parcours observé (instantanés 04, 05, 06) : à l'ouverture de la modale,
+        la zone de dépôt est déjà ouverte, avec « Parcourir… ». « Ajouter un CV »
+        est un accordéon : cliquer dessus la referme. Le fichier se choisit par
+        le sélecteur système ouvert par « Parcourir… » (aucun input[type=file]
+        dans le DOM), puis « Envoyer mon CV », inactif jusque-là, le téléverse.
+
+        Le 07, après « Envoyer mon CV », n'a pas encore été observé : le CV de
+        simulation était déjà présent lors de la sonde. En cas d'échec, le HTML
+        et une capture sont enregistrés pour corriger sur pièce.
         """
         ok, raison = verifier_fichier_cv(chemin)
         if not ok:
@@ -203,39 +233,29 @@ class FreeWorkApplier:
         guard()
         nom = os.path.basename(chemin)
         try:
-            # Le 19/09, l'ancienne recherche par libellé prenait « Ajouter un
-            # document », premier dans le DOM, au lieu de « Ajouter un CV ».
-            bouton = self.page.locator(SEL["ajouter_cv"])
-            if not bouton.count():
-                bouton = self.page.get_by_role("button", name=re.compile(r"ajouter un cv", re.I))
-            if not bouton.count():
-                raise RuntimeError("bouton « Ajouter un CV » introuvable")
-            envoye = False
-            try:
-                with self.page.expect_file_chooser(timeout=5000) as fc:
-                    bouton.first.click()
-                fc.value.set_files(chemin)
-                envoye = True
-            except Exception:                           # noqa: BLE001
-                # Pas de sélecteur système : le clic a pu révéler un champ fichier
-                champs = self.page.locator("input[type=file]")
-                if champs.count():
-                    champs.first.set_input_files(chemin)
-                    envoye = True
-            if not envoye:
-                raise RuntimeError("ni sélecteur de fichiers ni champ fichier après « Ajouter un CV »")
-            self.page.wait_for_timeout(4000)          # téléversement puis rafraîchissement
-            # Certains panneaux demandent une confirmation après le choix du fichier
-            for n, _ in self._cartes():
-                if meme_cv(n, nom):
+            if not self._modale_cv_ouverte():
+                raise RuntimeError("modale des CV non ouverte")
+            parcourir = self.page.locator(SEL["parcourir"])
+            if not parcourir.count():                    # accordéon refermé
+                ajouter = self.page.locator(SEL["ajouter_cv"])
+                if not ajouter.count():
+                    raise RuntimeError("bouton « Ajouter un CV » introuvable")
+                ajouter.first.click()
+                humanize()
+                parcourir.first.wait_for(state="visible", timeout=5000)
+            with self.page.expect_file_chooser(timeout=5000) as fc:
+                parcourir.first.click()
+            fc.value.set_files(chemin)
+            self.page.wait_for_timeout(1500)
+            if not self._cliquer_actif("envoyer_cv"):
+                raise RuntimeError("« Envoyer mon CV » absent ou resté inactif après le choix du fichier")
+            # téléversement puis rafraîchissement de la liste
+            for _ in range(12):
+                self.page.wait_for_timeout(1000)
+                self._ouvrir_modale_cv()
+                if any(meme_cv(n, nom) for n, _ in self._cartes()):
                     self.depot_detail = f"déposé : {nom}"
                     return True
-            if self._valider_selection():
-                self.page.wait_for_timeout(2000)
-                for n, _ in self._cartes():
-                    if meme_cv(n, nom):
-                        self.depot_detail = f"déposé après confirmation : {nom}"
-                        return True
             raise RuntimeError("fichier envoyé mais absent de la liste des CV")
         except Exception as e:                          # noqa: BLE001
             self.depot_detail = f"dépôt échoué : {e}"

@@ -3,6 +3,7 @@
 #   make            liste les cibles
 #   make install    installe l'environnement
 #   make test       tests hors ligne
+#   make sonde      relève le DOM réel de Free-Work, sans candidater
 #   make simu       exécution du matin, sans envoi
 #
 # La cible d'envoi réel est délibérément verbeuse : elle ne doit pas être
@@ -13,7 +14,7 @@ PY := $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 JOUR := $(shell date +%F)
 
 .DEFAULT_GOAL := aide
-.PHONY: aide install login test veille simu candidater-pour-de-vrai rapport \
+.PHONY: aide install login test sonde veille simu candidater-pour-de-vrai rapport \
         attente catalogue planifier deplanifier etat stop reprendre propre
 
 aide:
@@ -22,7 +23,8 @@ aide:
 	@echo "  Mise en service        spécification : docs/autonomie.md"
 	@echo "    make install         environnement, Playwright, Chromium"
 	@echo "    make login           connexion Free-Work, manuelle, une fois"
-	@echo "    make test            tests hors ligne, sans réseau ni navigateur"
+	@echo "    make test            tests hors ligne, sans réseau (Chromium local pour le DOM)"
+	@echo "    make sonde           relève le DOM réel de Free-Work, aucune candidature"
 	@echo
 	@echo "  Exploitation           spécification : docs/autonomie.md"
 	@echo "    make veille          collecte seule, aucune candidature"
@@ -51,6 +53,15 @@ login:
 	$(PY) scripts/apply.py --login
 
 test:
+	bash scripts/verifier.sh
+
+# Relève le DOM réel du parcours de candidature (EPIC-8) dans tests/pages/freework/,
+# sans jamais cliquer sur « Je postule », puis rejoue les tests de sélecteurs sur
+# ces instantanés : s'ils échouent, le site a changé, on le sait avant un envoi raté.
+# Écrit sur le compte : dépose le CV de simulation s'il manque, bascule le CV
+# partagé puis remet le CV de repos.
+sonde:
+	$(PY) scripts/sonde_freework.py
 	bash scripts/verifier.sh
 
 # ---------------------------------------------------------------- exploitation
