@@ -191,3 +191,28 @@ côté du navigateur.
 - La cause exacte de la demande de connexion du 19 septembre : la date de la
   connexion précédente n'est pas consignée. Un écart de plus de 48 h avec
   `make login` suffirait à l'expliquer, sans que ce soit établi.
+
+## Reconnaissance du 19 septembre 2026 — Indeed
+
+**Candidature automatisée : interdite.** Les conditions d'utilisation
+d'Indeed, section chercheurs d'emploi, disent : « Use of any automation,
+scripting, or bots to automate the Indeed Apply process outside of Indeed's
+official vendors and tooling is prohibited »
+(https://www.indeed.com/legal). Le risque est la fermeture du compte du
+candidat.
+
+**API : aucune pour les candidats.** Les API d'Indeed sont réservées aux
+partenaires — employeurs, cabinets, éditeurs d'ATS. Il n'existe pas d'API de
+recherche d'offres ouverte aux chercheurs d'emploi.
+
+**Voie retenue : les alertes e-mail.** Le candidat configure ses alertes
+Indeed ; les courriels, déposés en `.eml` dans `data/alertes/indeed/`, sont
+lus par `src/sources/alertes_indeed.py`. Aucune visite du site, aucun appel
+réseau. L'identifiant d'offre `jk` sert de clé ; l'URL canonique est
+reconstruite. La candidature est préparée par `src/apply/indeed.py` — lien,
+CV recommandé — et présentée dans le rapport, section « À envoyer à la
+main ».
+
+**À valider** : l'extracteur a été écrit sans courriel d'alerte réel. Déposer
+une vraie alerte dans `data/alertes/indeed/` et vérifier l'extraction avant
+de s'y fier.

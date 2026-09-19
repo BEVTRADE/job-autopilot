@@ -12,7 +12,7 @@ import datetime as dt, json, os, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-STATUTS = ["envoyee", "simulee", "deja_postule", "bloquee", "echec", "session_expiree"]
+STATUTS = ["envoyee", "simulee", "deja_postule", "bloquee", "echec", "session_expiree", "a_faire_manuel"]
 LIBELLE = {
     "envoyee": "envoyées et confirmées",
     "simulee": "simulées, dry-run actif",
@@ -20,6 +20,7 @@ LIBELLE = {
     "bloquee": "bloquées, reprise manuelle",
     "echec": "échecs techniques",
     "session_expiree": "session Free-Work expirée, reconnexion requise",
+    "a_faire_manuel": "à envoyer à la main, dossier préparé",
 }
 
 
@@ -100,6 +101,17 @@ def construire(day: str) -> tuple[str, dict]:
             L.append(f"  {a['url']}")
         L += ["", "Ces candidatures ont été interrompues avant l'envoi. Le script",
               "n'invente jamais de réponse à une question qu'il ne reconnaît pas.", ""]
+
+    manuels = [e for e in entrees if e.get("status") == "a_faire_manuel"]
+    if manuels:
+        L += ["## À envoyer à la main", "",
+              "Sites dont les conditions interdisent la candidature automatisée.", ""]
+        for e in manuels:
+            L.append(f"- {e.get('title')}")
+            L.append(f"  {e.get('url')}")
+            if e.get("cv"):
+                L.append(f"  CV à joindre : {e.get('cv')}")
+        L += [""]
 
     tentes = {e.get("url") for e in entrees}
     non_tentees = [r for r in retenues if r.get("raw", {}).get("url") not in tentes]

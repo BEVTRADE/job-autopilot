@@ -21,6 +21,12 @@ RECHERCHE = ("https://www.linkedin.com/jobs/search/"
 PLAFOND_JOUR = 3
 
 
+def _consigner(res: Result) -> Result:
+    """journal() renvoie le chemin du fichier : on renvoie le résultat."""
+    journal(res)
+    return res
+
+
 class LinkedIn:
     name = "linkedin"
 
@@ -69,13 +75,13 @@ class LinkedIn:
 
     def postuler(self, url: str, uid: str, titre: str, envoyes_aujourdhui: int) -> Result:
         if "soumettre" not in self.capacites:
-            return journal(Result(uid, url, titre, "bloquee",
+            return _consigner(Result(uid, url, titre, "bloquee",
                                   "soumission LinkedIn désactivée — activation explicite requise"))
         if envoyes_aujourdhui >= PLAFOND_JOUR:
-            return journal(Result(uid, url, titre, "bloquee",
+            return _consigner(Result(uid, url, titre, "bloquee",
                                   f"plafond quotidien atteint ({PLAFOND_JOUR})"))
         if self.dry_run:
-            return journal(Result(uid, url, titre, "simulee", "dry_run actif"))
-        return journal(Result(uid, url, titre, "bloquee",
+            return _consigner(Result(uid, url, titre, "simulee", "dry_run actif"))
+        return _consigner(Result(uid, url, titre, "bloquee",
                               "chemin de soumission non implémenté volontairement — "
                               "voir la note en tête de module"))

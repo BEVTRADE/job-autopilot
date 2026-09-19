@@ -466,6 +466,12 @@ clique.
 Le même mécanisme vaut pour tout site qui envoie des alertes par courriel mais
 ne se prête pas à l'automatisation.
 
+**Indeed suit la même voie**, pour la même raison : ses conditions interdisent
+explicitement d'automatiser le processus de candidature. Connecteur livré le
+19 septembre : `src/sources/alertes_indeed.py` lit les alertes e-mail,
+`src/apply/indeed.py` prépare la candidature sans jamais la soumettre. Voir
+`docs/sources.md`.
+
 **Critères d'acceptation.**
 
 1. Chaque annonce collectée porte son type de contrat.
