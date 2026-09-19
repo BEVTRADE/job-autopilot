@@ -554,3 +554,62 @@ niveau suivant que si le précédent ne suffit pas, preuve à l'appui.
    testés sur instantané.
 
 **Dépendances.** EPIC-8 fait. Complète EPIC-9, dont c'est la pièce manquante.
+
+---
+
+## EPIC-13 — Envoi automatique Indeed, compte personnel, à risque assumé
+
+**Décision du candidat, 19/09/2026.** Les conditions d'utilisation d'Indeed
+interdisent aux chercheurs d'emploi d'automatiser Indeed Apply. Le candidat a
+lu la clause et choisit de l'automatiser sur son propre compte, en acceptant le
+risque de restriction ou de fermeture. Cette décision vaut pour son compte
+personnel uniquement ; elle n'est pas une fonctionnalité à activer par défaut
+chez d'autres candidats (EPIC-10) : le paramètre reste à `false` dans le
+modèle de configuration.
+
+**Principe.** Comme EPIC-8 : rien n'est codé sans avoir été vu dans le DOM
+réel. On sonde d'abord, on écrit ensuite.
+
+**Périmètre.**
+
+1. **Sonde** `scripts/sonde_indeed.py` : ouvre une offre Indeed Apply avec le
+   profil persistant, parcourt chaque écran du formulaire (coordonnées, CV,
+   questions de l'employeur, relecture) et enregistre HTML + capture dans
+   `tests/pages/indeed/`. Elle ne clique **jamais** sur le bouton final
+   d'envoi. Les instantanés sont purgés de toute donnée personnelle avant
+   commit (e-mail, téléphone, adresse remplacés).
+2. **Capacité `soumettre`** dans `src/apply/indeed.py`, présente seulement si
+   `indeed.autoriser_soumission: true` dans la configuration du candidat.
+   Sinon, comportement actuel inchangé (`a_faire_manuel`).
+3. **Parcours** : choix du CV recommandé par le moteur (téléversement du PDF),
+   coordonnées pré-remplies par Indeed conservées telles quelles, questions de
+   l'employeur répondues **uniquement** depuis `answers` du profil ; une
+   question sans réponse connue → arrêt, statut `a_faire_manuel`, question
+   consignée dans le rapport. Jamais de réponse devinée.
+4. **Garde-fous**, repris de Free-Work et LinkedIn :
+   - dry-run par défaut, envoi réel seulement avec `--envoyer` ;
+   - plafond de **3 envois par jour**, cadence humaine entre deux offres ;
+   - kill-switch, verrou, relecture bloquante (ADR-007), capture avant et
+     après envoi, vérification dans « Mes candidatures » ;
+   - offres redirigées vers le site de l'employeur (pas d'Indeed Apply) :
+     `a_faire_manuel`, jamais de formulaire tiers automatisé.
+5. **Arrêt immédiat**, sans contournement ni nouvelle tentative, sur :
+   CAPTCHA, hCaptcha/Cloudflare, vérification e-mail ou SMS, page de
+   connexion, message de restriction de compte. Statut `bloquee`, alerte
+   urgente, et désactivation automatique de la soumission Indeed jusqu'à
+   réactivation manuelle (fichier `~/.job-autopilot/indeed-suspendu`).
+6. **Connexion** : faite par le candidat lui-même via `make login-indeed`.
+   Le script ne saisit jamais d'identifiant.
+
+**Critères d'acceptation.**
+
+1. Instantanés de chaque écran dans `tests/pages/indeed/`, sans donnée
+   personnelle ; inventaire des sélecteurs dans `docs/inventaire-selecteurs-indeed.md`.
+2. Tests sur instantanés : parcours complet en simulation, question inconnue →
+   `a_faire_manuel`, CAPTCHA → `bloquee` + suspension, plafond respecté,
+   soumission absente sans le paramètre.
+3. Une simulation réelle sur une offre, relue par le candidat.
+4. Un envoi réel, décidé par le candidat, vérifié dans « Mes candidatures ».
+
+**Dépendances.** EPIC-12 niveau 2 pour la session (même mécanisme appliqué au
+domaine indeed.com).
