@@ -1,0 +1,19 @@
+[
+  {
+    "match": {
+      "aid": "freework-architecte-de-domaine-simulation",
+      "verdict": "apply",
+      "fit": 100,
+      "decision_score": 100,
+      "title": "Architecte de Domaine Simulation"
+    },
+    "raw": {
+      "url": "https://www.free-work.com/fr/tech-it/job-mission/architecte-de-base-de-donnees/architecte-de-domaine-simulation",
+      "title": "Architecte de Domaine Simulation",
+      "company": "Atos",
+      "source": "freework",
+      "tjm_min": 600,
+      "tjm_max": 920
+    }
+  }
+]
