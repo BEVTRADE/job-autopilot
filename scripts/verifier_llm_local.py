@@ -42,6 +42,8 @@ async def outils(cmd, args):
 
 def main():
     cfg = yaml.safe_load(open(os.path.join(RACINE, "config.yaml"), encoding="utf-8"))
+    if "--modele" in sys.argv:                       # ex. --modele mistral-small3.2:24b
+        cfg["llm"]["model"] = sys.argv[sys.argv.index("--modele") + 1]
     try:
         llm = LLMLocal.depuis_config(cfg)
     except ValueError as e:
@@ -82,15 +84,19 @@ def main():
         etape("MCP Playwright", False, "npx absent (facultatif)")
 
     cv = os.path.join(RACINE, "cv_prets", cfg.get("llm", {}).get("cv_test", "FR_ARCHITECTE_IA_GENAI.docx"))
-    sortie = os.path.join(RACINE, "data", "output", dt.date.today().isoformat(), "verif-llm")
+    sortie = os.path.join(RACINE, "data", "output", dt.date.today().isoformat(), "verif-llm",
+                          llm.model.replace(":", "_").replace("/", "_"))
     os.makedirs(sortie, exist_ok=True)
     profil = json.load(open(os.path.join(RACINE, "profile", "master_profile.json"), encoding="utf-8"))
     t0 = time.time()
     res = P.personnaliser(llm, cv, os.path.join(sortie, "CV_verif.docx"), ANNONCE, profil)
     json.dump(res, open(os.path.join(sortie, "bilan.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=2)
     etape("bout en bout", res["mode"] in ("adapte", "axe") and "motif" not in res,
-          f"{time.time()-t0:.0f} s, mode {res['mode']}, {len(res['appliquees'])} appliquée(s), "
-          f"{len(res['refus'])} refusée(s), écarts {res['ecarts']}")
+          f"{time.time()-t0:.0f} s dont modèle {res['duree_modele_s']} s, mode {res['mode']}, "
+          f"{res['nb_propositions']} proposée(s), {len(res['appliquees'])} acceptée(s), "
+          f"{len(res['refus'])} refusée(s), écarts {res['ecarts']}"
+          + (f", écarts à tort {res['ecarts_a_tort']}" if res["ecarts_a_tort"] else "")
+          + (f" — {res['motif']}" if "motif" in res else ""))
     for a in res["appliquees"]:
         print(f"      « {a['avant']} » -> « {a['apres']} »")
     for r in res["refus"]:
@@ -102,7 +108,7 @@ def main():
         etape("PDF", False, str(e))
     ko = [n for n, ok in bilan if not ok and n != "MCP Playwright"]
     reussies = sum(1 for _, ok in bilan if ok)
-    print(f"\n{reussies}/{len(bilan)} vérifications réussies (Playwright facultatif). Fichiers : {sortie}")
+    print(f"\n{reussies}/{len(bilan)} vérifications réussies (Playwright facultatif). Modèle {llm.model}. Fichiers : {sortie}")
     return 1 if ko else 0
 
 

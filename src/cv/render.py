@@ -8,7 +8,8 @@ de dérive typographique entre la version relue et celle envoyée.
 from __future__ import annotations
 import os, re, shutil, subprocess, tempfile, zipfile
 
-SOFFICE = shutil.which("soffice") or shutil.which("libreoffice")
+SOFFICE = (shutil.which("soffice") or shutil.which("libreoffice")
+           or next((c for c in ("/Applications/LibreOffice.app/Contents/MacOS/soffice",) if os.path.exists(c)), None))
 
 
 def substitute(src_docx: str, dst_docx: str, rules: dict[str, str]) -> list[str]:

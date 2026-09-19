@@ -32,6 +32,7 @@ class LLMLocal:
                  num_ctx: int = 16384, timeout: int = 300, temperature: float = 0.0):
         self.base_url = _verifier_local(base_url)
         self.model, self.num_ctx, self.timeout, self.temperature = model, num_ctx, timeout, temperature
+        self.mesure: dict = {}          # chronométrage de la dernière requête, tel que rendu par Ollama
 
     @classmethod
     def depuis_config(cls, cfg: dict) -> "LLMLocal":
@@ -73,6 +74,13 @@ class LLMLocal:
             "options": {"temperature": self.temperature, "num_ctx": self.num_ctx},
             "messages": [{"role": "system", "content": systeme},
                          {"role": "user", "content": utilisateur}]})
+        s = 1e9                          # Ollama compte en nanosecondes
+        self.mesure = {"charge_s": round(rep.get("load_duration", 0) / s, 1),
+                       "jetons_prompt": rep.get("prompt_eval_count"),
+                       "prompt_s": round(rep.get("prompt_eval_duration", 0) / s, 1),
+                       "jetons_sortie": rep.get("eval_count"),
+                       "sortie_s": round(rep.get("eval_duration", 0) / s, 1),
+                       "total_s": round(rep.get("total_duration", 0) / s, 1)}
         texte = (rep.get("message") or {}).get("content", "")
         try:
             return json.loads(texte)

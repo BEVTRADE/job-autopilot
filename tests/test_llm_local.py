@@ -120,3 +120,75 @@ def test_modele_defaillant_rend_le_cv_d_axe():
         assert Document(f"{d}/cv.docx").paragraphs[1].text == TITRE
     finally:
         srv.shutdown(); shutil.rmtree(d, ignore_errors=True)
+
+
+def test_profil_envoye_au_modele_complet_sans_coordonnees():
+    s = P.profil_pour_modele(PROFIL)
+    assert len(s) > 9000, "le premier jet tronquait à 9000 caractères"
+    assert PROFIL["identity"]["email"] not in s and "identity" not in s
+    assert json.loads(s)["experiences"] == PROFIL["experiences"]
+
+
+def test_ecart_deja_au_profil_est_mis_de_cote_et_apostrophe_typographique():
+    d = tempfile.mkdtemp()
+    srv, url, _ = faux_ollama({"substitutions": [{"avant": "LLM, RAG ET AGENTS", "apres": "AGENTS ET MLOPS"}],
+                               "ecarts": ["Kubernetes", "Slurm"]})
+    try:
+        res = P.personnaliser(LLMLocal(url), CV, f"{d}/cv.docx", "annonce", PROFIL)
+        assert res["ecarts"] == ["Slurm"] and res["ecarts_a_tort"] == ["Kubernetes"]
+        assert res["nb_propositions"] == 1 and res["duree_modele_s"] is not None
+        ok, _ = P.valider({"substitutions": [{"avant": "Opérationnel sur l’ensemble", "apres": "Architecte sur l'ensemble"}]},
+                          ["Opérationnel sur l’ensemble de la chaîne"],
+                          P.vocabulaire(PROFIL, "Opérationnel sur l’ensemble de la chaîne"))
+        assert ok[0]["apres"] == "Architecte sur l’ensemble"
+    finally:
+        srv.shutdown(); shutil.rmtree(d, ignore_errors=True)
+
+
+def test_reponse_de_forme_inattendue_rend_le_cv_d_axe():
+    from docx import Document
+    for rep in ('["une", "liste"]', '{"substitutions": "texte", "ecarts": 3}', '{"substitutions": [42], "ecarts": []}'):
+        d = tempfile.mkdtemp()
+        srv, url, _ = faux_ollama(rep)
+        try:
+            res = P.personnaliser(LLMLocal(url), CV, f"{d}/cv.docx", "annonce", PROFIL)
+            assert res["mode"] == "axe" and res["appliquees"] == [], rep
+            assert Document(f"{d}/cv.docx").paragraphs[1].text == TITRE
+        finally:
+            srv.shutdown(); shutil.rmtree(d, ignore_errors=True)
+
+
+def test_echec_du_serveur_mcp_rend_le_cv_d_axe(monkeypatch=None):
+    from docx import Document
+    from src.cv import docx_mcp
+    d = tempfile.mkdtemp()
+    srv, url, _ = faux_ollama({"substitutions": [{"avant": "LLM, RAG ET AGENTS", "apres": "AGENTS ET MLOPS"}], "ecarts": []})
+    vrai = docx_mcp._appliquer
+    async def casse(*a, **k):
+        raise docx_mcp.EchecEdition("serveur simulé en panne")
+    docx_mcp._appliquer = casse
+    try:
+        res = P.personnaliser(LLMLocal(url), CV, f"{d}/cv.docx", "annonce", PROFIL)
+        assert res["mode"] == "axe" and "MCP" in res["motif"] and res["nb_propositions"] == 1
+        assert Document(f"{d}/cv.docx").paragraphs[1].text == TITRE
+    finally:
+        docx_mcp._appliquer = vrai; srv.shutdown(); shutil.rmtree(d, ignore_errors=True)
+
+
+def test_aucune_connexion_reseau_hors_du_poste_pendant_une_personnalisation():
+    """Critère d'acceptation EPIC-14 : toute connexion sortante est enregistrée, toutes doivent être locales."""
+    import socket
+    vues = []
+    connect = socket.socket.connect
+    def espion(self, adresse, *a, **k):
+        vues.append(adresse); return connect(self, adresse, *a, **k)
+    d = tempfile.mkdtemp()
+    srv, url, _ = faux_ollama({"substitutions": [{"avant": "LLM, RAG ET AGENTS", "apres": "AGENTS ET MLOPS"}], "ecarts": []})
+    socket.socket.connect = espion
+    try:
+        res = P.personnaliser(LLMLocal(url), CV, f"{d}/cv.docx", "annonce", PROFIL)
+    finally:
+        socket.socket.connect = connect; srv.shutdown(); shutil.rmtree(d, ignore_errors=True)
+    assert res["mode"] == "adapte" and vues
+    hotes = {a[0] for a in vues if isinstance(a, tuple)}
+    assert hotes <= {"127.0.0.1", "::1", "localhost"}, hotes
