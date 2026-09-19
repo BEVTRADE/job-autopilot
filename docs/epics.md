@@ -288,3 +288,48 @@ boucle du 19 septembre.
 
 **Dépendances.** Aucune. Prioritaire sur tout le reste : EPIC-5 et EPIC-6
 reposent sur un parcours de candidature fiable.
+
+---
+
+## EPIC-9 — Autonomie d'exploitation
+
+**Problème.** La chaîne tourne, mais seulement quand quelqu'un la lance et la
+regarde. Trois manques empêchent qu'elle tourne seule chaque matin sans
+surveillance : elle ne sait pas que sa session Free-Work a expiré, elle ne
+prévient personne de ce qu'elle a fait, et sa planification n'a jamais été
+vérifiée.
+
+**Valeur.** Passer d'un outil qu'on lance à un système qui travaille pendant
+qu'on dort, et qui dit le matin ce qu'il a fait.
+
+**Périmètre.**
+
+1. **Détection de session expirée.** Avant toute candidature, vérifier que la
+   session Free-Work est active. Si elle ne l'est pas : aucune tentative, une
+   alerte explicite, et un statut dédié dans le journal — pas une série
+   d'échecs incompréhensibles.
+2. **Notification du matin.** Une notification macOS en fin d'exécution :
+   nombre de candidatures envoyées, bloquées, et en file d'attente. Et une
+   alerte distincte quand quelque chose demande une action humaine — session
+   expirée, question hors banque, dépôt de CV raté.
+3. **Planification vérifiée.** `make planifier`, puis un déclenchement manuel,
+   puis la preuve qu'une exécution planifiée a bien produit son log. Le plist
+   ne contient pas `--envoyer` : il faut une décision explicite pour lever le
+   dry-run dans la tâche planifiée, après plusieurs matins de simulation
+   propres.
+4. **Garde-fous de volume.** Plafond quotidien respecté même si la tâche est
+   déclenchée deux fois, par un verrou d'exécution. Pas de seconde candidature
+   à une mission du même groupe, déjà garanti par EPIC-7 et à vérifier en
+   conditions réelles.
+
+**Critères d'acceptation.**
+
+1. Une session expirée produit une alerte et zéro tentative.
+2. Chaque exécution se termine par une notification lisible.
+3. La tâche planifiée s'exécute à l'heure prévue, vérifié par son log.
+4. Deux lancements simultanés ne produisent qu'une seule exécution.
+5. Cinq matins consécutifs de simulation sans intervention, avant de lever le
+   dry-run.
+
+**Dépendances.** EPIC-8. Rien ne sert d'automatiser un parcours qui ne sait
+pas encore basculer de CV.

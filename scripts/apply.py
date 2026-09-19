@@ -21,6 +21,30 @@ from src.apply.freework import FreeWorkApplier                          # noqa: 
 CV_REPOS = "FR_ARCHITECTE_ENTREPRISE_URBANISTE.pdf"
 
 
+CV_PRETS = os.path.join(ROOT, "cv_prets", "pdf")
+
+
+def cv_pour_mission(match: dict, cv_force: str | None = None,
+                    fichier_force: str | None = None) -> tuple[str, str | None]:
+    """(nom du CV sur Free-Work, chemin local à déposer si absent).
+
+    Le moteur choisit l'axe et la langue de chaque mission et renvoie le CV
+    correspondant dans `cv_path`. Jusqu'au 19/09, ce choix était ignoré :
+    toutes les missions partaient avec le même CV, celui passé en option.
+    Un CV forcé en ligne de commande reste prioritaire, pour les
+    candidatures manuelles avec un CV dédié.
+    """
+    if fichier_force:
+        return (cv_force or os.path.basename(fichier_force)), fichier_force
+    if cv_force:
+        return cv_force, None
+    source = match.get("cv_path") or ""
+    nom = os.path.splitext(os.path.basename(source))[0] + ".pdf" if source \
+        else "FR_ARCHITECTE_IA_GENAI.pdf"
+    local = os.path.join(CV_PRETS, nom)
+    return nom, (local if os.path.isfile(local) else None)
+
+
 def contexte(headless: bool):
     from playwright.sync_api import sync_playwright
     os.makedirs(PROFILE, exist_ok=True)
@@ -51,9 +75,7 @@ def main():
     args = ap.parse_args()
     if args.cv_fichier:
         args.cv_fichier = os.path.abspath(os.path.expanduser(args.cv_fichier))
-    if not args.cv:
-        args.cv = (os.path.basename(args.cv_fichier) if args.cv_fichier
-                   else "FR_ARCHITECTE_IA_GENAI.pdf")
+    # Le CV est désormais choisi mission par mission : voir cv_pour_mission.
 
     pw, ctx = contexte(args.headless)
     page = ctx.pages[0] if ctx.pages else ctx.new_page()
@@ -84,8 +106,10 @@ def main():
             m, raw = d["match"], d["raw"]
             print(f"\n[{i}/{len(lot)}] {raw['title'][:64]}")
             try:
-                r = agent.postuler(raw["url"], m["aid"], raw["title"], args.cv,
-                                   cv_fichier=args.cv_fichier)
+                cv, cv_local = cv_pour_mission(m, args.cv, args.cv_fichier)
+                print(f"  CV : {cv}" + ("" if cv_local else "  (aucun fichier local)"))
+                r = agent.postuler(raw["url"], m["aid"], raw["title"], cv,
+                                   cv_fichier=cv_local)
             except KillSwitch as e:
                 print(f"  ARRÊT — {e}"); break
             except Exception as e:                            # noqa: BLE001

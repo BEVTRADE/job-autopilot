@@ -21,7 +21,7 @@ LOG="$LOGS/$JOUR.log"
 ENVOYER=""
 MAX="${MAX:-3}"
 MIN_FIT="${MIN_FIT:-70}"
-CV="${CV:-FR_ARCHITECTE_IA_GENAI.pdf}"
+CV="${CV:-}"   # vide : le CV est choisi par mission
 [ "${1:-}" = "--envoyer" ] && ENVOYER="--envoyer"
 
 trace() { echo "[$(date +%H:%M:%S)] $*" | tee -a "$LOG"; }
@@ -45,7 +45,7 @@ else
   NB="$("$PY" -c "import json,sys; print(len(json.load(open(sys.argv[1]))))" "$RETENUES")"
   trace "2/3 candidatures — $NB retenue(s), plafond $MAX, fit minimal $MIN_FIT"
   if ! "$PY" scripts/apply.py --from "$RETENUES" --max "$MAX" \
-        --min-fit "$MIN_FIT" --cv "$CV" $ENVOYER >>"$LOG" 2>&1; then
+        --min-fit "$MIN_FIT" ${CV:+--cv "$CV"} $ENVOYER >>"$LOG" 2>&1; then
     trace "soumission en échec — voir $LOG"
   fi
 fi
