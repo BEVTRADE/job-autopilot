@@ -336,73 +336,81 @@ pas encore basculer de CV.
 
 ---
 
-## EPIC-10 — Plusieurs candidats, plusieurs profils
+## EPIC-10 — Une solution installable par chaque candidat
 
-**Problème.** Tout le système est construit pour un seul candidat : un profil
-maître, un catalogue d'axes, huit CV, une banque de réponses, une session
-Free-Work, un historique. Le servir à plusieurs personnes aux profils
-différents — un architecte freelance, une développeuse en recherche de CDI,
-un chef de projet en transition — suppose que chacun ait son propre
-périmètre, sans aucune fuite d'un candidat vers un autre.
+**Principe.** Une installation, un candidat. Chaque personne installe la
+solution chez elle — sur son poste, ou sur un serveur dédié qu'elle contrôle —
+avec ses propres coordonnées, ses CV, ses comptes et ses critères de
+recherche. Il n'y a pas d'opérateur qui candidate pour le compte d'autrui :
+chacun fait tourner sa propre recherche d'emploi.
 
-**Valeur.** Réutiliser la chaîne entière — collecte, regroupement, notation,
-candidature, rapport — pour d'autres personnes, sans la réécrire.
+Ce choix règle d'emblée deux problèmes : aucune donnée ne circule d'un
+candidat à un autre, et chacun reste seul responsable de ses données et de ses
+candidatures.
 
-**Le risque qui gouverne tout le lot.** Envoyer le CV d'une personne sur la
-candidature d'une autre est une faute grave, pas un bug : données personnelles
-divulguées, candidat discrédité, recruteur trompé. L'isolation n'est pas une
-fonctionnalité parmi d'autres, c'est la condition d'existence du lot.
+**Problème.** La solution actuelle est écrite pour un seul candidat, et ce
+candidat est inscrit dans le code. Inventaire du 19 septembre :
+
+- `scripts/apply.py` : CV de repos et CV par défaut codés en dur,
+  `FR_ARCHITECTE_ENTREPRISE_URBANISTE.pdf` et `FR_ARCHITECTE_IA_GENAI.pdf` ;
+- `scripts/collect.py` et `scripts/calibrate.py` : les quatre axes et leurs
+  fichiers, en dur ;
+- `scripts/catalogue.py` : chemins `reprise/` en dur ;
+- `scripts/sonde_freework.py` : un CV nominatif en dur ;
+- `Makefile` et plist : libellé `fr.kiras.jobautopilot`, CV par défaut ;
+- `profile/` et `cv_prets/` mélangés au code dans le dépôt ;
+- `config.yaml` existe mais n'est presque pas lu : les réglages réels sont
+  dispersés dans les scripts.
 
 **Périmètre.**
 
-1. **Un dossier par candidat** : `candidats/<identifiant>/`, contenant son
-   profil maître, son catalogue d'axes, ses CV, sa banque de réponses, ses
-   paramètres de recherche, ses consentements, et son historique. Aucun fichier
-   partagé entre candidats hormis le code et les sources.
-2. **Des paramètres de recherche par candidat** : type de contrat recherché —
-   freelance, CDI, ou les deux —, plancher et cible en TJM ou en salaire annuel,
-   zone géographique, télétravail, séniorité, langues, secteurs exclus.
-3. **Une session par candidat et par site** : `~/.job-autopilot/<candidat>/
-   browser-profile/<site>`. Chaque candidat se connecte lui-même, une fois.
-   **Le système ne stocke jamais aucun mot de passe.**
-4. **Un journal, un historique et un rapport par candidat**, et un plafond
-   quotidien par candidat.
-5. **La chaîne du matin itère sur les candidats actifs**, avec un verrou et un
-   kill-switch par candidat en plus du kill-switch global.
-6. **Migration** du candidat actuel vers `candidats/hakim-arezki/`, sans
-   rupture : les commandes existantes continuent de fonctionner.
-
-**Consentement et données personnelles.** Traiter les CV et les candidatures
-d'autres personnes fait de l'opérateur du système un responsable de
-traitement au sens du RGPD. Le lot doit prévoir, pour chaque candidat :
-
-- un consentement écrit, daté, conservé dans son dossier, qui précise ce que le
-  système fait en son nom — collecter, noter, candidater, et sur quels sites ;
-- la possibilité de suspendre ou de supprimer toutes ses données ;
-- la règle déjà appliquée : **une seule autorisation de présentation par client
-  final**, décidée par le candidat, jamais par le système.
-
-Ce cadrage juridique est à faire valider — ce document n'est pas un avis
-juridique.
+1. **Séparer le code des données du candidat.** Un dossier de données unique,
+   hors du dépôt de code — par défaut `~/job-autopilot-data/` — contenant :
+   `candidat.yaml` (identité, coordonnées, disponibilité, langues), les CV,
+   le catalogue d'axes, le profil maître, la banque de réponses, l'historique,
+   les journaux et les rapports. Le dépôt de code ne contient plus aucune
+   donnée personnelle.
+2. **Un fichier de configuration réellement lu.** `candidat.yaml` porte tout
+   ce qui est propre à la personne : type de contrat — freelance, CDI, ou les
+   deux —, plancher et cible en TJM ou en salaire annuel, zone géographique,
+   télétravail, secteurs exclus, sources actives, plafond quotidien, CV de
+   repos, heure d'exécution. Plus aucune valeur de candidat dans le code.
+3. **Un assistant d'installation**, `make installer` : il crée le dossier de
+   données, pose les questions nécessaires, importe les CV fournis, génère un
+   premier catalogue d'axes à partir d'eux, crée une banque de réponses à
+   compléter, et vérifie l'ensemble. Le catalogue généré est une proposition
+   à relire, jamais utilisé sans validation.
+4. **Deux modes de déploiement.**
+   - *Poste personnel* — macOS avec launchd, comme aujourd'hui, ou Linux avec
+     un timer systemd. Notification système en fin d'exécution.
+   - *Serveur dédié* — Linux, navigateur sans affichage, timer systemd,
+     notification par courriel puisqu'il n'y a pas d'écran. La connexion aux
+     sites se fait une fois depuis un navigateur visible, puis la session est
+     transférée ; le serveur ne demande et ne stocke jamais de mot de passe.
+     Risque à évaluer : certains sites traitent les adresses de centres de
+     données avec méfiance.
+5. **Migration de l'installation actuelle** vers ce modèle, sans rupture : le
+   candidat actuel devient le premier `candidat.yaml`, et ses scores restent
+   identiques.
 
 **Critères d'acceptation.**
 
-1. Deux candidats fictifs aux profils opposés produisent, sur les mêmes
-   annonces, des notations et des sélections différentes.
-2. Un test vérifie qu'aucun chemin de code ne peut sélectionner un CV hors du
-   dossier du candidat courant. Test négatif explicite : un CV d'un candidat A
-   demandé pendant l'exécution du candidat B est refusé.
-3. Les journaux, historiques et rapports sont strictement séparés.
-4. Un candidat sans consentement enregistré n'est jamais exécuté.
-5. Le kill-switch d'un candidat n'arrête que lui ; le kill-switch global arrête
-   tout.
-6. Les commandes actuelles fonctionnent à l'identique pour le candidat migré.
-7. Le moteur de décision reste calibré : les paramètres par défaut du candidat
-   migré reproduisent exactement les scores actuels, vérifié par
+1. Une recherche dans le code de toute donnée du candidat actuel — nom,
+   coordonnées, nom de fichier de CV — ne renvoie plus rien, hors tests.
+2. Une installation neuve, avec un candidat fictif et deux CV, va de
+   `make installer` à une simulation complète sans modifier une ligne de code.
+3. Le dépôt de code peut être publié ou partagé sans exposer aucune donnée
+   personnelle.
+4. L'installation fonctionne sur macOS et sur un serveur Linux sans écran, avec
+   une planification et une notification adaptées à chacun.
+5. Aucun mot de passe n'est jamais demandé, écrit ou journalisé.
+6. Le candidat migré retrouve exactement ses scores actuels, vérifié par
    `scripts/calibrate.py` avant et après.
+7. Un test échoue si une valeur propre au candidat réapparaît en dur dans le
+   code.
 
-**Dépendances.** EPIC-8 et EPIC-9. Multiplier les candidats sur un parcours
-qui ne sait pas encore basculer de CV multiplierait les échecs.
+**Dépendances.** EPIC-8 et EPIC-9 : on ne distribue pas un parcours de
+candidature qui ne sait pas encore basculer de CV.
 
 ---
 
@@ -442,15 +450,13 @@ tous.
 
 Les conditions d'utilisation de LinkedIn interdisent les logiciels et
 extensions qui automatisent l'activité sur le site, y compris la navigation et
-la candidature. Les comptes qui le font s'exposent à des restrictions. Avec
-plusieurs candidats, le risque se multiplie, et c'est le compte personnel de
-chaque candidat qui paie. Ce choix était déjà acté dans
+la candidature. Les comptes qui le font s'exposent à des restrictions, et c'est
+le compte personnel du candidat qui paie. Ce choix était déjà acté dans
 `src/apply/linkedin.py` : soumission délibérément non implémentée.
 
-La voie propre passe par **la boîte mail du candidat** : chaque candidat
-configure ses alertes d'emploi LinkedIn, qui lui arrivent par courriel. Le
-système lit ces courriels — avec l'accord du candidat, sur sa propre
-messagerie — en extrait les offres, et les injecte dans la chaîne comme
+La voie propre passe par **la boîte mail du candidat** : il configure ses
+alertes d'emploi LinkedIn, qui lui arrivent par courriel. Son installation lit
+ces courriels sur sa propre messagerie, en extrait les offres, et les injecte dans la chaîne comme
 n'importe quelle source. **La candidature LinkedIn reste manuelle** : le
 rapport du matin fournit le lien, le CV recommandé et le message, le candidat
 clique.
@@ -473,5 +479,5 @@ ne se prête pas à l'automatisation.
 7. Chaque nouveau site CDI est précédé de sa reconnaissance dans
    `docs/sources.md`.
 
-**Dépendances.** EPIC-10 pour le filtrage par candidat. France Travail peut
-démarrer avant, en source commune.
+**Dépendances.** EPIC-10 pour que le type de contrat et le salaire soient
+lus dans `candidat.yaml`. France Travail peut démarrer avant.
