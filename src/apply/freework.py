@@ -110,7 +110,7 @@ class FreeWorkApplier:
                 nom = (cap.first.inner_text() if cap.count() else c.inner_text()) or ""
                 out.append((nom.strip().splitlines()[0] if nom.strip() else "", c))
             return out
-        cartes = self.page.locator(SEL["carte_cv"])          # ancien repli
+        cartes = self.page.locator("fw-modal " + SEL["carte_cv"])   # repli, dans la modale seulement
         for k in range(cartes.count()):
             t = (cartes.nth(k).inner_text() or "").strip()
             out.append((t.splitlines()[0] if t else "", cartes.nth(k)))
@@ -146,6 +146,15 @@ class FreeWorkApplier:
             btns.nth(i).click()
             humanize()
             cartes = self._cartes()
+            # Deux boutons « Éditer » coexistent : Profil (visibilité,
+            # disponibilité) puis CV partagé. Le 19/09, le dépôt a été tenté
+            # dans la modale du profil, où il n'y a ni CV ni bouton d'ajout.
+            # On reconnaît la modale des CV à ses cartes ou à son bouton.
+            modale_cv = bool(cartes) or self.page.locator(SEL["ajouter_cv"]).count() > 0
+            if not modale_cv:
+                self.page.keyboard.press("Escape")
+                humanize(0.3, 0.7)
+                continue
             self.cv_vus = [n for n, _ in cartes if n]
             carte = next((c for n, c in cartes if meme_cv(n, nom)), None)
             if carte is None and chemin and not self.depot_tente:
@@ -159,10 +168,6 @@ class FreeWorkApplier:
                 humanize()
                 if self._valider_selection():
                     return meme_cv(self.cv_partage(), nom)   # relecture obligatoire
-            if not self.cv_vus:
-                self.page.keyboard.press("Escape")
-                humanize(0.3, 0.7)
-                continue
             self.page.keyboard.press("Escape")
             humanize(0.3, 0.7)
             break
