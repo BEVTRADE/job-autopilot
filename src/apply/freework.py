@@ -29,6 +29,30 @@ SEL = {
 }
 
 
+def _norm_nom(t: str) -> str:
+    """Nom de fichier comparable : minuscules, sans extension ni ellipse."""
+    t = (t or "").strip().lower()
+    t = t.replace("\u2026", "").replace("...", "").strip()
+    return re.sub(r"\.(pdf|docx?)$", "", t)
+
+
+def meme_cv(affiche: str | None, attendu: str) -> bool:
+    """Le nom affiché par Free-Work désigne-t-il le CV attendu ?
+
+    Free-Work tronque les noms longs à l'affichage (constaté le 19/09 : le
+    basculement vers un CV de 52 caractères échouait sans message clair). On
+    accepte l'égalité exacte, ou un affichage qui est un préfixe d'au moins
+    vingt caractères du nom attendu. Jamais l'inverse : un nom attendu court
+    ne doit pas correspondre à un fichier plus long qui le contiendrait.
+    """
+    a, b = _norm_nom(affiche or ""), _norm_nom(attendu)
+    if not a or not b:
+        return False
+    if a == b:
+        return True
+    return len(a) >= 20 and b.startswith(a)
+
+
 class FreeWorkApplier:
     """Pilote une session Free-Work déjà authentifiée."""
 
@@ -51,22 +75,31 @@ class FreeWorkApplier:
 
     def choisir_cv(self, nom: str) -> bool:
         """Bascule le CV partagé. Relit l'état et ne renvoie True qu'après concordance."""
-        if self.cv_partage() == nom:
+        self.cv_vus: list[str] = []
+        if meme_cv(self.cv_partage(), nom):
             return True
         guard()
         btns = self.page.locator(SEL["editer_cv"])
         for i in range(btns.count()):
             btns.nth(i).click()
             humanize()
-            carte = self.page.locator(SEL["carte_cv"], has_text=nom)
-            if carte.count():
-                carte.first.click()
+            cartes = self.page.locator(SEL["carte_cv"])
+            carte = None
+            for k in range(cartes.count()):
+                texte = (cartes.nth(k).inner_text() or "").strip()
+                nom_carte = texte.splitlines()[0] if texte else ""
+                if nom_carte and nom_carte not in self.cv_vus:
+                    self.cv_vus.append(nom_carte)
+                if carte is None and meme_cv(nom_carte, nom):
+                    carte = cartes.nth(k)
+            if carte is not None:
+                carte.click()
                 humanize()
                 part = self.page.locator(SEL["partager_cv"])
                 if part.count():
                     part.first.click()
                     self.page.wait_for_timeout(2500)
-                    return self.cv_partage() == nom          # relecture obligatoire
+                    return meme_cv(self.cv_partage(), nom)   # relecture obligatoire
             self.page.keyboard.press("Escape")
             humanize(0.3, 0.7)
         return False
@@ -86,7 +119,20 @@ class FreeWorkApplier:
             label = ""
             for js in ("el => el.labels && el.labels[0] ? el.labels[0].innerText : ''",
                        "el => el.getAttribute('aria-label') || ''",
-                       "el => { const p = el.closest('div'); return p ? p.innerText : ''; }"):
+                       # L'intitulé vit dans un <p> plusieurs niveaux au-dessus du
+                       # champ (constaté le 18/09 : div.mb-4.p-3... > p.font-medium
+                       # > ... > textarea#custom-answer-N) — closest('div') seul
+                       # ne remonte pas assez haut et rendait toujours "".
+                       """el => {
+                           let node = el;
+                           for (let i = 0; i < 6 && node; i++) {
+                               node = node.parentElement;
+                               if (!node) break;
+                               const p = node.querySelector('p');
+                               if (p && p.innerText.trim().length > 5) return p.innerText;
+                           }
+                           return '';
+                       }"""):
                 label = (el.evaluate(js) or "").strip()
                 if len(label) > 12:
                     break
@@ -108,7 +154,10 @@ class FreeWorkApplier:
 
         if not self.choisir_cv(cv):
             return self._fin(Result(uid, url, titre, "bloquee",
-                                    f"CV partagé non basculé sur {cv}", cv=cv))
+                                    f"CV partagé non basculé sur {cv} — CV présents "
+                                    f"sur Free-Work : {', '.join(getattr(self, 'cv_vus', [])) or 'aucun lu'}. "
+                                    f"Si le fichier n'y figure pas, le déposer d'abord.",
+                                    cv=cv))
 
         # questions filtrantes
         qs = self.questions()
@@ -145,6 +194,13 @@ class FreeWorkApplier:
                                     "relecture discordante : " + " ; ".join(ecarts),
                                     cv=cv, questions=repondues))
 
+        # Le formulaire ("Postuler à cette offre") est une section de la page,
+        # pas une modale : quand aucun champ n'a dû être touché (CV déjà bon,
+        # aucune question, pas de message), la page reste scrollée en haut et
+        # la capture ne montrait que l'annonce — constaté le 18/09 sur 3/3
+        # candidatures simulées. On recentre explicitement sur le bouton
+        # d'envoi avant de capturer.
+        self.page.locator(SEL["submit"]).first.scroll_into_view_if_needed()
         capture = os.path.join(out_dir(), f"{uid}.png")
         self.page.screenshot(path=capture, full_page=False)
 
@@ -168,7 +224,7 @@ class FreeWorkApplier:
 
     def _relire(self, cv: str, repondues: list[dict], message: str | None) -> list[str]:
         ecarts = []
-        if self.cv_partage() != cv:
+        if not meme_cv(self.cv_partage(), cv):
             ecarts.append(f"CV partagé = {self.cv_partage()}, attendu {cv}")
         champs = self.page.locator(
             "form textarea:not(#job-application-message), form input[type=text]")
@@ -195,7 +251,7 @@ class FreeWorkApplier:
 
     def restaurer_repos(self) -> bool:
         """ADR-009 : la vitrine ne doit pas rester sur le dernier axe utilisé."""
-        return self.cv_partage() == self.cv_repos or self.choisir_cv(self.cv_repos)
+        return meme_cv(self.cv_partage(), self.cv_repos) or self.choisir_cv(self.cv_repos)
 
     @staticmethod
     def _fin(res: Result) -> Result:
