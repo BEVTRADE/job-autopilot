@@ -59,7 +59,8 @@ Sur une copie de `cv_prets/FR_ARCHITECTE_IA_GENAI.docx`.
 | — contrainte 3 | 219 outils, ~28 000 jetons de description : jamais exposés tels quels à un modèle local. Sous-ensemble prévu : `OUTILS_AGENT` (6 outils). |
 | Playwright MCP 0.0.82 | Fonctionne avec `--user-data-dir` (profil persistant). 25 outils, ~4 500 jetons. Un profil ne peut servir qu'à une instance à la fois. |
 | Client Ollama + validation | 8 tests hors ligne sur faux serveur, dont bout en bout MCP réel. |
-| Modèle réel | **Non vérifié ici** : le poste de travail distant n'a pas accès aux poids des modèles. À faire sur le Mac : `make verifier-llm`. |
+| Modèle réel, `qwen2.5-coder:14b`, `num_ctx` 8192 (Mac 24 Go, 19/09/2026) | **Vérifié**, 7/7 avec PDF. JSON contraint : 9 s. Bout en bout : 55 s, dont 54 s de modèle (prompt 3 796 jetons en 19 s, sortie 713 jetons en 35 s). 4 substitutions proposées, 1 acceptée, 3 refusées. Modèle chargé : 9,5 Go, 100 % GPU ; mémoire libre 68 % → 21 %. Avec `num_ctx` 16384 : 115 s. PDF de 4 pages, identique au CV d'axe hors accroche. **Réserve** : l'accroche acceptée écrit « 15 ans d'expérience » là où le profil dit 12 ans (15 avec la recherche doctorale) : le validateur contrôle les mots, pas le sens des chiffres. |
+| `mistral-small3.2:24b` (16 Go) | **Abandonné** : deux dépassements de délai (300 s) sur un JSON trivial ; le modèle tourne à 14 % CPU / 86 % GPU et le swap dépasse 13 Go sur 15. Ne tient pas sur 24 Go. |
 
 ## Connexion aux sites
 
@@ -82,7 +83,7 @@ Selon la mémoire du Mac. Les tailles sont indicatives, à confirmer par
 | 48 Go et plus | `qwen3-coder:30b` | Agent de développement, contexte 64 000 |
 
 La personnalisation demande peu : un JSON court, contraint par schéma, sur
-16 000 jetons de contexte. C'est l'agent de développement qui est exigeant.
+8 000 jetons de contexte (prompt complet : 3 800 à 5 000 jetons, à confirmer sur les annonces réelles). C'est l'agent de développement qui est exigeant.
 
 ## Agent de développement sur modèle local
 
