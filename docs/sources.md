@@ -135,3 +135,59 @@ Faite depuis un agent, qui ne peut pas récupérer le HTML brut : les domaines
 sont refusés par la politique de sortie côté conteneur, et le shell de la
 machine n'a pas de réseau. Les pages de référence nécessaires aux tests
 d'extraction doivent être enregistrées depuis le Mac.
+
+## Diagnostic de session Free-Work — 19 septembre 2026 (EPIC-12, niveau 1)
+
+Mesuré avec `scripts/diag_session.py`, sur le profil persistant
+`~/.job-autopilot/browser-profile`, ouvert avec les paramètres exacts
+d'`apply.py` et de la sonde. Le script n'affiche et n'enregistre que le nom, la
+longueur et l'expiration de chaque élément, jamais une valeur.
+
+### Ce qui porte l'authentification
+
+Trois cookies sur `www.free-work.com`, tous **à date d'expiration**, aucun
+cookie de session :
+
+| Cookie | Rôle | Durée mesurée | Drapeaux |
+|---|---|---|---|
+| `jwt_s` | jeton d'accès | 24 h après la connexion | HttpOnly, Secure |
+| `jwt_hp` | jeton associé, lisible côté page | 24 h | Secure |
+| `refresh_token` | renouvellement | 48 h | HttpOnly, Secure |
+
+Le reste des 13 cookies du domaine (`_gcl_au`, `_rdt_*`, `posthog`, `AWSALB*`,
+`_pk_*`, `cc_cookie`, `locale`) relève de la mesure d'audience, du consentement
+et de la répartition de charge : aucun ne porte la connexion. Le stockage local
+(2 clés : `_gcl_ls`, `POSTBACK_AGGREGATOR_PERSIST`), le stockage de session
+(5 clés, mesure d'audience et version de l'application) et IndexedDB (aucune
+base) ne contiennent rien d'authentifiant.
+
+### Fermer, rouvrir, comparer
+
+Relevé n° 1 après `make login` (navigateur déjà fermé une fois), relevé n° 2
+après une seconde fermeture : **connecté aux deux, aucun cookie disparu**. Seules
+les dates d'expiration de cookies d'audience et de répartition de charge ont
+glissé d'une minute. Les trois cookies d'authentification sont identiques à la
+minute près : ils ne se renouvellent pas en naviguant.
+
+### Conclusion
+
+**L'hypothèse est infirmée.** Chromium ne perd pas la connexion à la fermeture :
+il n'y a pas de cookie de session à perdre, et le profil persistant conserve
+tout ce qui compte. Enregistrer l'état dans un fichier (niveau 2) ne
+changerait rien, puisque le profil le fait déjà.
+
+Ce que la mesure établit à la place : la connexion a une **durée de vie bornée
+côté serveur, 24 h pour le jeton d'accès et 48 h pour le renouvellement**, et
+aucun renouvellement n'a été observé pendant la navigation. Une connexion faite
+un jour n'est donc garantie que jusqu'au surlendemain, quoi qu'on fasse du
+côté du navigateur.
+
+### Non mesuré
+
+- Si le site renouvelle `jwt_s` à partir de `refresh_token` une fois le jeton
+  d'accès expiré, et si ce renouvellement prolonge lui-même le
+  `refresh_token`. C'est la question qui décide si une session peut vivre au-delà
+  de 48 h. Il faut pour cela un relevé après 24 h, puis après 48 h.
+- La cause exacte de la demande de connexion du 19 septembre : la date de la
+  connexion précédente n'est pas consignée. Un écart de plus de 48 h avec
+  `make login` suffirait à l'expliquer, sans que ce soit établi.
