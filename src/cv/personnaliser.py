@@ -84,6 +84,41 @@ def zone(chemin_docx: str) -> list[str]:
     return z
 
 
+def _formes(m: str, pas: int = 2) -> set[str]:
+    """Formes fléchies (pluriel, féminin) d'un mot : le validateur juge les mots, pas leur accord.
+    Aucun mot n'est ajouté au vocabulaire : seule la forme fléchie d'un mot présent au profil est reconnue.
+    La casse et les accents sont déjà écartés par mots()."""
+    f = set()
+    if len(m) > 4 and m[-1] in "sx":
+        f.add(m[:-1])                                  # environnements -> environnement
+    if len(m) > 3:
+        f.update((m + "s", m + "x"))                   # cible -> cibles
+    if m.endswith("elle"):
+        f.add(m[:-2])                                  # operationnelle -> operationnel
+    elif m.endswith("el"):
+        f.add(m + "le")
+    if m.endswith("ee"):
+        f.add(m[:-1])                                  # securisee -> securise (sécurisée -> sécurisé)
+    elif m.endswith("e") and len(m) > 4:
+        f.add(m + "e")
+    if pas > 1:
+        for x in list(f):
+            f |= _formes(x, pas - 1)                   # operationnelles -> operationnelle -> operationnel
+    f.discard(m)
+    return f
+
+
+def _localiser(av: str, zone_cv: list[str]) -> str | None:
+    """Extrait du CV qui correspond à `av` à la casse, aux espaces et à l'apostrophe près, sinon None."""
+    lettre = lambda c: "['’]" if c in "'’" else re.escape(c)
+    motif = r"\s+".join("".join(lettre(c) for c in w) for w in av.split())
+    for p in zone_cv:
+        m = re.search(motif, p, flags=re.IGNORECASE)
+        if m:
+            return m.group(0)
+    return None
+
+
 def valider(propositions: dict, zone_cv: list[str], vocab: set[str]) -> tuple[list[dict], list[dict]]:
     """Sépare les substitutions acceptées des refusées, avec leur motif."""
     ok, refus = [], []
@@ -95,10 +130,15 @@ def valider(propositions: dict, zone_cv: list[str], vocab: set[str]) -> tuple[li
         if not av or not ap or av == ap:
             refus.append({**s, "motif": "vide ou identique"}); continue
         if not any(av in p for p in zone_cv):
-            refus.append({**s, "motif": "texte d'origine absent de la zone modifiable"}); continue
+            av = _localiser(av, zone_cv)              # le modèle change la casse ou l'apostrophe en recopiant
+            if not av:
+                refus.append({**s, "motif": "texte d'origine absent de la zone modifiable"}); continue
+            if av == ap:
+                refus.append({**s, "motif": "vide ou identique"}); continue
         if re.search(r"[*_#`]|\*\*", ap):
             refus.append({**s, "motif": "mise en forme interdite"}); continue
-        nouveaux = sorted({m.strip(".-") for m in mots(ap)} - vocab - MOTS_OUTILS)
+        nouveaux = sorted(m for m in {m.strip(".-") for m in mots(ap)} - vocab - MOTS_OUTILS
+                          if not _formes(m) & vocab)
         if nouveaux:
             refus.append({**s, "motif": "termes absents du profil maître : " + ", ".join(nouveaux)}); continue
         if any("’" in p for p in zone_cv):

@@ -192,3 +192,60 @@ def test_aucune_connexion_reseau_hors_du_poste_pendant_une_personnalisation():
     assert res["mode"] == "adapte" and vues
     hotes = {a[0] for a in vues if isinstance(a, tuple)}
     assert hotes <= {"127.0.0.1", "::1", "localhost"}, hotes
+
+
+# --- Faux refus du validateur (EPIC-14, étape 4) : ils ne doivent pas rouvrir la porte aux mots de l'annonce ---
+
+ZONE_MINI = ["ARCHITECTE IA ET IA GÉNÉRATIVE — LLM, RAG ET AGENTS",
+             "Opérationnel sur l’ensemble de la chaîne, en environnement bancaire sécurisé."]
+VOCAB_MINI = P.vocabulaire({"competences": ["MLOps", "Kubernetes"]}, *ZONE_MINI)
+
+
+def test_pluriel_et_feminin_d_un_mot_du_profil_ne_sont_pas_refuses():
+    """Mesuré : « environnements », « bancaires », « opérationnelle » refusés à tort alors que le profil dit
+    « environnement », « bancaire », « opérationnel »."""
+    ok, refus = P.valider({"substitutions": [
+        {"avant": "Opérationnel sur l’ensemble de la chaîne",
+         "apres": "Opérationnelle sur l’ensemble des environnements bancaires sécurisés"}]}, ZONE_MINI, VOCAB_MINI)
+    assert not refus and len(ok) == 1
+    assert P._formes("securisees") & {"securisee", "securise"}      # féminin pluriel, en deux pas
+    assert "operationnel" in P._formes("operationnelles")
+
+
+def test_un_mot_de_l_annonce_reste_refuse_meme_proche_d_un_mot_du_profil():
+    """Aucune extension du vocabulaire : niveau, outil ou synonyme absents du profil restent refusés."""
+    _, refus = P.valider({"substitutions": [
+        {"avant": "Opérationnel sur l’ensemble de la chaîne",
+         "apres": "Expert senior GCP sur les environnements bancaires robustes"}]}, ZONE_MINI, VOCAB_MINI)
+    assert len(refus) == 1
+    absents = refus[0]["motif"].split(" : ")[1].split(", ")
+    assert absents == ["expert", "gcp", "robustes", "senior"]        # « environnements », « bancaires » admis
+    # deux mots distincts ne se confondent pas parce qu'ils se ressemblent
+    v = {"sa", "domain", "expert"}
+    _, refus = P.valider({"substitutions": [{"avant": "ARCHITECTE", "apres": "sas domaine expertise"}]},
+                         ["ARCHITECTE"], v)
+    assert refus[0]["motif"].endswith("domaine, expertise, sas")
+
+
+def test_texte_d_origine_recopie_avec_une_autre_casse_ou_apostrophe():
+    """Mesuré : le modèle écrit « Architecte IA ET IA GÉNÉRATIVE… » pour un titre en capitales, et « l'ensemble »
+    pour « l’ensemble ». L'extrait réel du CV est utilisé, pas celui du modèle."""
+    ok, refus = P.valider({"substitutions": [
+        {"avant": "Architecte IA ET IA GÉNÉRATIVE — LLM, RAG ET AGENTS", "apres": "ARCHITECTE IA ET MLOPS"},
+        {"avant": "opérationnel sur l'ensemble", "apres": "Opérationnel sur l’ensemble et Kubernetes"},
+        {"avant": "Texte absent du CV", "apres": "Kubernetes"}]}, ZONE_MINI, VOCAB_MINI)
+    assert [o["avant"] for o in ok] == ["ARCHITECTE IA ET IA GÉNÉRATIVE — LLM, RAG ET AGENTS",
+                                        "Opérationnel sur l’ensemble"]
+    assert [r["motif"] for r in refus] == ["texte d'origine absent de la zone modifiable"]
+
+
+def test_texte_d_origine_a_la_casse_pres_est_applique_par_le_serveur_mcp():
+    from docx import Document
+    d = tempfile.mkdtemp()
+    srv, url, _ = faux_ollama({"substitutions": [{"avant": "llm, rag et agents", "apres": "AGENTS ET MLOPS"}], "ecarts": []})
+    try:
+        res = P.personnaliser(LLMLocal(url), CV, f"{d}/cv.docx", "annonce", PROFIL)
+        assert res["mode"] == "adapte" and not res["refus"], res
+        assert Document(f"{d}/cv.docx").paragraphs[1].text == "ARCHITECTE IA ET IA GÉNÉRATIVE — AGENTS ET MLOPS"
+    finally:
+        srv.shutdown(); shutil.rmtree(d, ignore_errors=True)
