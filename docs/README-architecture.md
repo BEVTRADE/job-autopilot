@@ -8,6 +8,7 @@ Version publiée (page consultable) : voir l'artifact « Architecture du Radar �
 |---|---|---|
 | ADR-001 | Agent local pour tout ce qui exige une session | Le service ne détient aucun identifiant de plateforme |
 | ADR-002 | Aucun LLM dans le chemin de décision | Score auditable et rejouable sur 1901 cas |
+| ADR-011 | Modèle local (Ollama) pour la rédaction ; édition Word par serveur MCP piloté par le code, jamais par le modèle | Données du candidat sur le poste ; substitutions validées contre le profil maître |
 | ADR-003 | SQLite, pas davantage | Mono-utilisateur, refus du sur-dimensionnement |
 | ADR-004 | Validation humaine obligatoire | ~6 dossiers/mois, CGU des plateformes |
 | ADR-005 | Connecteurs déclarés par capacité | Sources hétérogènes (découvrir / lire / soumettre) |

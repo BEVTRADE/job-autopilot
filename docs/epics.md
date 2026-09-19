@@ -613,3 +613,37 @@ réel. On sonde d'abord, on écrit ensuite.
 
 **Dépendances.** EPIC-12 niveau 2 pour la session (même mécanisme appliqué au
 domaine indeed.com).
+
+---
+
+## EPIC-14 — Modèle de langage local et édition Word par MCP
+
+**Décision.** ADR-011, détail dans `docs/llm-local.md`. Le modèle local
+(Ollama) remplace l'API Anthropic pour la personnalisation du CV ; l'édition
+du fichier Word passe par le serveur MCP docx-mcp-server, appelé par le code
+avec des substitutions déjà validées. Le moteur de décision ne change pas.
+
+**Déjà fait (19/09).** Client local (`src/llm/local.py`, refus de toute
+adresse non locale, sortie JSON contrainte par schéma), pont MCP
+(`src/cv/docx_mcp.py`), personnalisation et validation
+(`src/cv/personnaliser.py`), 8 tests hors ligne, `make verifier-llm`.
+Défaut trouvé au passage : `render.substitute` n'agit pas sur un texte
+découpé en plusieurs segments, dont le titre des CV maîtres.
+
+**Reste à faire.**
+
+1. Sur le Mac : `ollama pull` du modèle choisi, `make install`,
+   `make verifier-llm` vert, temps de réponse noté dans `docs/llm-local.md`.
+2. Brancher `personnaliser` dans l'étage « choix du CV » : CV adapté dans le
+   dossier client, écarts et refus dans le rapport du matin.
+3. Évaluer sur 20 annonces réelles : aucune substitution acceptée ne doit
+   contenir une compétence non détenue (relecture humaine), taux de refus
+   noté. Si plus d'un refus sur deux : changer de modèle avant de brancher.
+4. Nettoyer le profil maître : il contient des compétences que le candidat
+   ne revendique pas (TypeScript, Java) ; la validation s'appuie dessus.
+5. Facultatif : agent de développement Claude Code sur Ollama, essayé sur un
+   epic simple avant toute généralisation.
+
+**Critères d'acceptation.** `make verifier-llm` : 7/7 hors Playwright.
+Aucune requête réseau hors du poste pendant une personnalisation (vérifié
+par test). Un CV adapté relu et validé par le candidat.

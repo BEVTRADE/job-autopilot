@@ -15,9 +15,13 @@ runtime:
   timezone: "Europe/Paris"
 
 llm:
-  provider: "anthropic"
-  model: "claude-sonnet-4-5"
-  # clé lue depuis la variable d'environnement ANTHROPIC_API_KEY
+  # Modèle local (EPIC-14, ADR-011) : aucune donnée du candidat ne quitte le poste.
+  provider: "ollama"
+  base_url: "http://127.0.0.1:11434"   # adresse locale obligatoire, toute autre est refusée
+  model: "gpt-oss:20b"                 # voir docs/llm-local.md pour choisir selon la mémoire
+  num_ctx: 16384                       # la valeur par défaut d'Ollama est trop courte
+  timeout_s: 300
+  cv_test: "FR_ARCHITECTE_IA_GENAI.docx"
   max_detail_chars: 18000
 
 limits:

@@ -1,0 +1,122 @@
+"""Modèle local et édition MCP des CV : hors ligne, avec un faux serveur Ollama."""
+import json, os, sys, shutil, tempfile, threading
+from http.server import BaseHTTPRequestHandler, HTTPServer
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from src.llm.local import LLMLocal, LLMIndisponible
+from src.cv import personnaliser as P
+
+RACINE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CV = os.path.join(RACINE, "cv_prets", "FR_ARCHITECTE_IA_GENAI.docx")
+PROFIL = json.load(open(os.path.join(RACINE, "profile", "master_profile.json"), encoding="utf-8"))
+TITRE = "ARCHITECTE IA ET IA GÉNÉRATIVE — LLM, RAG ET AGENTS"
+
+
+def faux_ollama(reponse: dict | str, modeles=("gpt-oss:20b",)):
+    recu = {}
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _rep(self, obj):
+            b = json.dumps(obj).encode(); self.send_response(200)
+            self.send_header("Content-Type", "application/json"); self.end_headers(); self.wfile.write(b)
+        def do_GET(self):
+            self._rep({"models": [{"name": m} for m in modeles]})
+        def do_POST(self):
+            recu.update(json.loads(self.rfile.read(int(self.headers["Content-Length"]))))
+            c = reponse if isinstance(reponse, str) else json.dumps(reponse, ensure_ascii=False)
+            self._rep({"message": {"role": "assistant", "content": c}})
+    srv = HTTPServer(("127.0.0.1", 0), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    return srv, f"http://127.0.0.1:{srv.server_port}", recu
+
+
+def test_refuse_une_adresse_non_locale():
+    for url in ("https://api.example.com", "http://192.168.1.10:11434"):
+        try:
+            LLMLocal(url); assert False, url
+        except ValueError:
+            pass
+
+
+def test_disponibilite_et_modele_absent():
+    srv, url, _ = faux_ollama({}, modeles=("qwen3:8b",))
+    try:
+        ok, motif = LLMLocal(url, "gpt-oss:20b").disponible()
+        assert not ok and "ollama pull gpt-oss:20b" in motif
+        assert LLMLocal(url, "qwen3:8b").disponible() == (True, "ok")
+    finally:
+        srv.shutdown()
+
+
+def test_serveur_absent_leve_llm_indisponible():
+    try:
+        LLMLocal("http://127.0.0.1:9", timeout=2).modeles(); assert False
+    except LLMIndisponible:
+        pass
+
+
+def test_requete_contrainte_par_schema_et_contexte():
+    srv, url, recu = faux_ollama({"substitutions": [], "ecarts": []})
+    try:
+        LLMLocal(url, num_ctx=16384).json("sys", "user", P.SCHEMA)
+        assert recu["format"] == P.SCHEMA and recu["options"]["num_ctx"] == 16384
+        assert recu["options"]["temperature"] == 0 and recu["stream"] is False
+    finally:
+        srv.shutdown()
+
+
+def test_zone_titre_et_accroche_sans_coordonnees():
+    z = P.zone(CV)
+    assert z[0] == TITRE
+    assert not any("@" in p for p in z)
+    assert not any(p.startswith("Réalisations") for p in z)
+
+
+def test_validation_refuse_invention_et_texte_hors_zone():
+    z = P.zone(CV); v = P.vocabulaire(PROFIL, *z)
+    ok, refus = P.valider({"substitutions": [
+        {"avant": "LLM, RAG ET AGENTS", "apres": "AGENTS ET MLOPS"},
+        {"avant": "LLM, RAG ET AGENTS", "apres": "AGENTS SUR KUBERNETES ET SLURM"},
+        {"avant": "Banque Internationale", "apres": "Banque"},
+        {"avant": "LLM, RAG ET AGENTS", "apres": "**AGENTS**"},
+    ]}, z, v)
+    assert ok == [{"avant": "LLM, RAG ET AGENTS", "apres": "AGENTS ET MLOPS"}]
+    motifs = [r["motif"] for r in refus]
+    assert "slurm" in motifs[0] and "hors" not in motifs[0]
+    assert motifs[1].startswith("texte d'origine absent")
+    assert motifs[2] == "mise en forme interdite"
+
+
+def test_bout_en_bout_titre_decoupe_en_segments():
+    """Le titre compte 19 segments : render.substitute échoue, le serveur MCP réussit."""
+    from docx import Document
+    from src.cv import render
+    d = tempfile.mkdtemp()
+    try:
+        render.substitute(CV, f"{d}/r.docx", {TITRE: "ARCHITECTE IA — AGENTS ET MLOPS"})
+        assert Document(f"{d}/r.docx").paragraphs[1].text == TITRE      # échec silencieux connu
+        srv, url, _ = faux_ollama({"substitutions": [
+            {"avant": "LLM, RAG ET AGENTS", "apres": "AGENTS ET MLOPS"},
+            {"avant": "LLM, RAG ET AGENTS", "apres": "SLURM"}], "ecarts": ["Slurm"]})
+        try:
+            res = P.personnaliser(LLMLocal(url), CV, f"{d}/cv.docx", "Annonce Lead MLOps", PROFIL)
+        finally:
+            srv.shutdown()
+        doc = Document(f"{d}/cv.docx")
+        assert doc.paragraphs[1].text == "ARCHITECTE IA ET IA GÉNÉRATIVE — AGENTS ET MLOPS"
+        assert len(doc.paragraphs) == len(Document(CV).paragraphs)
+        assert res["mode"] == "adapte" and len(res["appliquees"]) == 1
+        assert res["ecarts"] == ["Slurm"] and "slurm" in res["refus"][0]["motif"]
+    finally:
+        shutil.rmtree(d, ignore_errors=True)
+
+
+def test_modele_defaillant_rend_le_cv_d_axe():
+    from docx import Document
+    d = tempfile.mkdtemp()
+    srv, url, _ = faux_ollama("ceci n'est pas du JSON")
+    try:
+        res = P.personnaliser(LLMLocal(url), CV, f"{d}/cv.docx", "annonce", PROFIL)
+        assert res["mode"] == "axe" and "non JSON" in res["motif"]
+        assert Document(f"{d}/cv.docx").paragraphs[1].text == TITRE
+    finally:
+        srv.shutdown(); shutil.rmtree(d, ignore_errors=True)

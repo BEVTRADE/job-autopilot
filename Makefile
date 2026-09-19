@@ -15,7 +15,7 @@ JOUR := $(shell date +%F)
 
 .DEFAULT_GOAL := aide
 .PHONY: aide install login test sonde veille simu candidater-pour-de-vrai rapport \
-        attente catalogue planifier deplanifier etat stop reprendre propre
+        attente catalogue verifier-llm planifier deplanifier etat stop reprendre propre
 
 aide:
 	@echo "Radar de missions — cibles disponibles"
@@ -32,6 +32,7 @@ aide:
 	@echo "    make rapport         rapport du jour"
 	@echo "    make attente         candidatures à reprendre à la main"
 	@echo "    make catalogue       écart vocabulaire CV / missions, data/catalogue.md"
+	@echo "    make verifier-llm    modèle local Ollama + serveurs MCP, rien n'est envoyé"
 	@echo
 	@echo "  Planification"
 	@echo "    make planifier       installe la tâche de 7h30"
@@ -127,3 +128,7 @@ reprendre:
 propre:
 	@find . -name __pycache__ -type d -prune -exec rm -rf {} + 2>/dev/null || true
 	@echo "caches Python supprimés"
+
+# Modèle local (EPIC-14, docs/llm-local.md) : Ollama, MCP docx, bout en bout sur une copie de CV.
+verifier-llm:
+	$(PY) scripts/verifier_llm_local.py
