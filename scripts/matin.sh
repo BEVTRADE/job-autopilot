@@ -31,6 +31,14 @@ if [ -e "$HOME/.job-autopilot/STOP" ]; then
   exit 0
 fi
 
+VERROU="$HOME/.job-autopilot/verrou"
+mkdir -p "$HOME/.job-autopilot"
+if ! mkdir "$VERROU" 2>/dev/null; then
+  trace "une exécution est déjà en cours ($VERROU) — arrêt"
+  exit 0
+fi
+trap 'rmdir "$VERROU" 2>/dev/null' EXIT
+
 trace "=== job-autopilot, $JOUR, ${ENVOYER:-simulation} ==="
 
 trace "1/3 collecte"
@@ -58,4 +66,5 @@ if [ -f "$RAPPORT" ]; then
   trace "rapport : $RAPPORT"
   command -v open >/dev/null && [ -z "${SANS_OUVERTURE:-}" ] && open "$RAPPORT" || true
 fi
+"$PY" -m src.report.notify "$JOUR" >>"$LOG" 2>&1 || true
 trace "=== fin ==="

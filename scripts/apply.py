@@ -101,6 +101,14 @@ def main():
             print(f"kill-switch présent ({STOP}) — rien ne sera fait"); return
 
         agent = FreeWorkApplier(page, cv_repos=CV_REPOS, dry_run=not args.envoyer)
+        if lot and not agent.session_active():
+            from src.apply.base import Result, journal
+            journal(Result("session", "https://www.free-work.com", "Contrôle de session",
+                           "session_expiree",
+                           "session Free-Work expirée : aucune candidature tentée. "
+                           "Relancer make login."))
+            print("SESSION EXPIRÉE — aucune candidature tentée. Relancer : make login")
+            sys.exit(3)
         bilan = {}
         for i, d in enumerate(lot, 1):
             m, raw = d["match"], d["raw"]

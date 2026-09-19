@@ -12,13 +12,14 @@ import datetime as dt, json, os, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-STATUTS = ["envoyee", "simulee", "deja_postule", "bloquee", "echec"]
+STATUTS = ["envoyee", "simulee", "deja_postule", "bloquee", "echec", "session_expiree"]
 LIBELLE = {
     "envoyee": "envoyées et confirmées",
     "simulee": "simulées, dry-run actif",
     "deja_postule": "déjà candidat",
     "bloquee": "bloquées, reprise manuelle",
     "echec": "échecs techniques",
+    "session_expiree": "session Free-Work expirée, reconnexion requise",
 }
 
 
@@ -59,7 +60,7 @@ def file_attente(entrees: list[dict]) -> list[dict]:
     return [{"titre": e.get("title"), "url": e.get("url"),
              "motif": e.get("detail"), "cv": e.get("cv"),
              "horodatage": e.get("horodatage")}
-            for e in entrees if e.get("status") in ("bloquee", "echec")]
+            for e in entrees if e.get("status") in ("bloquee", "echec", "session_expiree")]
 
 
 def construire(day: str) -> tuple[str, dict]:

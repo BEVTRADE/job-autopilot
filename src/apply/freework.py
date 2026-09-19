@@ -91,6 +91,19 @@ class FreeWorkApplier:
 
     # ------------------------------------------------------------------ #
 
+    def session_active(self) -> bool:
+        """La session Free-Work est-elle ouverte ?
+
+        Marqueur relevé dans le DOM réel du 19/09 : le menu utilisateur de
+        l'en-tête, `[data-testid=user-menu]`, n'existe que connecté.
+        """
+        try:
+            self.page.goto(f"{BASE}/fr/tech-it", wait_until="domcontentloaded")
+            self.page.wait_for_timeout(2000)
+            return self.page.locator("[data-testid='user-menu']").count() > 0
+        except Exception:                                    # noqa: BLE001
+            return False
+
     def cv_partage(self) -> str | None:
         """Nom du CV actuellement partagé, lu dans le panneau de candidature."""
         for a in self.page.locator("a[href*='/users/documents/']").all():
