@@ -221,3 +221,70 @@ Trois correctifs à porter en même temps, issus de la revue :
 
 **Dépendances.** EPIC-2 fusionnée. À faire avant EPIC-3 : ajouter quatre
 sources avant le branchement multiplierait les doublons au lieu de les réduire.
+
+---
+
+## EPIC-8 — Validation du parcours de candidature sur le site réel
+
+**Problème.** Le 19 septembre, trois allers-retours pour déposer un seul CV.
+À chaque fois : correction écrite à l'aveugle depuis un agent distant, exécution
+sur le Mac, échec, lecture d'un instantané HTML partiel, nouvelle correction.
+Le deuxième instantané montrait même un état que le bug précédent avait
+lui-même provoqué. Trois défauts découverts ainsi, un par exécution :
+
+- le dépôt cliquait « Ajouter un document » au lieu de « Ajouter un CV » ;
+- la confirmation cherchait « Partager le CV », qui n'existe pas — le bouton
+  réel est « Joindre le document ». Le basculement de CV n'avait donc jamais
+  fonctionné ; les simulations du 18 passaient parce que le bon CV était déjà
+  partagé ;
+- deux boutons « Éditer » coexistent, Profil puis CV partagé, et le dépôt était
+  tenté dans la modale du profil.
+
+Aucun test ne couvre le parcours réel. Les tests existants vérifient la logique,
+jamais les sélecteurs contre le DOM.
+
+**Valeur.** Remplacer la boucle « corriger à l'aveugle, exécuter, échouer » par
+une seule exploration qui capture tous les états, puis des tests hors ligne
+qui garantissent que chaque sélecteur trouve son élément.
+
+**Périmètre.**
+
+1. Une **sonde** : `scripts/sonde_freework.py`, qui parcourt le formulaire de
+   candidature étape par étape sur une offre réelle, **sans jamais cliquer sur
+   l'envoi**, et enregistre à chaque étape le HTML et une capture dans
+   `tests/pages/freework/<étape>.html` et `.png`. Étapes au minimum : page
+   d'offre, panneau de candidature, modale Profil, modale CV à l'ouverture,
+   modale CV après clic sur « Ajouter un CV », après choix d'un fichier, après
+   sélection d'une carte, après confirmation, champs de questions filtrantes,
+   page « Mes candidatures ».
+2. Un **inventaire des sélecteurs** : chaque entrée de `SEL` dans
+   `src/apply/freework.py` est rattachée à l'étape où elle doit trouver un
+   élément.
+3. Des **tests hors ligne sur les instantanés** : pour chaque sélecteur, un
+   test charge l'HTML de l'étape concernée et vérifie que le sélecteur y trouve
+   exactement l'élément attendu — le bon bouton, pas le premier qui ressemble.
+4. Une **cible** `make sonde` qui relance l'exploration, pour détecter une
+   évolution du site : si les tests échouent sur de nouveaux instantanés, le
+   DOM a changé, on le sait avant un envoi raté.
+5. Correction de `src/apply/freework.py` sur la base des instantanés réels.
+
+**Critères d'acceptation.**
+
+1. `make sonde` produit un instantané par étape, sans envoyer de candidature.
+2. Chaque sélecteur de `SEL` est couvert par au moins un test sur instantané.
+3. Aucun sélecteur ne repose sur un libellé ambigu quand un attribut stable
+   existe (`data-testid`, `id`, `name`).
+4. Le basculement de CV est démontré de bout en bout en simulation : un CV
+   différent du CV partagé est sélectionné, confirmé, et relu.
+5. Le dépôt d'un CV local est démontré de bout en bout : fichier déposé, visible
+   dans la liste, sélectionné.
+6. Une candidature réelle est envoyée et confirmée dans « Mes candidatures ».
+7. Les tests sur instantanés tournent dans `make test`, sans réseau.
+
+**Contrainte d'exécution.** Ce lot doit être mené **depuis Claude Code sur le
+Mac**, qui dispose de la session Free-Work, du réseau et de Playwright. Un agent
+distant ne peut ni ouvrir le site ni observer le DOM, ce qui a produit la
+boucle du 19 septembre.
+
+**Dépendances.** Aucune. Prioritaire sur tout le reste : EPIC-5 et EPIC-6
+reposent sur un parcours de candidature fiable.
