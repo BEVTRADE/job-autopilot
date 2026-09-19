@@ -555,6 +555,11 @@ niveau suivant que si le précédent ne suffit pas, preuve à l'appui.
 
 **Dépendances.** EPIC-8 fait. Complète EPIC-9, dont c'est la pièce manquante.
 
+**État au 19/09.** Niveau 1 fait : hypothèse infirmée, le profil conserve la
+connexion ; jetons à 24 h et 48 h (docs/sources.md). Niveau 2 sans objet.
+Reste à mesurer si le renouvellement prolonge la session au-delà de 48 h :
+docs/prompt-epic12-suite.md.
+
 ---
 
 ## EPIC-13 — Envoi automatique Indeed, compte personnel, à risque assumé
