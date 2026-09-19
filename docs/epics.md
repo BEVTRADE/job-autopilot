@@ -333,3 +333,145 @@ qu'on dort, et qui dit le matin ce qu'il a fait.
 
 **Dépendances.** EPIC-8. Rien ne sert d'automatiser un parcours qui ne sait
 pas encore basculer de CV.
+
+---
+
+## EPIC-10 — Plusieurs candidats, plusieurs profils
+
+**Problème.** Tout le système est construit pour un seul candidat : un profil
+maître, un catalogue d'axes, huit CV, une banque de réponses, une session
+Free-Work, un historique. Le servir à plusieurs personnes aux profils
+différents — un architecte freelance, une développeuse en recherche de CDI,
+un chef de projet en transition — suppose que chacun ait son propre
+périmètre, sans aucune fuite d'un candidat vers un autre.
+
+**Valeur.** Réutiliser la chaîne entière — collecte, regroupement, notation,
+candidature, rapport — pour d'autres personnes, sans la réécrire.
+
+**Le risque qui gouverne tout le lot.** Envoyer le CV d'une personne sur la
+candidature d'une autre est une faute grave, pas un bug : données personnelles
+divulguées, candidat discrédité, recruteur trompé. L'isolation n'est pas une
+fonctionnalité parmi d'autres, c'est la condition d'existence du lot.
+
+**Périmètre.**
+
+1. **Un dossier par candidat** : `candidats/<identifiant>/`, contenant son
+   profil maître, son catalogue d'axes, ses CV, sa banque de réponses, ses
+   paramètres de recherche, ses consentements, et son historique. Aucun fichier
+   partagé entre candidats hormis le code et les sources.
+2. **Des paramètres de recherche par candidat** : type de contrat recherché —
+   freelance, CDI, ou les deux —, plancher et cible en TJM ou en salaire annuel,
+   zone géographique, télétravail, séniorité, langues, secteurs exclus.
+3. **Une session par candidat et par site** : `~/.job-autopilot/<candidat>/
+   browser-profile/<site>`. Chaque candidat se connecte lui-même, une fois.
+   **Le système ne stocke jamais aucun mot de passe.**
+4. **Un journal, un historique et un rapport par candidat**, et un plafond
+   quotidien par candidat.
+5. **La chaîne du matin itère sur les candidats actifs**, avec un verrou et un
+   kill-switch par candidat en plus du kill-switch global.
+6. **Migration** du candidat actuel vers `candidats/hakim-arezki/`, sans
+   rupture : les commandes existantes continuent de fonctionner.
+
+**Consentement et données personnelles.** Traiter les CV et les candidatures
+d'autres personnes fait de l'opérateur du système un responsable de
+traitement au sens du RGPD. Le lot doit prévoir, pour chaque candidat :
+
+- un consentement écrit, daté, conservé dans son dossier, qui précise ce que le
+  système fait en son nom — collecter, noter, candidater, et sur quels sites ;
+- la possibilité de suspendre ou de supprimer toutes ses données ;
+- la règle déjà appliquée : **une seule autorisation de présentation par client
+  final**, décidée par le candidat, jamais par le système.
+
+Ce cadrage juridique est à faire valider — ce document n'est pas un avis
+juridique.
+
+**Critères d'acceptation.**
+
+1. Deux candidats fictifs aux profils opposés produisent, sur les mêmes
+   annonces, des notations et des sélections différentes.
+2. Un test vérifie qu'aucun chemin de code ne peut sélectionner un CV hors du
+   dossier du candidat courant. Test négatif explicite : un CV d'un candidat A
+   demandé pendant l'exécution du candidat B est refusé.
+3. Les journaux, historiques et rapports sont strictement séparés.
+4. Un candidat sans consentement enregistré n'est jamais exécuté.
+5. Le kill-switch d'un candidat n'arrête que lui ; le kill-switch global arrête
+   tout.
+6. Les commandes actuelles fonctionnent à l'identique pour le candidat migré.
+7. Le moteur de décision reste calibré : les paramètres par défaut du candidat
+   migré reproduisent exactement les scores actuels, vérifié par
+   `scripts/calibrate.py` avant et après.
+
+**Dépendances.** EPIC-8 et EPIC-9. Multiplier les candidats sur un parcours
+qui ne sait pas encore basculer de CV multiplierait les échecs.
+
+---
+
+## EPIC-11 — Offres en CDI et nouvelles sources, dont LinkedIn
+
+**Problème.** Le système ne connaît que la mission freelance : ses sources, sa
+notation par TJM, son vocabulaire. Un candidat en recherche de CDI n'y trouve
+rien — ni les bons sites, ni une notation qui comprenne un salaire annuel.
+
+**Valeur.** Ouvrir la chaîne aux candidats salariés, et élargir le flux pour
+tous.
+
+**Périmètre.**
+
+1. **Le type de contrat devient une dimension de l'annonce** : freelance, CDI,
+   CDD, portage. Extrait par chaque source, filtré selon les paramètres du
+   candidat.
+2. **La notation de la valeur accepte un salaire annuel** : conversion entre
+   salaire et TJM seulement pour comparer, jamais pour afficher. Plancher et
+   cible dans l'unité du candidat. Le calcul actuel par TJM reste inchangé pour
+   les candidats freelance — même contrainte de calibrage qu'en EPIC-10.
+3. **France Travail, source prioritaire pour le CDI.** Une API officielle et
+   gratuite existe, l'API Offres d'emploi, publiée sur francetravail.io et
+   référencée sur data.gouv.fr. Accès par inscription développeur et jeton
+   OAuth. C'est la voie la plus propre : pas de scraping, un contrat d'usage
+   explicite, des offres structurées. À vérifier à l'inscription : quotas,
+   conditions d'usage, champs disponibles.
+4. **Autres sites CDI** — Welcome to the Jungle, APEC, HelloWork, Indeed — à
+   évaluer un par un avant toute implémentation, sur le modèle de la
+   reconnaissance du 18 septembre : accès public ou connexion requise,
+   conditions d'utilisation, structure des pages. Aucun extracteur sans cette
+   reconnaissance écrite dans `docs/sources.md`.
+5. **LinkedIn : lecture par les alertes, jamais d'automatisation du site.**
+   Voir la section dédiée ci-dessous.
+
+### LinkedIn — la limite, et la voie qui la respecte
+
+Les conditions d'utilisation de LinkedIn interdisent les logiciels et
+extensions qui automatisent l'activité sur le site, y compris la navigation et
+la candidature. Les comptes qui le font s'exposent à des restrictions. Avec
+plusieurs candidats, le risque se multiplie, et c'est le compte personnel de
+chaque candidat qui paie. Ce choix était déjà acté dans
+`src/apply/linkedin.py` : soumission délibérément non implémentée.
+
+La voie propre passe par **la boîte mail du candidat** : chaque candidat
+configure ses alertes d'emploi LinkedIn, qui lui arrivent par courriel. Le
+système lit ces courriels — avec l'accord du candidat, sur sa propre
+messagerie — en extrait les offres, et les injecte dans la chaîne comme
+n'importe quelle source. **La candidature LinkedIn reste manuelle** : le
+rapport du matin fournit le lien, le CV recommandé et le message, le candidat
+clique.
+
+Le même mécanisme vaut pour tout site qui envoie des alertes par courriel mais
+ne se prête pas à l'automatisation.
+
+**Critères d'acceptation.**
+
+1. Chaque annonce collectée porte son type de contrat.
+2. Un candidat CDI ne reçoit que des offres CDI, un candidat freelance que des
+   missions, un candidat mixte les deux.
+3. La notation d'une offre CDI utilise le salaire, et les scores freelance
+   existants sont inchangés.
+4. France Travail remonte des offres réelles, avec tests sur réponses d'API
+   enregistrées, sans réseau.
+5. Les alertes LinkedIn d'une boîte de test sont lues et transformées en
+   annonces, sans aucun appel au site LinkedIn.
+6. Aucun code ne soumet de candidature sur LinkedIn.
+7. Chaque nouveau site CDI est précédé de sa reconnaissance dans
+   `docs/sources.md`.
+
+**Dépendances.** EPIC-10 pour le filtrage par candidat. France Travail peut
+démarrer avant, en source commune.
