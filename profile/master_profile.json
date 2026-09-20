@@ -12,7 +12,8 @@
       "Luxembourg"
     ],
     "status": "Freelance / Consultant",
-    "years_experience": 15,
+    "years_experience": 12,
+    "years_experience_avec_doctorat": 15,
     "languages": {
       "Français": "Bilingue",
       "Anglais": "Courant"
@@ -231,7 +232,7 @@
     "Retail / Luxe",
     "Jeux"
   ],
-  "summary_default": "Lead Tech IA | Lead Data Scientist avec 15 ans d'expérience dans la conception, l'industrialisation et le pilotage de plateformes Data, Machine Learning et IA. Expérience significative en Python, Databricks, architectures Cloud et MLOps. Pilotage technique d'équipes Data Science et Machine Learning Engineering, de la définition des architectures à la mise en production de solutions Data & IA, en garantissant performance, sécurité, observabilité et gouvernance.",
+  "summary_default": "Lead Tech IA | Lead Data Scientist avec 12 ans d'expérience (15 en incluant la recherche doctorale) dans la conception, l'industrialisation et le pilotage de plateformes Data, Machine Learning et IA. Expérience significative en Python, Databricks, architectures Cloud et MLOps. Pilotage technique d'équipes Data Science et Machine Learning Engineering, de la définition des architectures à la mise en production de solutions Data & IA, en garantissant performance, sécurité, observabilité et gouvernance.",
   "experiences": [
     {
       "title": "Tech Lead IA & ML Platform",
