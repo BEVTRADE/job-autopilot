@@ -48,9 +48,10 @@ Toute défaillance du modèle — serveur arrêté, modèle absent, JSON invalid
 titre hors liste, permutation invalide, échec du serveur MCP — renvoie le CV
 d'axe inchangé, et le motif figure dans le rapport.
 
-`reference_titre` fait la même sélection sans modèle (similarité TF-IDF entre
-l'annonce et chaque titre autorisé, `src/matching/text.py` réutilisé sans
-modification). C'est la référence que le modèle doit battre pour rester dans cet étage.
+Deux règles déterministes complètent la validation : le paragraphe 0 (le résumé) reste
+toujours en tête, seuls les paragraphes 1 à n-1 sont permutables ; et une garde de rôle
+impose qu'un titre choisi contienne « architecte » ou « architect » quand le titre de
+l'annonce en contient (sinon le titre actuel est gardé).
 
 Le client refuse toute adresse non locale : un modèle distant configuré par
 erreur ne recevrait pas le profil.
@@ -148,8 +149,15 @@ barrière de vocabulaire : il ne sert qu'à établir les écarts du rapport. La
 présence de TypeScript ou de Java au profil (EPIC-14, reste à faire n° 4)
 n'autorise plus rien, elle masquerait seulement un écart.
 
-**En attente.** La liste des titres est une proposition (`profile/titres_autorises.json`,
-statut « en attente de validation ») : elle n'est utilisée par aucune évaluation
-avant la validation du candidat. L'étage « choix du CV » n'est pas branché (étape 5)
-tant que le résultat de la sélection n'est pas arbitré ; si Qwen n'apporte pas mieux
-que la référence TF-IDF, le modèle sera retiré de cet étage et gardé pour les écarts du rapport.
+**Arbitrage du 20/09, après notation des 20 annonces.** Qwen 27/40 (3 choix nuisibles), référence
+TF-IDF 17/40 (7 nuisibles) : Qwen est retenu, la référence est abandonnée pour cet étage et son code retiré
+(dernier état : commit `7700467`). La liste des titres est VALIDÉE (`profile/titres_autorises.json`,
+exceptions écrites dans `_valides_par_le_candidat`). Ajoutés : la garde de rôle « architecte » et le résumé figé en tête.
+
+**Mesure du biais de position (20/09).** Trois passes, titres alternatifs mélangés : 13 annonces sur 20 stables
+(14 après la garde), sous le seuil de 15 fixé par le candidat. Arrêt, en attente d'arbitrage ; la passe finale
+sur 28 annonces n'est pas lancée. Détail : `docs/revues/epic14-evaluation.md`. L'étage « choix du CV » reste
+non branché (étape 5).
+
+**Expérience affichée.** Alignée sur les CV le 20/09 : 12 ans, 15 en incluant la recherche doctorale
+(`identity.years_experience` 12, `identity.years_experience_avec_doctorat` 15, `summary_default` corrigé).

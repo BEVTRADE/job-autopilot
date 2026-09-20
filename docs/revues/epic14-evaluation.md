@@ -267,3 +267,108 @@ que le cache d'Ollama ne joue pas. Avec des annonces d'axes mélangés, la duré
    Et : faut-il compléter l'échantillon avec des annonces de l'axe programme et des annonces « lead » ou « urbaniste » ?
 3. Essai avec l'ordre des options mélangé (biais de position), et/ou une référence qui sait s'abstenir (seuil de gain sur le titre actuel), avant de trancher.
 4. Étape 5 (branchement dans le rapport du matin) : toujours suspendue.
+
+
+# Troisième évaluation : notes du candidat, garde de rôle, résumé figé, biais de position (20/09/2026)
+
+## Notes du candidat sur la sélection (20 annonces)
+
+Échelle : 0 nuisible, 1 acceptable, 2 meilleur choix (l'abstention compte). Totaux communiqués : **Qwen 27 / 40, référence TF-IDF 17 / 40.**
+Choix nuisibles : Qwen 3 (annonces 2, 4, 5), référence 7 (annonces 10, 12, 13, 14, 15, 16, 19).
+**Décision : Qwen retenu, référence TF-IDF abandonnée pour cet étage** (code retiré, dernier état : commit `7700467`).
+
+Les notes 1 et 2 annonce par annonce n'ont pas été transmises : seules les notes 0 sont reportées ci-dessous, le reste est à compléter. Par simple arithmétique
+(chaque annonce non nuisible vaut au moins 1), le total de Qwen suppose 10 notes 2 et 7 notes 1 sur ses 17 annonces non nuisibles ; celui de la référence, 4 notes 2 et 9 notes 1 sur ses 13.
+
+| n | Annonce | Note Qwen | Note référence |
+|--:|---|:-:|:-:|
+| 1 | AI Product Lead | 1 ou 2 | 1 ou 2 |
+| 2 | Offre d'emploi Architecte IA ML OPS | **0** | 1 ou 2 |
+| 3 | Mission freelance Architecte IAM Senior | 1 ou 2 | 1 ou 2 |
+| 4 | Offre d'emploi Architecte IA/MLOps Confirmé H/F | **0** | 1 ou 2 |
+| 5 | Offre d'emploi Architecte IA | **0** | 1 ou 2 |
+| 6 | AI Engineer confirmé | 1 ou 2 | 1 ou 2 |
+| 7 | Mission freelance Architecte Data / Expert Data | 1 ou 2 | 1 ou 2 |
+| 8 | Offre d'emploi Architecte IA Senior H/F – Toulouse | 1 ou 2 | 1 ou 2 |
+| 9 | Offre d'emploi Architecte Expert Power BI – Delivery Prudentiel & Réassurance | 1 ou 2 | 1 ou 2 |
+| 10 | Data Engineer senior - Azure & GCP | 1 ou 2 | **0** |
+| 11 | Lead Architecte Cloud Azure | 1 ou 2 | 1 ou 2 |
+| 12 | Mission freelance Architecte SI & Fonctionnel | 1 ou 2 | **0** |
+| 13 | Offre d'emploi Architecte d'Entreprise | 1 ou 2 | **0** |
+| 14 | Mission freelance Architecte SI / Staff Engineer Senior | 1 ou 2 | **0** |
+| 15 | Offre d'emploi ARCHITECTE AUTOMATISATION & ORDONNANCEMENT | 1 ou 2 | **0** |
+| 16 | Offre d'emploi Architecte Fonctionnel Bbox | 1 ou 2 | **0** |
+| 17 | Expert technico-fonctionnel Service Now ITSM | 1 ou 2 | 1 ou 2 |
+| 18 | Acheteur technique | 1 ou 2 | 1 ou 2 |
+| 19 | Mission freelance ITSM Platform Architect | 1 ou 2 | **0** |
+| 20 | Mission freelance Architecte GCP (H/F) | 1 ou 2 | 1 ou 2 |
+
+Les trois choix nuisibles de Qwen (annonces 2, 4 et 5) sont trois fois `LEAD TECHNIQUE IA` pour une annonce d'« Architecte IA » : la garde de rôle ci-dessous les aurait remplacés par le titre actuel.
+
+## Deux règles ajoutées
+
+1. **Garde de rôle (déterministe)** : si le titre de l'annonce contient « architecte » ou « architect » (mot entier, pluriels compris ; « architecture » ne compte pas,
+   ni pour déclencher la garde ni pour la satisfaire), le titre choisi doit le contenir aussi, sinon le titre actuel est gardé. Elle ne touche qu'au titre : l'ordre de l'accroche choisi
+   reste appliqué. Le résultat consigne le choix du modèle (`titre_modele`) et le titre refusé.
+2. **Résumé figé** : le paragraphe 0 reste en tête. Le schéma JSON ne porte plus que sur les indices 1 à n-1, la validation refuse toute permutation qui le déplace.
+   Tests : 25 au total, dont la garde (accents, casse, pluriels, « architecture »), les six permutations acceptées, le mélange reproductible et l'édition MCP réelle.
+
+## Essai de biais de position : ARRÊT, seuil non atteint
+
+Protocole : 3 passes sur les 20 annonces, titres alternatifs mélangés à chaque passe (graines **1, 2, 3**), « inchangé » toujours en tête, garde et résumé figé actifs.
+Seuil fixé par le candidat : au moins 15 annonces stables sur 20, sinon arrêt.
+
+**Résultat : 13 annonces sur 20 stables** (même titre choisi par le modèle sur les 3 passes) ; 14 sur 20 pour le titre finalement écrit après la garde. **Seuil non atteint : la passe finale
+sur 28 annonces n'a pas été lancée.**
+
+| n | Annonce | Stable | Titre choisi par le modèle, graines 1 / 2 / 3 (rang parmi les alternatives, 0 = inchangé) | Ordres identiques |
+|--:|---|:-:|---|:-:|
+| 1 | AI Product Lead | **non** | inchangé (0) / LEAD TECHNIQUE IA (3) / inchangé (0) | non |
+| 2 | Offre d'emploi Architecte IA ML OPS | oui | LEAD TECHNIQUE IA — rangs 2 / 1 / 1 | oui |
+| 3 | Mission freelance Architecte IAM Senior | oui | inchangé (titre actuel) — rangs 0 / 0 / 0 | non |
+| 4 | Offre d'emploi Architecte IA/MLOps Confirmé H/F | **non** | LEAD TECHNIQUE IA (2) / ARCHITECTE IA (1) / ARCHITECTE IA ET MLOPS — LLMOPS (1) | oui |
+| 5 | Offre d'emploi Architecte IA | **non** | ARCHITECTE IA (4) / LEAD TECHNIQUE IA (2) / ARCHITECTE IA (2) | oui |
+| 6 | AI Engineer confirmé | **non** | LEAD TECHNIQUE IA (3) / ARCHITECTE IA (2) / TECH LEAD IA (2) | oui |
+| 7 | Mission freelance Architecte Data / Expert Data | **non** | inchangé (0) / ARCHITECTE DATA ET IA — PLATEFORMES D’ENTREPRISE (1) / ARCHITECTE DATA ET IA — PLATEFORMES D’ENTREPRISE (2) | non |
+| 8 | Offre d'emploi Architecte IA Senior H/F – Toulouse | oui | ARCHITECTE IA — rangs 3 / 3 / 1 | oui |
+| 9 | Offre d'emploi Architecte Expert Power BI – Delivery Pr | **non** | CONSULTANT DATA ET DÉCISIONNEL — POWER BI, SNOWFLAKE, DATAIKU, ETL (1) / CONSULTANT POWER BI — RESTITUTION ET DONNÉES DE CONFIANCE (1) / CONSULTANT POWER BI — RESTITUTION ET DONNÉES DE CONFIANCE (2) | oui |
+| 10 | Data Engineer senior - Azure & GCP | oui | inchangé (titre actuel) — rangs 0 / 0 / 0 | oui |
+| 11 | Lead Architecte Cloud Azure | oui | ENTERPRISE ARCHITECT — IT URBANISATION — rangs 4 / 1 / 2 | oui |
+| 12 | Mission freelance Architecte SI & Fonctionnel | oui | ENTERPRISE ARCHITECT — IT URBANISATION — rangs 4 / 2 / 1 | oui |
+| 13 | Offre d'emploi Architecte d'Entreprise | oui | ARCH. ENTR. — URBANISATION DU SI — rangs 2 / 2 / 1 | non |
+| 14 | Mission freelance Architecte SI / Staff Engineer Senior | oui | ARCH. ENTR. — URBANISATION DU SI — rangs 1 / 1 / 1 | oui |
+| 15 | Offre d'emploi ARCHITECTE AUTOMATISATION & ORDONNANCEME | oui | ARCH. ENTR. — AUTORITÉ DE CONCEPTION ET GOUVERNANCE — rangs 3 / 2 / 1 | oui |
+| 16 | Offre d'emploi Architecte Fonctionnel Bbox | **non** | ARCH. ENTR. — URBANISATION DU SI (1) / ARCH. ENTR. — AUTORITÉ DE CONCEPTION ET GOUVERNANCE (1) / ARCH. ENTR. — URBANISATION DU SI (1) | non |
+| 17 | Expert technico-fonctionnel Service Now ITSM | oui | inchangé (titre actuel) — rangs 0 / 0 / 0 | oui |
+| 18 | Acheteur technique | oui | inchangé (titre actuel) — rangs 0 / 0 / 0 | oui |
+| 19 | Mission freelance ITSM Platform Architect | oui | ARCH. ENTR. — URBANISATION DU SI — rangs 1 / 2 / 5 | oui |
+| 20 | Mission freelance Architecte GCP (H/F) | oui | ARCH. ENTR. — URBANISATION DU SI — rangs 5 / 4 / 5 | non |
+
+Lecture :
+- **Ce n'est pas un biais de position massif.** Sur 60 choix, le rang de l'option choisie est réparti (inchangé 15, rang 1 : 19, rang 2 : 14, rang 3 : 5, rang 4 : 4, rang 5 : 3). Les annonces stables gardent le même titre alors que sa position varie de 1 à 5
+  (annonces 11, 12, 19, 20 notamment) : le choix suit le contenu. La part de « première alternative » est de 20 %, 35 % et 40 % selon la passe (elle était de 10 choix sur 14 avec l'ordre fixe).
+- **L'instabilité se concentre sur 7 annonces, dont 5 sur l'axe IA**, la liste la plus longue (7 titres FR, dont `LEAD TECHNIQUE IA` et `TECH LEAD IA`, deux formulations du même titre). Elle porte sur des titres proches
+  (`ARCHITECTE IA` / `LEAD TECHNIQUE IA` / `ARCHITECTE IA ET MLOPS`), ou sur l'alternative « inchangé » contre un titre (annonces 1 et 7).
+- **Les ordres de l'accroche sont eux aussi instables** : identiques sur les 3 passes pour 14 annonces seulement.
+- **La garde a joué 8 fois** sur 60 exécutions (annonces 2 et 9 trois fois, 4 et 5 une fois). Pour l'annonce 9 (« Architecte Expert Power BI »), elle interdit tous les titres Data/BI, qui ne contiennent pas « architecte » : le titre actuel est gardé.
+- **Durée** : médiane de 26, 29 et 30 s par annonce (8 s avec l'ordre fixe et des annonces groupées par axe). Le mélange rend le préfixe du prompt différent d'une annonce à l'autre : c'est la durée réaliste hors cache.
+
+## Échantillon complémentaire : sélectionné, non évalué
+
+`scripts/evaluer_llm_local.py --complement`, règle : texte >= 800 caractères, absent des 20 premières, choisi à intervalle régulier par identifiant, verdict ignoré.
+
+| Groupe | Verdict | CV d'axe | Annonce |
+|---|---|---|---|
+| programme | reject | FR_DIRECTEUR_PROGRAMME_DATA_IA | Chef de Projet Microsoft 365 |
+| programme | reject | FR_DIRECTEUR_PROGRAMME_DATA_IA | Chef de Projet Cybersécurité |
+| programme | reject | FR_DIRECTEUR_PROGRAMME_DATA_IA | Contract Manager Senior |
+| lead | reject | FR_ARCHITECTE_ENTREPRISE_URBANISTE | Mission freelance Architecte Cloud / Lead Infrastructure Cloud |
+| lead | reject | FR_ARCHITECTE_IA_GENAI | Tech Lead CRM |
+| lead | shortlist | FR_ARCHITECTE_ENTREPRISE_URBANISTE | Lead / CDP Technique Full Stack |
+| urbaniste | shortlist | FR_ARCHITECTE_ENTREPRISE_URBANISTE | Mission freelance Architecte Solution - Fonctionnel Data |
+| urbaniste | reject | FR_ARCHITECTE_ENTREPRISE_URBANISTE | Offre d'emploi Architecte d'Entreprise Senior (H/F) |
+
+Réserves sur cet échantillon : les 37 annonces de l'axe programme de `radar.db` sont toutes `reject` (22 ont un mot de rôle au titre, seules retenues) ; `radar.db` ne contient **aucune annonce dont le titre contient « urbaniste »**
+avec 800 caractères ou plus (7 titres « urbanis* » existent mais font moins de 800 caractères) : les deux annonces retenues ne font que mentionner « urbaniste » dans leur texte, sans être des postes d'urbaniste,
+et ne testent donc pas vraiment `URBANISTE DU SI`. `reprise/candidatures.db` en contient trois titrées, dont « Urbaniste SI (H/F) » (891 caractères).
+La règle d'intervalle régulier a laissé de côté « tech lead Data IA », la plus proche du profil.
