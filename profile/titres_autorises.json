@@ -1,0 +1,171 @@
+{
+ "_statut": "PROPOSITION du 20/09/2026, en attente de validation du candidat : ne pas utiliser avant.",
+ "_regles": [
+  "Une liste par CV d'axe et par langue ; le premier titre est le titre actuel du CV.",
+  "Chaque mot d'un titre figure dans le CV d'axe de la même langue (contrôlé par test).",
+  "Aucun « Senior », « Expert », « Head of », « Principal » : absents des 8 CV.",
+  "Seule la clé « titres » est lue par le code ; « a_valider » attend la décision du candidat."
+ ],
+ "axes": {
+  "ARCHITECTE_IA_GENAI": {
+   "cv": {
+    "fr": "FR_ARCHITECTE_IA_GENAI.docx",
+    "en": "EN_AI_GENAI_ARCHITECT.docx"
+   },
+   "fr": {
+    "titres": [
+     "ARCHITECTE IA ET IA GÉNÉRATIVE — LLM, RAG ET AGENTS",
+     "ARCHITECTE IA — LLM, RAG ET AGENTS",
+     "LEAD TECHNIQUE IA — LLM, RAG ET AGENTS",
+     "ARCHITECTE IA ET MLOPS — LLMOPS ET INDUSTRIALISATION",
+     "ARCHITECTE DATA ET IA — PLATEFORMES D’ENTREPRISE"
+    ],
+    "a_valider": [
+     {
+      "titre": "TECH LEAD IA — LLM, RAG ET AGENTS",
+      "raison": "titre du profil (target_titles, identity.title) ; le CV écrit « lead technique IA », le mot « tech » n'y figure pas"
+     },
+     {
+      "titre": "LEAD DATA SCIENTIST — IA ET MACHINE LEARNING",
+      "raison": "titre du profil (identity.title), mais aucun CV ne le porte ; le CV IA atteste « lead technique IA », le groupe « Machine Learning et Data Science » et des postes « Responsable Data Science »"
+     },
+     {
+      "titre": "CONSULTANT IA GÉNÉRATIVE",
+      "raison": "target_titles ; « consultant » est écrit dans le CV Data/BI, pas dans le CV IA (seul « Freelance » l'atteste)"
+     },
+     {
+      "titre": "LEAD MLOPS",
+      "raison": "target_titles ; MLOps est une compétence attestée, pas un poste"
+     }
+    ]
+   },
+   "en": {
+    "titres": [
+     "AI & GENERATIVE AI ARCHITECT — LLM, RAG AND AGENTS",
+     "AI ARCHITECT — LLM, RAG AND AGENTS",
+     "AI TECHNICAL LEAD — LLM, RAG AND AGENTS",
+     "AI & MLOPS ARCHITECT — LLMOPS AND INDUSTRIALISATION",
+     "DATA & AI ARCHITECT — ENTERPRISE PLATFORMS"
+    ],
+    "a_valider": [
+     {
+      "titre": "LEAD DATA SCIENTIST — AI AND MACHINE LEARNING",
+      "raison": "identique à la version française"
+     },
+     {
+      "titre": "GENERATIVE AI CONSULTANT",
+      "raison": "identique à la version française"
+     },
+     {
+      "titre": "LEAD MLOPS",
+      "raison": "identique à la version française"
+     }
+    ]
+   }
+  },
+  "DIRECTEUR_PROGRAMME_DATA_IA": {
+   "cv": {
+    "fr": "FR_DIRECTEUR_PROGRAMME_DATA_IA.docx",
+    "en": "EN_DATA_AI_PROGRAMME_DIRECTOR.docx"
+   },
+   "fr": {
+    "titres": [
+     "DIRECTEUR DE PROGRAMME DATA & IA — TRANSFORMATION SI",
+     "DIRECTEUR DE PROGRAMME DATA & IA — MODERNISATION ET MIGRATION",
+     "RESPONSABLE DE PROGRAMME DATA ET IA — TRANSFORMATION SI",
+     "DIRECTEUR DE PROGRAMME — TRANSFORMATION SI"
+    ],
+    "a_valider": [
+     {
+      "titre": "DIRECTEUR DE PROJET DATA ET IA — DELIVERY",
+      "raison": "« Direction de projet et delivery » est un groupe de compétences du CV ; « directeur de projet » n'est écrit nulle part comme titre"
+     }
+    ]
+   },
+   "en": {
+    "titres": [
+     "DATA & AI PROGRAMME DIRECTOR — IT TRANSFORMATION",
+     "DATA & AI PROGRAMME DIRECTOR — MODERNISATION AND MIGRATION",
+     "DATA & AI PROGRAMME LEAD — IT TRANSFORMATION",
+     "PROGRAMME DIRECTOR — IT TRANSFORMATION"
+    ],
+    "a_valider": [
+     {
+      "titre": "DATA & AI PROJECT DIRECTOR — DELIVERY",
+      "raison": "identique à la version française"
+     }
+    ]
+   }
+  },
+  "CONSULTANT_DATA_BI": {
+   "cv": {
+    "fr": "FR_CONSULTANT_DATA_BI.docx",
+    "en": "EN_DATA_BI_CONSULTANT.docx"
+   },
+   "fr": {
+    "titres": [
+     "CONSULTANT DATA ET BI — POWER BI, SNOWFLAKE, DATAIKU, ETL",
+     "CONSULTANT DATA ET DÉCISIONNEL — POWER BI, SNOWFLAKE, DATAIKU, ETL",
+     "CONSULTANT POWER BI — RESTITUTION ET DONNÉES DE CONFIANCE",
+     "CONSULTANT SNOWFLAKE ET DATAIKU — PLATEFORMES DATA ET ANALYTIQUE"
+    ],
+    "a_valider": [
+     {
+      "titre": "CONSULTANT DATA ENGINEERING — ETL, ELT ET SNOWFLAKE",
+      "raison": "« ETL, ELT et ingénierie de données » est un groupe de compétences ; aucun poste d'ingénieur de données n'est attesté"
+     }
+    ]
+   },
+   "en": {
+    "titres": [
+     "DATA & BI CONSULTANT — POWER BI, SNOWFLAKE, DATAIKU, ETL",
+     "DATA & DECISION-SUPPORT CONSULTANT — POWER BI, SNOWFLAKE, DATAIKU, ETL",
+     "POWER BI CONSULTANT — REPORTING AND TRUSTED DATA",
+     "SNOWFLAKE & DATAIKU CONSULTANT — DATA AND ANALYTICS PLATFORMS"
+    ],
+    "a_valider": [
+     {
+      "titre": "DATA ENGINEERING CONSULTANT — ETL, ELT AND SNOWFLAKE",
+      "raison": "identique à la version française"
+     }
+    ]
+   }
+  },
+  "ARCHITECTE_ENTREPRISE_URBANISTE": {
+   "cv": {
+    "fr": "FR_ARCHITECTE_ENTREPRISE_URBANISTE.docx",
+    "en": "EN_ENTERPRISE_ARCHITECT.docx"
+   },
+   "fr": {
+    "titres": [
+     "ARCHITECTE D’ENTREPRISE — URBANISATION DU SI, DATA ET IA",
+     "ARCHITECTE D’ENTREPRISE — URBANISATION DU SI",
+     "ARCHITECTE D’ENTREPRISE — DATA ET IA",
+     "ARCHITECTE D’ENTREPRISE — AUTORITÉ DE CONCEPTION ET GOUVERNANCE",
+     "ARCHITECTE DATA ET IA — ARCHITECTURE D’ENTREPRISE"
+    ],
+    "a_valider": [
+     {
+      "titre": "URBANISTE DU SI",
+      "raison": "le mot « urbaniste » n'est écrit dans aucun CV, seulement « urbanisation » ; c'est pourtant le nom de l'axe"
+     }
+    ]
+   },
+   "en": {
+    "titres": [
+     "ENTERPRISE ARCHITECT — IT URBANISATION, DATA AND AI",
+     "ENTERPRISE ARCHITECT — IT URBANISATION",
+     "ENTERPRISE ARCHITECT — DATA AND AI",
+     "ENTERPRISE ARCHITECT — DESIGN AUTHORITY AND GOVERNANCE",
+     "DATA & AI ARCHITECT — ENTERPRISE ARCHITECTURE"
+    ],
+    "a_valider": [
+     {
+      "titre": "IT URBANIST",
+      "raison": "identique à la version française"
+     }
+    ]
+   }
+  }
+ }
+}
