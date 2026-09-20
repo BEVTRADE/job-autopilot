@@ -20,7 +20,8 @@ TABLE = {"AXE_TEST": {"cv": {"fr": "FR_ARCHITECTE_IA_GENAI.docx", "en": "EN_ENTE
                       "fr": {"titres": [TITRE, AUTRE, LEAD]},
                       "en": {"titres": ["ENTERPRISE ARCHITECT — IT URBANISATION, DATA AND AI",
                                         "ENTERPRISE ARCHITECT — IT URBANISATION"]}}}
-IDENTITE = [0, 1, 2, 3]
+IDENTITE = [0, 1, 2, 3]                  # ordre complet de l'accroche, résumé en tête
+REP_ID = [1, 2, 3]                       # réponse du modèle : le paragraphe 0 (résumé) n'y figure pas
 
 
 def faux_ollama(reponse: dict | str, modeles=("gpt-oss:20b",)):
@@ -41,13 +42,13 @@ def faux_ollama(reponse: dict | str, modeles=("gpt-oss:20b",)):
     return srv, f"http://127.0.0.1:{srv.server_port}", recu
 
 
-def _personnaliser(reponse, cv=CV, annonce="annonce", table=TABLE):
+def _personnaliser(reponse, cv=CV, annonce="annonce", table=TABLE, **options):
     """Lance personnaliser contre un faux Ollama ; rend (résultat, textes des paragraphes, requête reçue)."""
     from docx import Document
     d = tempfile.mkdtemp()
     srv, url, recu = faux_ollama(reponse)
     try:
-        res = P.personnaliser(LLMLocal(url), cv, f"{d}/cv.docx", annonce, PROFIL, table)
+        res = P.personnaliser(LLMLocal(url), cv, f"{d}/cv.docx", annonce, PROFIL, table, **options)
         doc = Document(f"{d}/cv.docx")
         return res, [p.text for p in doc.paragraphs], [p.style.name for p in doc.paragraphs], recu
     finally:
@@ -88,7 +89,7 @@ def test_serveur_absent_leve_llm_indisponible():
 
 
 def test_requete_contrainte_par_schema_et_contexte():
-    srv, url, recu = faux_ollama({"titre": "inchangé", "ordre_accroche": IDENTITE, "ecarts": []})
+    srv, url, recu = faux_ollama({"titre": "inchangé", "ordre_accroche": REP_ID, "ecarts": []})
     schema = P.schema_selection([P.INCHANGE, AUTRE], 4)
     try:
         LLMLocal(url, num_ctx=8192).json("sys", "user", schema)
@@ -108,11 +109,11 @@ def test_zone_titre_puis_accroche_avec_indices_sans_coordonnees():
     assert not any(t.startswith("Réalisations") for _, t in z)
 
 
-def test_schema_impose_la_liste_et_les_indices():
+def test_schema_impose_la_liste_et_des_indices_sans_le_resume():
     s = P.schema_selection([P.INCHANGE, AUTRE, LEAD], 4)
     assert s["properties"]["titre"]["enum"] == [P.INCHANGE, AUTRE, LEAD]
     o = s["properties"]["ordre_accroche"]
-    assert o["minItems"] == o["maxItems"] == 4 and o["items"]["enum"] == [0, 1, 2, 3]
+    assert o["minItems"] == o["maxItems"] == 3 and o["items"]["enum"] == [1, 2, 3]      # pas d'indice 0
     assert "substitutions" not in s["properties"]                # plus aucun texte libre, sauf les écarts
 
 
@@ -122,29 +123,46 @@ def test_titres_du_cv_par_nom_de_fichier_et_cv_inconnu():
     assert P.titres_du_cv(os.path.join(RACINE, "cv_prets", "FR_CONSULTANT_DATA_BI.docx"), TABLE) is None
 
 
-def test_validation_titre_dans_la_liste_et_permutation_valide():
+def test_validation_titre_dans_la_liste_et_permutation_du_reste_de_l_accroche():
     opts = [P.INCHANGE, AUTRE, LEAD]
-    assert P.valider_selection({"titre": AUTRE, "ordre_accroche": [1, 0, 3, 2]}, opts, 4) == (AUTRE, [1, 0, 3, 2], None)
-    assert P.valider_selection({"titre": "inchangé", "ordre_accroche": IDENTITE}, opts, 4)[2] is None
-    for brut in ({"titre": "ARCHITECTE IA SENIOR", "ordre_accroche": IDENTITE},          # hors liste
-                 {"titre": TITRE, "ordre_accroche": IDENTITE},                            # titre actuel : c'est « inchangé »
-                 {"titre": AUTRE, "ordre_accroche": [0, 1, 2]},                            # trop court
-                 {"titre": AUTRE, "ordre_accroche": [0, 1, 2, 2]},                         # doublon
-                 {"titre": AUTRE, "ordre_accroche": [0, 1, 2, 4]},                         # hors bornes
-                 {"titre": AUTRE, "ordre_accroche": [0, 1, 2, True]},                      # booléen
-                 {"titre": AUTRE, "ordre_accroche": "0123"}, {"titre": AUTRE}, {"ordre_accroche": IDENTITE},
+    assert P.valider_selection({"titre": AUTRE, "ordre_accroche": [2, 1, 3]}, opts, 4) == (AUTRE, [0, 2, 1, 3], None)
+    assert P.valider_selection({"titre": "inchangé", "ordre_accroche": REP_ID}, opts, 4) == ("inchangé", IDENTITE, None)
+    for brut in ({"titre": "ARCHITECTE IA SENIOR", "ordre_accroche": REP_ID},            # hors liste
+                 {"titre": TITRE, "ordre_accroche": REP_ID},                              # titre actuel : c'est « inchangé »
+                 {"titre": AUTRE, "ordre_accroche": [0, 1, 2, 3]},                        # le résumé n'est pas permutable
+                 {"titre": AUTRE, "ordre_accroche": [0, 2, 3]},                           # le résumé déplacé
+                 {"titre": AUTRE, "ordre_accroche": [1, 2]},                              # trop court
+                 {"titre": AUTRE, "ordre_accroche": [1, 1, 2]},                           # doublon
+                 {"titre": AUTRE, "ordre_accroche": [1, 2, 4]},                           # hors bornes
+                 {"titre": AUTRE, "ordre_accroche": [1, 2, True]},                        # booléen
+                 {"titre": AUTRE, "ordre_accroche": "123"}, {"titre": AUTRE}, {"ordre_accroche": REP_ID},
                  ["une", "liste"], "texte", None):
         t, o, motif = P.valider_selection(brut, opts, 4)
         assert t is None and o is None and motif, brut
 
 
-def test_reference_sans_modele_deterministe_et_titre_actuel_a_egalite():
-    titres = ["ARCHITECTE D’ENTREPRISE — URBANISATION DU SI", "ARCHITECTE DATA ET IA — PLATEFORMES D’ENTREPRISE",
-              "CONSULTANT POWER BI — RESTITUTION"]
-    assert P.reference_titre("Recherche un architecte data et IA pour des plateformes d'entreprise", titres) == titres[1]
-    assert P.reference_titre("Consultant Power BI, restitution et tableaux de bord", titres) == titres[2]
-    assert P.reference_titre("Boulanger pâtissier confirmé", titres) == titres[0]      # aucun mot commun : titre actuel
-    assert P.reference_titre("Boulanger pâtissier confirmé", titres) == P.reference_titre("Boulanger pâtissier confirmé", titres)
+def test_le_resume_reste_en_tete_pour_toute_permutation_acceptee():
+    import itertools
+    opts = [P.INCHANGE, AUTRE]
+    for perm in itertools.permutations([1, 2, 3]):
+        _, ordre, motif = P.valider_selection({"titre": AUTRE, "ordre_accroche": list(perm)}, opts, 4)
+        assert motif is None and ordre[0] == 0 and sorted(ordre) == [0, 1, 2, 3]
+
+
+def test_garde_de_role_architecte():
+    assert P.contient_architecte("Offre d'emploi Architecte IA") and P.contient_architecte("Lead ARCHITECT Cloud")
+    assert P.contient_architecte("Mission freelance Architectes SI") and P.contient_architecte("ARCHITECTE D’ENTREPRISE — DATA")
+    assert not P.contient_architecte("Responsable Architecture Data") and not P.contient_architecte("Tech Lead IA")
+    # annonce d'architecte : le titre choisi doit en contenir un
+    assert not P.titre_admis_par_la_garde("Offre d'emploi Architecte IA", LEAD)
+    assert P.titre_admis_par_la_garde("Offre d'emploi Architecte IA", AUTRE)
+    assert P.titre_admis_par_la_garde("Senior Solution Architect", "ENTERPRISE ARCHITECT — IT URBANISATION")
+    assert not P.titre_admis_par_la_garde("Senior Solution Architect", "CONSULTANT DATA ET BI — POWER BI")
+    # annonce sans architecte : aucune contrainte
+    assert P.titre_admis_par_la_garde("Tech Lead Data IA", LEAD) and P.titre_admis_par_la_garde("", LEAD)
+    # « architecture » seul ne déclenche pas la garde et ne la satisfait pas
+    assert P.titre_admis_par_la_garde("Responsable Architecture Data", LEAD)
+    assert not P.titre_admis_par_la_garde("Architecte SI", "CONSULTANT — ARCHITECTURE D’ENTREPRISE")
 
 
 def test_profil_envoye_au_modele_complet_sans_coordonnees():
@@ -152,6 +170,23 @@ def test_profil_envoye_au_modele_complet_sans_coordonnees():
     assert len(s) > 9000, "le premier jet tronquait à 9000 caractères"
     assert PROFIL["identity"]["email"] not in s and "identity" not in s
     assert json.loads(s)["experiences"] == PROFIL["experiences"]
+
+
+def test_melange_des_alternatives_reproductible_avec_inchange_en_tete():
+    import random
+    titres = [TITRE, "A — 1", "B — 2", "C — 3", "D — 4", "E — 5"]
+    table = {"AXE_TEST": {"cv": {"fr": "FR_ARCHITECTE_IA_GENAI.docx"}, "fr": {"titres": titres}}}
+    def options(graine):
+        _, _, _, recu = _personnaliser({"titre": "inchangé", "ordre_accroche": REP_ID, "ecarts": []}, table=table,
+                                       melange=None if graine is None else random.Random(graine))
+        enum = recu["format"]["properties"]["titre"]["enum"]
+        msg = recu["messages"][1]["content"]
+        assert [l[2:] for l in msg.split("OPTIONS DE TITRE :\n")[1].split("\n\nACCROCHE")[0].split("\n")[1:]] == enum[1:]
+        return enum
+    fixe, m1, m1bis, m2 = options(None), options(1), options(1), options(2)
+    assert fixe == ["inchangé"] + titres[1:]                       # sans graine : ordre du fichier
+    assert m1 == m1bis and sorted(m1) == sorted(fixe) and m1[0] == m2[0] == "inchangé"
+    assert m1 != fixe or m2 != fixe                                # l'ordre est bien mélangé
 
 
 # --- chaîne complète, serveur MCP réel ---
@@ -167,17 +202,18 @@ def test_bout_en_bout_titre_decoupe_en_segments():
     finally:
         shutil.rmtree(d, ignore_errors=True)
     avant, styles = _textes(CV)
-    res, apres, styles_apres, recu = _personnaliser({"titre": AUTRE, "ordre_accroche": IDENTITE, "ecarts": []})
+    res, apres, styles_apres, recu = _personnaliser({"titre": AUTRE, "ordre_accroche": REP_ID, "ecarts": []})
     assert res["mode"] == "adapte" and res["titre_avant"] == TITRE and res["titre_apres"] == AUTRE
     assert apres[1] == AUTRE and apres[2:] == avant[2:] and apres[0] == avant[0]
     assert styles_apres == styles
 
 
-def test_ordre_de_l_accroche_deplace_le_texte_des_paragraphes_existants():
+def test_ordre_de_l_accroche_deplace_le_texte_sans_toucher_au_resume():
     avant, styles = _textes(CV)
-    res, apres, styles_apres, _ = _personnaliser({"titre": "inchangé", "ordre_accroche": [1, 0, 3, 2], "ecarts": []})
-    assert res["mode"] == "adapte" and res["ordre"] == [1, 0, 3, 2] and res["titre_apres"] == TITRE
-    assert apres[3:7] == [avant[4], avant[3], avant[6], avant[5]]       # texte déplacé tel quel
+    res, apres, styles_apres, _ = _personnaliser({"titre": "inchangé", "ordre_accroche": [3, 1, 2], "ecarts": []})
+    assert res["mode"] == "adapte" and res["ordre"] == [0, 3, 1, 2] and res["titre_apres"] == TITRE
+    assert apres[3] == avant[3]                                          # le résumé reste en tête
+    assert apres[4:7] == [avant[6], avant[4], avant[5]]                  # texte déplacé tel quel
     assert apres[:3] == avant[:3] and apres[7:] == avant[7:] and sorted(apres) == sorted(avant)
     assert styles_apres == styles
 
@@ -185,27 +221,28 @@ def test_ordre_de_l_accroche_deplace_le_texte_des_paragraphes_existants():
 def test_rotation_de_l_accroche_et_titre_ensemble_sur_cv_anglais():
     avant, styles = _textes(CV_EN)
     titre_en = TABLE["AXE_TEST"]["en"]["titres"][1]
-    res, apres, styles_apres, _ = _personnaliser({"titre": titre_en, "ordre_accroche": [3, 0, 1, 2], "ecarts": []},
-                                                 cv=CV_EN)
+    res, apres, styles_apres, _ = _personnaliser({"titre": titre_en, "ordre_accroche": [2, 3, 1], "ecarts": []}, cv=CV_EN)
     assert res["mode"] == "adapte" and res["langue"] == "en" and apres[1] == titre_en
-    assert apres[3:7] == [avant[6], avant[3], avant[4], avant[5]] and apres[7:] == avant[7:]
+    assert apres[3:7] == [avant[3], avant[5], avant[6], avant[4]] and apres[7:] == avant[7:]
     assert styles_apres == styles
 
 
 def test_choix_inchange_et_ordre_identique_rend_le_cv_d_axe_sans_motif():
     avant, _ = _textes(CV)
-    res, apres, _, _ = _personnaliser({"titre": "inchangé", "ordre_accroche": IDENTITE, "ecarts": ["Slurm"]})
+    res, apres, _, _ = _personnaliser({"titre": "inchangé", "ordre_accroche": REP_ID, "ecarts": ["Slurm"]})
     assert res["mode"] == "axe" and "motif" not in res and apres == avant and res["ecarts"] == ["Slurm"]
-    res, apres, _, _ = _personnaliser({"titre": "inchangé", "ordre_accroche": IDENTITE, "ecarts": []})
+    assert res["ordre"] == IDENTITE and res["titre_modele"] == TITRE
+    res, apres, _, _ = _personnaliser({"titre": "inchangé", "ordre_accroche": REP_ID, "ecarts": []})
     assert res["mode"] == "axe" and apres == avant
 
 
 def test_reponse_invalide_rend_le_cv_d_axe_avec_motif():
     avant, _ = _textes(CV)
-    cas = [({"titre": "ARCHITECTE IA SENIOR — LLM", "ordre_accroche": IDENTITE, "ecarts": []}, "hors de la liste"),
-           ({"titre": AUTRE, "ordre_accroche": [0, 0, 1, 2], "ecarts": []}, "ordre d'accroche invalide"),
-           ({"titre": AUTRE, "ordre_accroche": [0, 1], "ecarts": []}, "ordre d'accroche invalide"),
-           ({"titre": TITRE, "ordre_accroche": IDENTITE, "ecarts": []}, "hors de la liste"),
+    cas = [({"titre": "ARCHITECTE IA SENIOR — LLM", "ordre_accroche": REP_ID, "ecarts": []}, "hors de la liste"),
+           ({"titre": AUTRE, "ordre_accroche": [1, 1, 2], "ecarts": []}, "ordre d'accroche invalide"),
+           ({"titre": AUTRE, "ordre_accroche": [1, 2], "ecarts": []}, "ordre d'accroche invalide"),
+           ({"titre": AUTRE, "ordre_accroche": IDENTITE, "ecarts": []}, "ordre d'accroche invalide"),   # résumé permuté
+           ({"titre": TITRE, "ordre_accroche": REP_ID, "ecarts": []}, "hors de la liste"),
            ('["une", "liste"]', "forme inattendue"), ('{"titre": 3}', "hors de la liste"),
            ("ceci n'est pas du JSON", "non JSON")]
     for rep, motif in cas:
@@ -214,9 +251,32 @@ def test_reponse_invalide_rend_le_cv_d_axe_avec_motif():
         assert apres == avant, rep
 
 
+def test_garde_de_role_garde_le_titre_actuel_pour_une_annonce_d_architecte():
+    avant, _ = _textes(CV)
+    # annonce d'architecte, le modèle choisit un titre sans « architecte » : le titre actuel est gardé
+    res, apres, _, _ = _personnaliser({"titre": LEAD, "ordre_accroche": REP_ID, "ecarts": []},
+                                      annonce="Offre d'emploi Architecte IA\nMission ...")
+    assert res["mode"] == "axe" and apres == avant and "motif" not in res
+    assert res["titre_modele"] == LEAD and res["titre_apres"] == TITRE
+    assert res["garde_role"] == {"declenchee": True, "titre_refuse": LEAD}
+    # la garde ne touche qu'au titre : l'ordre de l'accroche choisi est appliqué
+    res, apres, _, _ = _personnaliser({"titre": LEAD, "ordre_accroche": [2, 1, 3], "ecarts": []},
+                                      annonce="x", titre_annonce="Architecte IA senior")
+    assert res["mode"] == "adapte" and apres[1] == TITRE and apres[4] == avant[5] and apres[5] == avant[4]
+    # un titre qui contient « architecte » passe
+    res, apres, _, _ = _personnaliser({"titre": AUTRE, "ordre_accroche": REP_ID, "ecarts": []}, annonce="Architecte IA")
+    assert apres[1] == AUTRE and res["garde_role"] == {"declenchee": True, "titre_refuse": None}
+    # annonce sans « architecte » : le titre du modèle est gardé, la garde n'est pas déclenchée
+    res, apres, _, _ = _personnaliser({"titre": LEAD, "ordre_accroche": REP_ID, "ecarts": []}, annonce="Tech Lead Data IA")
+    assert apres[1] == LEAD and res["garde_role"] == {"declenchee": False, "titre_refuse": None}
+    # « inchangé » n'est jamais refusé
+    res, apres, _, _ = _personnaliser({"titre": "inchangé", "ordre_accroche": REP_ID, "ecarts": []}, annonce="Architecte IA")
+    assert apres == avant and res["garde_role"]["titre_refuse"] is None
+
+
 def test_cv_sans_liste_de_titres_rend_le_cv_d_axe():
     avant, _ = _textes(CV)
-    res, apres, _, recu = _personnaliser({"titre": AUTRE, "ordre_accroche": IDENTITE, "ecarts": []}, table={})
+    res, apres, _, recu = _personnaliser({"titre": AUTRE, "ordre_accroche": REP_ID, "ecarts": []}, table={})
     assert res["mode"] == "axe" and "aucune liste de titres" in res["motif"] and apres == avant
     assert not recu, "le modèle n'est pas interrogé sans liste de titres"
 
@@ -229,7 +289,7 @@ def test_echec_du_serveur_mcp_rend_le_cv_d_axe_sans_fichier_a_moitie_modifie():
         raise docx_mcp.EchecEdition("serveur simulé en panne")
     docx_mcp._remplacer = casse
     try:
-        res, apres, _, _ = _personnaliser({"titre": AUTRE, "ordre_accroche": [1, 0, 2, 3], "ecarts": []})
+        res, apres, _, _ = _personnaliser({"titre": AUTRE, "ordre_accroche": [2, 1, 3], "ecarts": []})
     finally:
         docx_mcp._remplacer = vrai
     assert res["mode"] == "axe" and "MCP" in res["motif"] and apres == avant
@@ -251,19 +311,20 @@ def test_edition_tout_ou_rien_texte_attendu_different():
 
 
 def test_ecart_deja_au_profil_est_mis_de_cote_et_duree_mesuree():
-    res, _, _, _ = _personnaliser({"titre": AUTRE, "ordre_accroche": IDENTITE, "ecarts": ["Kubernetes", "Slurm", 3]})
+    res, _, _, _ = _personnaliser({"titre": AUTRE, "ordre_accroche": REP_ID, "ecarts": ["Kubernetes", "Slurm", 3]})
     assert res["ecarts"] == ["Slurm"] and res["ecarts_a_tort"] == ["Kubernetes"]
-    assert res["duree_modele_s"] is not None and res["titre_reference"] in TABLE["AXE_TEST"]["fr"]["titres"]
+    assert res["duree_modele_s"] is not None and "titre_reference" not in res     # la référence TF-IDF est abandonnée
 
 
 def test_le_modele_recoit_les_options_l_accroche_et_le_profil_sans_coordonnees():
-    _, _, _, recu = _personnaliser({"titre": "inchangé", "ordre_accroche": IDENTITE, "ecarts": []}, annonce="Annonce X")
+    _, _, _, recu = _personnaliser({"titre": "inchangé", "ordre_accroche": REP_ID, "ecarts": []}, annonce="Annonce X")
     msg = recu["messages"][1]["content"]
     assert f"- {AUTRE}\n" in msg and f"- {LEAD}\n" in msg and "[0] Architecte et lead technique IA" in msg
+    assert "le paragraphe 0 est le résumé et reste en tête" in msg
     assert "Annonce X" in msg and PROFIL["identity"]["email"] not in msg
     enum = recu["format"]["properties"]["titre"]["enum"]
     assert enum == ["inchangé", AUTRE, LEAD]                     # le titre actuel est « inchangé », pas une option de plus
-    assert recu["format"]["properties"]["ordre_accroche"]["maxItems"] == 4
+    assert recu["format"]["properties"]["ordre_accroche"]["maxItems"] == 3
 
 
 def test_aucune_connexion_reseau_hors_du_poste_pendant_une_personnalisation():
@@ -275,7 +336,7 @@ def test_aucune_connexion_reseau_hors_du_poste_pendant_une_personnalisation():
         vues.append(adresse); return connect(self, adresse, *a, **k)
     socket.socket.connect = espion
     try:
-        res, _, _, _ = _personnaliser({"titre": AUTRE, "ordre_accroche": IDENTITE, "ecarts": []})
+        res, _, _, _ = _personnaliser({"titre": AUTRE, "ordre_accroche": REP_ID, "ecarts": []})
     finally:
         socket.socket.connect = connect
     assert res["mode"] == "adapte" and vues

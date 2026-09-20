@@ -96,7 +96,7 @@ def main():
           f"jetons du prompt {res.get('mesure_modele', {}).get('jetons_prompt')}, écarts {res['ecarts']}"
           + (f", écarts à tort {res['ecarts_a_tort']}" if res["ecarts_a_tort"] else "")
           + (f" — {res['motif']}" if "motif" in res else ""))
-    print(f"      titre : « {res['titre_avant']} » -> « {res['titre_apres']} » (référence sans modèle : « {res['titre_reference']} »)")
+    print(f"      titre : « {res['titre_avant']} » -> « {res['titre_apres']} » (choix du modèle : « {res['titre_modele']} »)")
     print(f"      ordre de l'accroche : {res['ordre']}")
     try:
         from src.cv.render import to_pdf
