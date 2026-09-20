@@ -626,7 +626,9 @@ domaine indeed.com).
 **Décision.** ADR-011, détail dans `docs/llm-local.md`. Le modèle local
 (Ollama) remplace l'API Anthropic pour la personnalisation du CV ; l'édition
 du fichier Word passe par le serveur MCP docx-mcp-server, appelé par le code
-avec des substitutions déjà validées. Le moteur de décision ne change pas.
+avec des remplacements déjà validés. Le moteur de décision ne change pas.
+**Mise à jour du 20/09 :** le modèle ne rédige plus, il sélectionne un titre dans une liste
+autorisée et l'ordre de l'accroche (`docs/llm-local.md`, « Décision du 20/09 »).
 
 **Déjà fait (19/09).** Client local (`src/llm/local.py`, refus de toute
 adresse non locale, sortie JSON contrainte par schéma), pont MCP

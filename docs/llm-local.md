@@ -1,6 +1,6 @@
 # Modèle de langage local — architecture et vérifications
 
-Décision : ADR-011. Lot : EPIC-14. Mise à jour : 19 septembre 2026.
+Décision : ADR-011. Lot : EPIC-14. Mise à jour : 20 septembre 2026.
 
 ## Ce qui change, et ce qui ne change pas
 
@@ -16,31 +16,41 @@ changent pas. Le modèle local remplace Claude à deux endroits seulement.
 Motif : les CV, le profil maître et les annonces ne quittent plus le poste,
 aucune clé d'API, aucun coût à l'usage, fonctionnement hors ligne.
 
-## Chaîne de personnalisation
+## Chaîne de personnalisation (sélection, décision du 20/09/2026)
 
 ```
-annonce + CV d'axe ──► zone modifiable (titre, accroche)        déterministe
+annonce + CV d'axe ──► titre actuel et paragraphes d'accroche     déterministe
+        + liste des titres autorisés (axe, langue du CV)
                         │
                         ▼
-                 Ollama /api/chat, format = schéma JSON          modèle local
-                        │  {"substitutions":[{avant, apres}], "ecarts":[…]}
+                 Ollama /api/chat, format = schéma JSON            modèle local
+                        │  {"titre": <option de la liste | "inchangé">,
+                        │   "ordre_accroche": <permutation>, "ecarts": […]}
                         ▼
-                 validation : « avant » présent dans la zone,    déterministe
-                 aucun mot absent du profil maître, pas de mise en forme
+                 validation : titre dans la liste, permutation     déterministe
+                 valide, sinon CV d'axe inchangé
                         │
                         ▼
-                 serveur MCP docx-mcp-server : search_text,      déterministe
-                 replace_text (sans suivi), save_document
+                 serveur MCP docx-mcp-server : replace_text        déterministe
+                 (titre), update_paragraph (accroche), tout ou
+                 rien, fichier relu après écriture
                         │
                         ▼
-                 LibreOffice ─► PDF ─► dossier client            déterministe
+                 LibreOffice ─► PDF ─► dossier client              déterministe
 ```
 
-Le modèle ne touche jamais au fichier : il produit un JSON contraint par
-schéma au décodage (paramètre `format` d'Ollama). Le code appelle le serveur
-MCP avec des substitutions déjà validées. Toute défaillance du modèle —
-serveur arrêté, modèle absent, JSON invalide — renvoie le CV d'axe inchangé,
-et le motif figure dans le rapport.
+Le modèle n'écrit aucun texte. Il choisit un titre dans la liste
+`profile/titres_autorises.json`, fixée par le candidat et attestée par chaque
+CV d'axe, et un ordre pour les quatre paragraphes d'accroche, dont le texte
+est déplacé tel quel. Le JSON est contraint au décodage (paramètre `format`
+d'Ollama : le titre est une énumération, l'ordre une liste d'indices valides).
+Toute défaillance du modèle — serveur arrêté, modèle absent, JSON invalide,
+titre hors liste, permutation invalide, échec du serveur MCP — renvoie le CV
+d'axe inchangé, et le motif figure dans le rapport.
+
+`reference_titre` fait la même sélection sans modèle (similarité TF-IDF entre
+l'annonce et chaque titre autorisé, `src/matching/text.py` réutilisé sans
+modification). C'est la référence que le modèle doit battre pour rester dans cet étage.
 
 Le client refuse toute adresse non locale : un modèle distant configuré par
 erreur ne recevrait pas le profil.
@@ -111,3 +121,35 @@ ollama pull gpt-oss:20b
 make install                   # ajoute mcp<2 et docx-mcp-server
 make verifier-llm              # 7 vérifications, rien n'est envoyé
 ```
+
+## Décision du 20/09 : sélection plutôt que rédaction
+
+**Constat** (`docs/revues/epic14-evaluation.md`, 20 annonces). En rédaction
+libre, Qwen 2.5 Coder 14B voit 91 % de ses propositions refusées à raison :
+il calque le titre de l'annonce (« Senior », « Expert », outils absents du
+profil). Les substitutions acceptées comprennent des affirmations douteuses
+(« Responsable de l'ensemble de la chaîne », un paragraphe réduit à un mot,
+un titre en français sur un CV anglais). Mistral 7B fait moins bien (92 %,
+et 3 propositions en anglais) ; Mistral 24B ne tient pas sur 24 Go.
+
+**Décision.** Le modèle ne rédige plus. Il sélectionne : un titre dans une liste
+autorisée, l'ordre de l'accroche. Qwen 2.5 Coder 14B est retenu, Mistral abandonné.
+
+**Code retiré**, faute d'usage dans le chemin par défaut : le prompt de
+rédaction, le schéma `substitutions`, `valider` (validation de vocabulaire),
+`_formes` et `_localiser` (correctifs de faux refus). Ils n'ont pas été gardés « hors du
+chemin » : du code mort demande des tests, et une voie de rédaction libre
+qu'un réglage réactiverait rouvrirait le risque d'invention que l'ADR-011 exclut.
+Dernier état, avec ses tests : commit `ad3bdf6`. Conservés : `mots` et
+`vocabulaire`, qui servent à écarter les « écarts » que le profil couvre déjà.
+
+**Ce que le profil maître ne conditionne plus.** Le profil n'est plus la
+barrière de vocabulaire : il ne sert qu'à établir les écarts du rapport. La
+présence de TypeScript ou de Java au profil (EPIC-14, reste à faire n° 4)
+n'autorise plus rien, elle masquerait seulement un écart.
+
+**En attente.** La liste des titres est une proposition (`profile/titres_autorises.json`,
+statut « en attente de validation ») : elle n'est utilisée par aucune évaluation
+avant la validation du candidat. L'étage « choix du CV » n'est pas branché (étape 5)
+tant que le résultat de la sélection n'est pas arbitré ; si Qwen n'apporte pas mieux
+que la référence TF-IDF, le modèle sera retiré de cet étage et gardé pour les écarts du rapport.

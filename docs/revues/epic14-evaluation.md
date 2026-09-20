@@ -139,3 +139,19 @@ Annonces où le CV est réellement adapté : Qwen 6 sur 20, Mistral 2 sur 20. Au
 4. **Renforcer le validateur** (longueur, langue, sens) avant toute décision : à faire dans tous les cas si l'option 1 ou 3 est retenue, car les lacunes ci-dessus laissent passer des remplacements destructeurs.
 
 Pas de modèle plus grand : le 24 Go ne tient pas Mistral 24B.
+
+## Point ouvert : l'expérience affichée (à trancher par le candidat)
+
+Deux chiffres coexistent, je ne tranche pas :
+
+| Où | Ce qui est écrit |
+|---|---|
+| `profile/master_profile.json`, `identity.years_experience` | `15` |
+| `profile/master_profile.json`, `summary_default` | « … avec **15 ans** d'expérience dans la conception… » |
+| Accroche des 8 CV d'axe (FR et EN) | « **12 ans** d'expérience (15 en incluant la recherche doctorale) » |
+
+Effets constatés : en rédaction libre, Qwen a repris le résumé du profil et écrit « 15 ans » à la place du
+« 12 ans (15 en incluant…) » du CV (annonce 1, voir plus haut). Dans le code, ni `years_experience` ni
+`summary_default` ne sont lus ; seul le résumé part dans le prompt du modèle, et le modèle ne rédige plus.
+Avec la sélection, l'accroche des CV n'est que déplacée, jamais réécrite : le chiffre affiché reste celui du CV.
+Le profil n'a pas été modifié. Réponse attendue : lequel fait foi, et faut-il aligner l'autre.

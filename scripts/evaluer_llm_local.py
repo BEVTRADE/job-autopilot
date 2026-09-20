@@ -5,11 +5,12 @@
 Lecture seule sur data/radar.db. N'envoie rien, n'ouvre aucun site, ne modifie aucun CV maître.
 Tout est écrit dans data/output/eval-epic14/ (ignoré par git).
 
-  evaluer_llm_local.py --selectionner              fige les 20 annonces (texte complet, 800 caractères minimum)
-  evaluer_llm_local.py --modele M --passe 1        personnalise le CV d'axe pour chaque annonce, un seul modèle chargé
-  evaluer_llm_local.py --revalider --passe 1       rejoue la validation sur les réponses brutes déjà enregistrées
-
-La sortie brute du modèle est conservée : corriger le validateur ne demande pas de relancer le modèle.
+  evaluer_llm_local.py --selectionner     fige les 20 annonces (texte complet, 800 caractères minimum)
+  evaluer_llm_local.py --modele M         SÉLECTION (décision du 20/09) : titre choisi dans profile/titres_autorises.json
+                                          et ordre de l'accroche, un seul modèle chargé, résultats dans selection/
+  evaluer_llm_local.py --reference        même sélection sans modèle (TF-IDF), pour comparer
+  L'ancien mode (rédaction libre, validateur de vocabulaire) est retiré ; ses résultats restent dans
+  passe1/ et passe2/ et dans docs/revues/epic14-evaluation.md.
 """
 from __future__ import annotations
 import argparse, datetime as dt, json, os, re, sqlite3, subprocess, sys, time, urllib.request
@@ -78,77 +79,60 @@ class Enregistreur:
     def mesure(self): return self.llm.mesure
 
 
-def evaluer(modele: str, passe: str):
+def evaluer(modele: str | None):
+    """Une exécution par annonce : avec `modele`, personnaliser() ; sans modèle, la référence TF-IDF seule."""
     cfg = yaml.safe_load(open(os.path.join(RACINE, "config.yaml"), encoding="utf-8"))
-    cfg["llm"]["model"] = modele
-    llm = LLMLocal.depuis_config(cfg)
-    rec = Enregistreur(llm)
     sel = json.load(open(os.path.join(DOSSIER, "annonces.json"), encoding="utf-8"))
     profil = json.load(open(os.path.join(RACINE, "profile", "master_profile.json"), encoding="utf-8"))
-    sortie = os.path.join(DOSSIER, f"passe{passe}", modele.replace(":", "_").replace("/", "_"))
+    etiquette = (modele or "reference-tfidf").replace(":", "_").replace("/", "_")
+    sortie = os.path.join(DOSSIER, "selection", etiquette)
     os.makedirs(sortie, exist_ok=True)
-    decharger_tout()                                   # un seul modèle chargé à la fois
+    if modele:
+        cfg["llm"]["model"] = modele
+        llm = LLMLocal.depuis_config(cfg)
+        rec = Enregistreur(llm)
+        decharger_tout()                               # un seul modèle chargé à la fois
+        print(f"modèle {modele}, num_ctx {llm.num_ctx}, {len(sel)} annonces -> {sortie}", flush=True)
     resultats = []
-    print(f"modèle {modele}, num_ctx {llm.num_ctx}, {len(sel)} annonces -> {sortie}", flush=True)
     for i, a in enumerate(sel, 1):
-        avant = memoire(); rec.brut = None; llm.mesure = {}
-        t0 = time.time()
-        res = P.personnaliser(rec, os.path.join(RACINE, "cv_prets", a["cv"]),
-                              os.path.join(sortie, f"CV_{i:02d}.docx"), a["annonce"], profil)
-        total = round(time.time() - t0, 1)
-        apres = memoire()
-        r = {"n": i, "uid": a["uid"], "titre": a["titre"], "verdict": a["verdict"], "cv": a["cv"],
-             "cars_annonce": len(a["annonce"]), "total_s": total, "brut": rec.brut,
-             "mesure": dict(llm.mesure), "memoire_avant": avant, "memoire_apres": apres,
-             **{k: v for k, v in res.items() if k != "docx"}}
+        cv = os.path.join(RACINE, "cv_prets", a["cv"])
+        if not modele:
+            _, _, titres = P.titres_du_cv(cv)
+            actuel = P.zone(cv)[0][1]
+            t0 = time.time()
+            ref = P.reference_titre(a["annonce"], [actuel] + [t for t in titres if t != actuel])
+            r = {"n": i, "uid": a["uid"], "titre_annonce": a["titre"], "cv": a["cv"], "titre_avant": actuel,
+                 "titre_reference": ref, "total_s": round(time.time() - t0, 3)}
+        else:
+            avant = memoire(); rec.brut = None; llm.mesure = {}
+            t0 = time.time()
+            res = P.personnaliser(rec, cv, os.path.join(sortie, f"CV_{i:02d}.docx"), a["annonce"], profil)
+            total = round(time.time() - t0, 1)
+            r = {"n": i, "uid": a["uid"], "titre_annonce": a["titre"], "verdict": a["verdict"], "cv": a["cv"],
+                 "cars_annonce": len(a["annonce"]), "total_s": total, "brut": rec.brut, "mesure": dict(llm.mesure),
+                 "memoire_avant": avant, "memoire_apres": memoire(), **{k: v for k, v in res.items() if k != "docx"}}
         resultats.append(r)
-        print(f"{i:2d}/{len(sel)} {a['cv'][:-5][:28]:28s} {total:6.1f} s  mode {res['mode']:6s} "
-              f"prop {res['nb_propositions']} acc {len(res['appliquees'])} ref {len(res['refus'])}"
-              + (f"  [{res['motif'][:70]}]" if "motif" in res else "")
-              + f"  jetons {llm.mesure.get('jetons_prompt')}  swap {apres['swap_utilise_mo']} Mo", flush=True)
-        json.dump(resultats, open(os.path.join(sortie, "resultats.json"), "w", encoding="utf-8"),
-                  ensure_ascii=False, indent=1)
-    subprocess.run(["ollama", "stop", modele], capture_output=True)   # libère la mémoire pour le suivant
-
-
-def revalider(passe: str):
-    """Rejoue valider() sur les réponses brutes enregistrées, avec le code actuel du validateur."""
-    profil = json.load(open(os.path.join(RACINE, "profile", "master_profile.json"), encoding="utf-8"))
-    sel = {a["uid"]: a for a in json.load(open(os.path.join(DOSSIER, "annonces.json"), encoding="utf-8"))}
-    for dossier in sorted(os.listdir(os.path.join(DOSSIER, f"passe{passe}"))):
-        chemin = os.path.join(DOSSIER, f"passe{passe}", dossier, "resultats.json")
-        if not os.path.exists(chemin):
-            continue
-        sortie = []
-        for r in json.load(open(chemin, encoding="utf-8")):
-            if not isinstance(r.get("brut"), dict):
-                continue
-            z = P.zone(os.path.join(RACINE, "cv_prets", sel[r["uid"]]["cv"]))
-            ok, refus = P.valider(r["brut"], z, P.vocabulaire(profil, *z))
-            sortie.append({"n": r["n"], "acceptees": ok, "refus": refus})
-        json.dump(sortie, open(os.path.join(DOSSIER, f"passe{passe}", dossier, "revalidation.json"), "w",
-                               encoding="utf-8"), ensure_ascii=False, indent=1)
-        print(dossier, "acceptées", sum(len(s["acceptees"]) for s in sortie),
-              "refusées", sum(len(s["refus"]) for s in sortie))
+        print(f"{i:2d}/{len(sel)} {a['cv'][:-5][:24]:24s} {r['total_s']:6.1f} s  mode {r.get('mode', '-'):6s} "
+              f"titre « {(r.get('titre_apres') or r['titre_reference'])[:52]} »  ordre {r.get('ordre')}"
+              + (f"  [{r['motif'][:60]}]" if r.get("motif") else ""), flush=True)
+        json.dump(resultats, open(os.path.join(sortie, "resultats.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    if modele:
+        subprocess.run(["ollama", "stop", modele], capture_output=True)   # libère la mémoire pour le suivant
 
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--selectionner", action="store_true")
-    ap.add_argument("--modele"); ap.add_argument("--passe", default="1")
-    ap.add_argument("--revalider", action="store_true")
+    ap.add_argument("--modele"); ap.add_argument("--reference", action="store_true")
     a = ap.parse_args()
     os.makedirs(DOSSIER, exist_ok=True)
     if a.selectionner:
         s = selectionner()
         json.dump(s, open(os.path.join(DOSSIER, "annonces.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
         print(len(s), "annonces retenues :", {c: sum(1 for x in s if x["cv"][:-5] == c) for c in QUOTAS})
-        print("verdicts :", {v: sum(1 for x in s if x["verdict"] == v) for v in ("apply", "shortlist")},
-              "| sources :", {v: sum(1 for x in s if x["source"] == v) for v in {x["source"] for x in s}})
-        print("longueur (caractères) min/max :", min(len(x["annonce"]) for x in s), max(len(x["annonce"]) for x in s))
-    elif a.revalider:
-        revalider(a.passe)
+    elif a.reference:
+        evaluer(None)
     elif a.modele:
-        evaluer(a.modele, a.passe)
+        evaluer(a.modele)
     else:
         ap.print_help(); sys.exit(2)

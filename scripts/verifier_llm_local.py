@@ -8,7 +8,7 @@ data/output/<date>/verif-llm/.
   2. réponse JSON conforme au schéma, temps mesuré
   3. serveur MCP docx : démarrage, nombre d'outils, poids des descriptions
   4. serveur MCP Playwright : démarrage et outils (sans navigation)
-  5. bout en bout : CV d'axe + annonce d'exemple -> CV adapté + PDF
+  5. bout en bout : CV d'axe + annonce d'exemple -> titre et ordre d'accroche choisis, CV adapté + PDF
 """
 from __future__ import annotations
 import asyncio, datetime as dt, json, os, shutil, sys, time
@@ -93,14 +93,11 @@ def main():
     json.dump(res, open(os.path.join(sortie, "bilan.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=2)
     etape("bout en bout", res["mode"] in ("adapte", "axe") and "motif" not in res,
           f"{time.time()-t0:.0f} s dont modèle {res['duree_modele_s']} s, mode {res['mode']}, "
-          f"{res['nb_propositions']} proposée(s), {len(res['appliquees'])} acceptée(s), "
-          f"{len(res['refus'])} refusée(s), écarts {res['ecarts']}"
+          f"jetons du prompt {res.get('mesure_modele', {}).get('jetons_prompt')}, écarts {res['ecarts']}"
           + (f", écarts à tort {res['ecarts_a_tort']}" if res["ecarts_a_tort"] else "")
           + (f" — {res['motif']}" if "motif" in res else ""))
-    for a in res["appliquees"]:
-        print(f"      « {a['avant']} » -> « {a['apres']} »")
-    for r in res["refus"]:
-        print(f"      refus : « {r.get('apres')} » ({r.get('motif')})")
+    print(f"      titre : « {res['titre_avant']} » -> « {res['titre_apres']} » (référence sans modèle : « {res['titre_reference']} »)")
+    print(f"      ordre de l'accroche : {res['ordre']}")
     try:
         from src.cv.render import to_pdf
         pdf = to_pdf(res["docx"], sortie); etape("PDF", True, pdf)

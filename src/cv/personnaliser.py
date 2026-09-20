@@ -1,46 +1,44 @@
 """
-Personnalisation du CV par le modèle local (EPIC-5, EPIC-14).
+Personnalisation d'un CV d'axe par SÉLECTION (EPIC-14, ADR-011, décision du 20/09/2026).
 
-Le modèle propose des substitutions ; tout le reste est déterministe :
-- il ne voit que la zone modifiable du CV (titre et accroche) ;
-- chaque substitution est vérifiée : texte d'origine présent tel quel dans la
-  zone, et aucun mot nouveau absent du profil maître ;
-- l'édition du fichier passe par le serveur MCP docx, jamais par le modèle ;
-- toute défaillance du modèle renvoie le CV d'axe inchangé.
+Le modèle local n'écrit aucun texte. Pour une annonce, il choisit :
+- le titre du CV, dans la liste autorisée de l'axe et de la langue du CV
+  (profile/titres_autorises.json), ou « inchangé » ;
+- l'ordre des paragraphes d'accroche (une permutation) ;
+et signale les « écarts » : exigences de l'annonce absentes du profil maître.
+
+Tout le reste est déterministe :
+- la liste des titres est fixée par le candidat, jamais par le modèle ;
+- la réponse est validée (titre dans la liste, permutation valide), sinon CV d'axe inchangé ;
+- le code applique le titre et déplace le texte des paragraphes existants par le serveur
+  MCP docx-mcp-server, tout ou rien, puis relit le fichier produit ;
+- toute défaillance du modèle ou du serveur rend le CV d'axe inchangé, motif consigné.
+
+La rédaction libre (substitutions de texte contrôlées mot à mot) est retirée : sur 20 annonces,
+91 % des propositions de Qwen 14B étaient refusées à raison, et les acceptées comprenaient des
+affirmations douteuses (docs/revues/epic14-evaluation.md ; dernier état du code : commit ad3bdf6).
+
+`reference_titre` donne, sans modèle, le titre que choisirait une similarité TF-IDF : c'est la
+référence à battre pour que le modèle garde sa place dans cet étage.
 """
 from __future__ import annotations
-import json, re, time, unicodedata
+import json, os, re, time, unicodedata
 from docx import Document
 
-SYSTEME = """Tu adaptes un CV existant à une annonce. Tu ne rédiges pas un CV : tu proposes des substitutions de texte dans un CV déjà validé.
+RACINE = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+TITRES = os.path.join(RACINE, "profile", "titres_autorises.json")
+INCHANGE = "inchangé"
 
-Source de vérité : le profil maître du candidat. Rien d'autre.
+SYSTEME = """Tu aides à choisir, pour une annonce, le titre et l'ordre de l'accroche d'un CV déjà validé. Tu n'écris aucun texte.
 
-1. N'ajoute aucune compétence, technologie, employeur, certification, chiffre ou date absent du profil maître.
-2. Reformule, réordonne, mets en avant. N'invente jamais.
-3. Ne touche qu'aux paragraphes fournis dans ZONE (titre et accroche).
-4. "avant" est un extrait copié mot pour mot d'un paragraphe de ZONE.
-5. Aucune mise en forme : pas de gras, pas de symbole, pas de markdown.
-6. Si l'annonce exige une compétence absente du profil maître, liste-la dans ecarts. Ne la comble pas.
-7. Au plus 4 substitutions. Aucune si le CV convient déjà.
+1. "titre" : recopie exactement UNE option de la liste OPTIONS DE TITRE, celle qui correspond le mieux au poste de l'annonce. Réponds "inchangé" si le titre actuel convient déjà. Ces titres sont les seuls que le CV atteste : n'en invente pas.
+2. "ordre_accroche" : les paragraphes d'accroche sont numérotés à partir de 0. Donne TOUS les indices, une seule fois chacun, dans l'ordre où les paragraphes doivent apparaître. Mets en premier le paragraphe le plus utile à cette annonce. Si l'ordre actuel convient, garde-le.
+3. "ecarts" : exigences ou compétences de l'annonce absentes du PROFIL MAÎTRE. Ce qui figure au profil n'est pas un écart. Liste vide s'il n'y en a pas.
 
 Réponds uniquement en JSON."""
 
-SCHEMA = {
-    "type": "object",
-    "properties": {
-        "substitutions": {"type": "array", "maxItems": 4, "items": {
-            "type": "object", "properties": {"avant": {"type": "string"}, "apres": {"type": "string"}},
-            "required": ["avant", "apres"]}},
-        "ecarts": {"type": "array", "items": {"type": "string"}},
-    },
-    "required": ["substitutions", "ecarts"],
-}
 
-MOTS_OUTILS = set("""a à au aux avec d de des du en et l la le les leur leurs mise ou par pour sur un une
-dans chez vers sous sans entre ses son sa ce ces cette qui que dont
-and the of for with to in on at by from an as or""".split())
-
+# --- vocabulaire du profil : ne sert plus qu'à écarter les « écarts » que le profil couvre déjà ---
 
 def _norm(m: str) -> str:
     m = unicodedata.normalize("NFKD", m.lower())
@@ -56,7 +54,7 @@ def vocabulaire(profil: dict, *textes: str) -> set[str]:
     v = set()
     def parcourir(x):
         if isinstance(x, dict):
-            for k, y in x.items():
+            for y in x.values():
                 parcourir(y)
         elif isinstance(x, list):
             for y in x:
@@ -69,8 +67,17 @@ def vocabulaire(profil: dict, *textes: str) -> set[str]:
     return v
 
 
-def zone(chemin_docx: str) -> list[str]:
-    """Titre et accroche : paragraphes avant le premier titre de section, sans coordonnées."""
+def profil_pour_modele(profil: dict) -> str:
+    """Profil complet et compact, sans coordonnées ni préférences : rien d'utile n'est tronqué."""
+    utile = {k: v for k, v in profil.items() if k not in ("identity", "preferences")}
+    return json.dumps(utile, ensure_ascii=False, separators=(",", ":"))
+
+
+# --- CV d'axe : titre, accroche, liste de titres autorisés ---
+
+def zone(chemin_docx: str) -> list[tuple[int, str]]:
+    """(indice, texte) du titre puis des paragraphes d'accroche : avant le premier titre de section,
+    sans le nom ni les coordonnées. Le premier élément est le titre, les suivants l'accroche."""
     z = []
     for i, p in enumerate(Document(chemin_docx).paragraphs):
         if i == 0:
@@ -80,125 +87,133 @@ def zone(chemin_docx: str) -> list[str]:
         t = p.text.strip()
         if not t or "@" in t or re.search(r"\d\d[ .]?\d\d[ .]?\d\d[ .]?\d\d", t):
             continue                               # coordonnées
-        z.append(t)
+        z.append((i, p.text))
     return z
 
 
-def _formes(m: str, pas: int = 2) -> set[str]:
-    """Formes fléchies (pluriel, féminin) d'un mot : le validateur juge les mots, pas leur accord.
-    Aucun mot n'est ajouté au vocabulaire : seule la forme fléchie d'un mot présent au profil est reconnue.
-    La casse et les accents sont déjà écartés par mots()."""
-    f = set()
-    if len(m) > 4 and m[-1] in "sx":
-        f.add(m[:-1])                                  # environnements -> environnement
-    if len(m) > 3:
-        f.update((m + "s", m + "x"))                   # cible -> cibles
-    if m.endswith("elle"):
-        f.add(m[:-2])                                  # operationnelle -> operationnel
-    elif m.endswith("el"):
-        f.add(m + "le")
-    if m.endswith("ee"):
-        f.add(m[:-1])                                  # securisee -> securise (sécurisée -> sécurisé)
-    elif m.endswith("e") and len(m) > 4:
-        f.add(m + "e")
-    if pas > 1:
-        for x in list(f):
-            f |= _formes(x, pas - 1)                   # operationnelles -> operationnelle -> operationnel
-    f.discard(m)
-    return f
+def charger_titres(chemin: str = TITRES) -> dict:
+    return json.load(open(chemin, encoding="utf-8"))["axes"]
 
 
-def _localiser(av: str, zone_cv: list[str]) -> str | None:
-    """Extrait du CV qui correspond à `av` à la casse, aux espaces et à l'apostrophe près, sinon None."""
-    lettre = lambda c: "['’]" if c in "'’" else re.escape(c)
-    motif = r"\s+".join("".join(lettre(c) for c in w) for w in av.split())
-    for p in zone_cv:
-        m = re.search(motif, p, flags=re.IGNORECASE)
-        if m:
-            return m.group(0)
+def titres_du_cv(chemin_docx: str, table: dict | None = None) -> tuple[str, str, list[str]] | None:
+    """(axe, langue, titres autorisés) d'après le nom du fichier CV ; None si ce CV n'a pas de liste."""
+    nom = os.path.basename(chemin_docx)
+    for axe, d in (table if table is not None else charger_titres()).items():
+        for langue, fichier in d["cv"].items():
+            if fichier == nom:
+                return axe, langue, list(d[langue]["titres"])
     return None
 
 
-def valider(propositions: dict, zone_cv: list[str], vocab: set[str]) -> tuple[list[dict], list[dict]]:
-    """Sépare les substitutions acceptées des refusées, avec leur motif."""
-    ok, refus = [], []
-    subs = propositions.get("substitutions") if isinstance(propositions, dict) else None
-    for s in (subs if isinstance(subs, list) else [])[:4]:
-        if not isinstance(s, dict):
-            refus.append({"avant": "", "apres": str(s)[:200], "motif": "forme inattendue"}); continue
-        av, ap = str(s.get("avant") or "").strip(), str(s.get("apres") or "").strip()
-        if not av or not ap or av == ap:
-            refus.append({**s, "motif": "vide ou identique"}); continue
-        if not any(av in p for p in zone_cv):
-            av = _localiser(av, zone_cv)              # le modèle change la casse ou l'apostrophe en recopiant
-            if not av:
-                refus.append({**s, "motif": "texte d'origine absent de la zone modifiable"}); continue
-            if av == ap:
-                refus.append({**s, "motif": "vide ou identique"}); continue
-        if re.search(r"[*_#`]|\*\*", ap):
-            refus.append({**s, "motif": "mise en forme interdite"}); continue
-        nouveaux = sorted(m for m in {m.strip(".-") for m in mots(ap)} - vocab - MOTS_OUTILS
-                          if not _formes(m) & vocab)
-        if nouveaux:
-            refus.append({**s, "motif": "termes absents du profil maître : " + ", ".join(nouveaux)}); continue
-        if any("’" in p for p in zone_cv):
-            ap = ap.replace("'", "’")               # typographie du CV : le modèle écrit l'apostrophe droite
-        ok.append({"avant": av, "apres": ap})
-    return ok, refus
+def schema_selection(options: list[str], n_accroche: int) -> dict:
+    """Schéma JSON : le décodage contraint le modèle à une option de la liste et à des indices valides."""
+    return {"type": "object", "properties": {
+        "titre": {"type": "string", "enum": list(options)},
+        "ordre_accroche": {"type": "array", "minItems": n_accroche, "maxItems": n_accroche,
+                           "items": {"type": "integer", "enum": list(range(n_accroche))}},
+        "ecarts": {"type": "array", "items": {"type": "string"}}},
+        "required": ["titre", "ordre_accroche", "ecarts"]}
 
 
-def profil_pour_modele(profil: dict) -> str:
-    """Profil complet et compact, sans coordonnées ni préférences : rien d'utile n'est tronqué."""
-    utile = {k: v for k, v in profil.items() if k not in ("identity", "preferences")}
-    return json.dumps(utile, ensure_ascii=False, separators=(",", ":"))
-
-
-def proposer(llm, chemin_docx: str, annonce: str, profil: dict, max_annonce: int = 6000) -> dict:
-    """Interroge le modèle local. Renvoie substitutions validées, refus, écarts, durée."""
-    z = zone(chemin_docx)
-    message = ("ZONE (paragraphes modifiables) :\n" + "\n".join(f"- {p}" for p in z) +
-               "\n\nPROFIL MAÎTRE (JSON) :\n" + profil_pour_modele(profil) +
-               "\n\nANNONCE :\n" + annonce[:max_annonce])
-    t0 = time.time()
-    brut = llm.json(SYSTEME, message, SCHEMA)
-    duree = round(time.time() - t0, 1)
+def valider_selection(brut, options: list[str], n_accroche: int) -> tuple[str | None, list[int] | None, str | None]:
+    """(titre choisi, ordre, motif de refus). Titre hors liste ou ordre invalide : refus, CV d'axe inchangé."""
     if not isinstance(brut, dict):
-        raise ValueError(f"réponse de forme inattendue : {type(brut).__name__}")
-    vocab = vocabulaire(profil, *z)
-    ok, refus = valider(brut, z, vocab)
-    ecarts = [e for e in (brut.get("ecarts") or []) if isinstance(e, str)][:10]
-    # Un « écart » dont tous les mots sont au profil est une erreur du modèle : on le met de côté.
-    a_tort = [e for e in ecarts if mots(e) and all(m.strip(".-") in vocab for m in mots(e))]
-    proposees = brut.get("substitutions") if isinstance(brut.get("substitutions"), list) else []
-    return {"substitutions": ok, "refus": refus, "duree_modele_s": duree, "nb_propositions": len(proposees),
-            "mesure_modele": dict(getattr(llm, "mesure", {}) or {}),
-            "ecarts": [e for e in ecarts if e not in a_tort], "ecarts_a_tort": a_tort}
+        return None, None, f"réponse de forme inattendue : {type(brut).__name__}"
+    titre, ordre = brut.get("titre"), brut.get("ordre_accroche")
+    if not isinstance(titre, str) or titre not in options:
+        return None, None, f"titre hors de la liste autorisée : {str(titre)[:80]!r}"
+    if (not isinstance(ordre, list) or len(ordre) != n_accroche
+            or not all(isinstance(i, int) and not isinstance(i, bool) for i in ordre)
+            or sorted(ordre) != list(range(n_accroche))):
+        return None, None, f"ordre d'accroche invalide : {str(ordre)[:80]}"
+    return titre, ordre, None
 
 
-def _cv_d_axe(cv_axe: str, sortie_docx: str, motif: str, **plus) -> dict:
+def reference_titre(annonce: str, titres: list[str]) -> str:
+    """Sans modèle : le titre autorisé le plus proche de l'annonce (TF-IDF, cosinus). `titres[0]` est le titre
+    actuel : il l'emporte à égalité, y compris quand aucun mot ne coïncide."""
+    from ..matching.text import TfIdf
+    tf = TfIdf({**{str(i): t for i, t in enumerate(titres)}, "annonce": annonce})
+    v = tf.vec(annonce)
+    scores = [round(TfIdf.cos(v, tf.vecs[str(i)]), 12) for i in range(len(titres))]
+    return titres[max(range(len(titres)), key=lambda i: (scores[i], -i))]
+
+
+# --- appel du modèle ---
+
+def proposer(llm, chemin_docx: str, annonce: str, profil: dict, titres: list[str], max_annonce: int = 6000) -> dict:
+    """Interroge le modèle local et valide sa réponse. Une réponse invalide ne lève rien : le motif est rendu."""
+    z = zone(chemin_docx)
+    titre_actuel, accroche = z[0][1], [t for _, t in z[1:]]
+    options = [INCHANGE] + [t for t in titres if t != titre_actuel]
+    message = (f"TITRE ACTUEL : {titre_actuel}\n\nOPTIONS DE TITRE :\n- {INCHANGE} (garde le titre actuel)\n"
+               + "".join(f"- {t}\n" for t in options[1:])
+               + "\nACCROCHE (paragraphes numérotés à partir de 0) :\n"
+               + "".join(f"[{i}] {t}\n" for i, t in enumerate(accroche))
+               + "\nPROFIL MAÎTRE (JSON) :\n" + profil_pour_modele(profil)
+               + "\n\nANNONCE :\n" + annonce[:max_annonce])
+    t0 = time.time()
+    brut = llm.json(SYSTEME, message, schema_selection(options, len(accroche)))
+    duree = round(time.time() - t0, 1)
+    titre, ordre, motif = valider_selection(brut, options, len(accroche))
+    ecarts, a_tort = [], []
+    if isinstance(brut, dict) and isinstance(brut.get("ecarts"), list):
+        vocab = vocabulaire(profil, *(t for _, t in z))
+        ecarts = [e for e in brut["ecarts"] if isinstance(e, str)][:10]
+        # Un « écart » dont tous les mots sont au profil est une erreur du modèle : on le met de côté.
+        a_tort = [e for e in ecarts if mots(e) and all(m.strip(".-") in vocab for m in mots(e))]
+        ecarts = [e for e in ecarts if e not in a_tort]
+    return {"titre_choisi": titre, "ordre": ordre, "motif": motif, "ecarts": ecarts, "ecarts_a_tort": a_tort,
+            "duree_modele_s": duree, "mesure_modele": dict(getattr(llm, "mesure", {}) or {})}
+
+
+def _cv_d_axe(cv_axe: str, sortie_docx: str, motif: str | None, **plus) -> dict:
     from .docx_mcp import appliquer
     appliquer(cv_axe, sortie_docx, [])
-    return {"docx": sortie_docx, "mode": "axe", "motif": motif, "appliquees": [], "refus": [],
-            "ecarts": [], "ecarts_a_tort": [], "duree_modele_s": None, "nb_propositions": 0, **plus}
+    base = {"docx": sortie_docx, "mode": "axe", "ecarts": [], "ecarts_a_tort": [], "duree_modele_s": None,
+            "titre_avant": None, "titre_apres": None, "ordre": None, "titre_reference": None}
+    if motif:
+        base["motif"] = motif
+    return {**base, **plus}
 
 
-def personnaliser(llm, cv_axe: str, sortie_docx: str, annonce: str, profil: dict) -> dict:
-    """CV d'axe -> CV adapté. Toute défaillance du modèle ou du serveur MCP : CV d'axe inchangé, motif consigné."""
-    from .docx_mcp import appliquer, EchecEdition
+def personnaliser(llm, cv_axe: str, sortie_docx: str, annonce: str, profil: dict, table_titres: dict | None = None) -> dict:
+    """CV d'axe -> CV adapté (titre et ordre d'accroche). Toute défaillance : CV d'axe inchangé, motif consigné."""
+    from .docx_mcp import appliquer_remplacements, EchecEdition
     from ..llm.local import LLMIndisponible
     try:
-        prop = proposer(llm, cv_axe, annonce, profil)
-    except (LLMIndisponible, ValueError, KeyError, TypeError, AttributeError) as e:
-        return _cv_d_axe(cv_axe, sortie_docx, f"modèle indisponible : {e}")
+        liste = titres_du_cv(cv_axe, table_titres)
+    except (OSError, KeyError, ValueError) as e:
+        return _cv_d_axe(cv_axe, sortie_docx, f"liste de titres illisible : {e}")
+    if liste is None:
+        return _cv_d_axe(cv_axe, sortie_docx, f"aucune liste de titres pour {os.path.basename(cv_axe)}")
+    axe, langue, titres = liste
+    z = zone(cv_axe)
+    if len(z) < 3:
+        return _cv_d_axe(cv_axe, sortie_docx, "titre et accroche introuvables dans le CV", axe=axe, langue=langue)
+    (i_titre, titre_actuel), accroche = z[0], z[1:]
+    ref = reference_titre(annonce, [titre_actuel] + [t for t in titres if t != titre_actuel])
     try:
-        bilan = appliquer(cv_axe, sortie_docx, prop["substitutions"])
-    except (EchecEdition, OSError, ExceptionGroup, RuntimeError) as e:
-        return _cv_d_axe(cv_axe, sortie_docx, f"édition MCP en échec : {e}", ecarts=prop["ecarts"],
-                         ecarts_a_tort=prop["ecarts_a_tort"], duree_modele_s=prop["duree_modele_s"],
-                         nb_propositions=prop["nb_propositions"], refus=prop["refus"])
-    return {"docx": sortie_docx, "mode": "adapte" if any(b["applique"] for b in bilan) else "axe",
-            "appliquees": [b for b in bilan if b["applique"]],
-            "refus": prop["refus"] + [b for b in bilan if not b["applique"]],
-            "ecarts": prop["ecarts"], "ecarts_a_tort": prop["ecarts_a_tort"],
-            "duree_modele_s": prop["duree_modele_s"], "nb_propositions": prop["nb_propositions"],
-            "mesure_modele": prop["mesure_modele"]}
+        prop = proposer(llm, cv_axe, annonce, profil, titres)
+    except (LLMIndisponible, ValueError, KeyError, TypeError, AttributeError) as e:
+        return _cv_d_axe(cv_axe, sortie_docx, f"modèle indisponible : {e}", axe=axe, langue=langue, titre_reference=ref)
+    commun = {"axe": axe, "langue": langue, "titre_reference": ref, "ecarts": prop["ecarts"],
+              "ecarts_a_tort": prop["ecarts_a_tort"], "duree_modele_s": prop["duree_modele_s"],
+              "mesure_modele": prop["mesure_modele"]}
+    if prop["motif"]:
+        return _cv_d_axe(cv_axe, sortie_docx, prop["motif"], **commun)
+    titre = titre_actuel if prop["titre_choisi"] in (INCHANGE, titre_actuel) else prop["titre_choisi"]
+    ordre = prop["ordre"]
+    remplacements = []
+    if titre != titre_actuel:
+        remplacements.append({"indice": i_titre, "avant": titre_actuel, "apres": titre})
+    for k, src in enumerate(ordre):                      # la position k reçoit le texte du paragraphe `src`
+        if src != k:
+            remplacements.append({"indice": z[1 + k][0], "avant": accroche[k][1], "apres": accroche[src][1],
+                                  "deplacement": True})
+    try:
+        appliquer_remplacements(cv_axe, sortie_docx, remplacements)
+    except (EchecEdition, OSError, ExceptionGroup, RuntimeError, IndexError) as e:
+        return _cv_d_axe(cv_axe, sortie_docx, f"édition MCP en échec : {e}", **commun)
+    return {"docx": sortie_docx, "mode": "adapte" if remplacements else "axe", "titre_avant": titre_actuel,
+            "titre_apres": titre, "ordre": ordre, **commun}
