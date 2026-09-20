@@ -81,6 +81,9 @@ class Enregistreur:
 
 def evaluer(modele: str | None):
     """Une exécution par annonce : avec `modele`, personnaliser() ; sans modèle, la référence TF-IDF seule."""
+    statut = json.load(open(P.TITRES, encoding="utf-8")).get("_statut", "")
+    if not statut.startswith("VALIDÉ"):
+        sys.exit(f"liste de titres non validée par le candidat ({statut!r}) : évaluation refusée")
     cfg = yaml.safe_load(open(os.path.join(RACINE, "config.yaml"), encoding="utf-8"))
     sel = json.load(open(os.path.join(DOSSIER, "annonces.json"), encoding="utf-8"))
     profil = json.load(open(os.path.join(RACINE, "profile", "master_profile.json"), encoding="utf-8"))

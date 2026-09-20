@@ -290,19 +290,33 @@ INTERDITS = {"senior", "expert", "head", "principal"}
 
 def test_liste_des_titres_autorises_attestee_par_chaque_cv():
     """Chaque axe et langue : le premier titre est celui du CV, chaque mot figure dans ce CV, aucun niveau
-    (« Senior », « Expert », « Head of », « Principal ») qui ne soit déjà dans le CV. Seule « titres » est lue."""
+    (« Senior », « Expert », « Head of », « Principal ») qui ne soit déjà dans le CV. Seuls les titres de
+    « _valides_par_le_candidat » peuvent contenir des mots absents du CV, et seulement ceux que le candidat a acceptés.
+    Seule « titres » est lue par le code."""
     from docx import Document
+    brut = json.load(open(P.TITRES, encoding="utf-8"))
+    assert brut["_statut"].startswith("VALIDÉ par le candidat le 20/09/2026")
+    valides = brut["_valides_par_le_candidat"]["titres"]
+    assert brut["_valides_par_le_candidat"]["date"] == "2026-09-20"
     table = P.charger_titres()
     assert len(table) == 4
+    vus = set()
     for axe, d in table.items():
         for langue in ("fr", "en"):
             fichier = os.path.join(RACINE, "cv_prets", d["cv"][langue])
             doc = Document(fichier)
             assert doc.paragraphs[1].text == d[langue]["titres"][0], (axe, langue)
+            assert "a_valider" not in d[langue], "les titres non validés sont supprimés du fichier"
             cv_mots = {m.strip(".-") for m in P.mots(" ".join(p.text for p in doc.paragraphs))}
             assert len(set(d[langue]["titres"])) == len(d[langue]["titres"]) >= 3, (axe, langue)
             for t in d[langue]["titres"]:
                 mots = {m.strip(".-") for m in P.mots(t)}
-                assert not (mots - cv_mots), (axe, langue, t, sorted(mots - cv_mots))
+                hors = mots - cv_mots
+                if t in valides:
+                    vus.add(t)
+                    assert hors <= set(valides[t]), (axe, langue, t, sorted(hors))   # rien de plus que ce que le candidat a accepté
+                else:
+                    assert not hors, (axe, langue, t, sorted(hors))                  # règle générale, non assouplie
                 assert not (mots & INTERDITS) or (mots & INTERDITS) <= cv_mots, (axe, langue, t)
             assert P.titres_du_cv(fichier, table) == (axe, langue, d[langue]["titres"])
+    assert vus == set(valides), sorted(set(valides) - vus)                            # aucune exception périmée
