@@ -155,3 +155,115 @@ Effets constatés : en rédaction libre, Qwen a repris le résumé du profil et 
 `summary_default` ne sont lus ; seul le résumé part dans le prompt du modèle, et le modèle ne rédige plus.
 Avec la sélection, l'accroche des CV n'est que déplacée, jamais réécrite : le chiffre affiché reste celui du CV.
 Le profil n'a pas été modifié. Réponse attendue : lequel fait foi, et faut-il aligner l'autre.
+
+
+# Deuxième évaluation : sélection d'un titre et de l'ordre de l'accroche (20/09/2026)
+
+Décision du candidat : le modèle ne rédige plus, il choisit (`docs/llm-local.md`, « Décision du 20/09 »). Les 20 mêmes annonces,
+`qwen2.5-coder:14b` (`num_ctx` 8192, seul en mémoire) et une **référence sans modèle** : similarité TF-IDF entre l'annonce et chaque titre
+autorisé (`reference_titre`, `src/matching/text.py` non modifié), qui ne change jamais l'ordre de l'accroche. Liste des titres :
+`profile/titres_autorises.json`, validée par le candidat le 20/09/2026. Résultats bruts : `data/output/eval-epic14/selection/`.
+Rien n'est branché dans le rapport du matin.
+
+**La pertinence des choix est à noter par le candidat.** Les tableaux donnent de quoi juger ; mes remarques plus bas sont une lecture provisoire, pas une note.
+
+## Résultats par annonce
+
+**Axe IA / GenAI, CV français.** Titre actuel : `ARCHITECTE IA ET IA GÉNÉRATIVE — LLM, RAG ET AGENTS`
+
+| n | Annonce | Titre choisi par Qwen | Titre choisi par la référence | Ordre de l'accroche (Qwen) | Durée Qwen |
+|--:|---|---|---|---|--:|
+| 1 | AI Product Lead | = actuel | `ARCHITECTE IA — LLM, RAG ET AGENTS` | inchangé | 33 s |
+| 2 | Offre d'emploi Architecte IA ML OPS | `LEAD TECHNIQUE IA — LLM, RAG ET AGENTS` | `ARCHITECTE IA ET MLOPS — LLMOPS ET INDUSTRIALISATION` | inchangé | 8 s |
+| 3 | Mission freelance Architecte IAM Senior | = actuel | `ARCHITECTE IA — LLM, RAG ET AGENTS` | [0,2,3,1] | 6 s |
+| 4 | Offre d'emploi Architecte IA/MLOps Confirmé H/F | `LEAD TECHNIQUE IA — LLM, RAG ET AGENTS` | `ARCHITECTE IA ET MLOPS — LLMOPS ET INDUSTRIALISATION` | inchangé | 8 s |
+| 5 | Offre d'emploi Architecte IA | `LEAD TECHNIQUE IA — LLM, RAG ET AGENTS` | `ARCHITECTE IA ET MLOPS — LLMOPS ET INDUSTRIALISATION` | inchangé | 10 s |
+| 6 | AI Engineer confirmé | `ARCHITECTE IA — LLM, RAG ET AGENTS` | = actuel | inchangé | 10 s |
+| 7 | Mission freelance Architecte Data / Expert Data | = actuel | `ARCHITECTE DATA ET IA — PLATEFORMES D’ENTREPRISE` | [0,3,2,1] | 4 s |
+| 8 | Offre d'emploi Architecte IA Senior H/F – Toulouse | `ARCHITECTE IA — LLM, RAG ET AGENTS` | `ARCHITECTE IA — LLM, RAG ET AGENTS` | inchangé | 7 s |
+
+**Axe Data/BI, CV français.** Titre actuel : `CONSULTANT DATA ET BI — POWER BI, SNOWFLAKE, DATAIKU, ETL`
+
+| n | Annonce | Titre choisi par Qwen | Titre choisi par la référence | Ordre de l'accroche (Qwen) | Durée Qwen |
+|--:|---|---|---|---|--:|
+| 9 | Offre d'emploi Architecte Expert Power BI – Delivery Prudentiel & Réassurance | `CONSULTANT DATA ET DÉCISIONNEL — POWER BI, SNOWFLAKE, DATAIKU, ETL` | = actuel | [0,2,1,3] | 24 s |
+| 10 | Data Engineer senior - Azure & GCP | = actuel | `CONSULTANT POWER BI — RESTITUTION ET DONNÉES DE CONFIANCE` | [0,2,1,3] | 6 s |
+
+**Axe architecte d'entreprise, CV anglais.** Titre actuel : `ENTERPRISE ARCHITECT — IT URBANISATION, DATA AND AI`
+
+| n | Annonce | Titre choisi par Qwen | Titre choisi par la référence | Ordre de l'accroche (Qwen) | Durée Qwen |
+|--:|---|---|---|---|--:|
+| 11 | Lead Architecte Cloud Azure | `ENTERPRISE ARCHITECT — IT URBANISATION` | `ENTERPRISE ARCHITECT — DESIGN AUTHORITY AND GOVERNANCE` | inchangé | 32 s |
+| 12 | Mission freelance Architecte SI & Fonctionnel | `ENTERPRISE ARCHITECT — IT URBANISATION` | `DATA & AI ARCHITECT — ENTERPRISE ARCHITECTURE` | inchangé | 5 s |
+
+**Axe architecte d'entreprise / urbaniste, CV français.** Titre actuel : `ARCHITECTE D’ENTREPRISE — URBANISATION DU SI, DATA ET IA`
+
+| n | Annonce | Titre choisi par Qwen | Titre choisi par la référence | Ordre de l'accroche (Qwen) | Durée Qwen |
+|--:|---|---|---|---|--:|
+| 13 | Offre d'emploi Architecte d'Entreprise | `ARCHITECTE D’ENTREPRISE — URBANISATION DU SI` | `ARCHITECTE DATA ET IA — ARCHITECTURE D’ENTREPRISE` | inchangé | 25 s |
+| 14 | Mission freelance Architecte SI / Staff Engineer Senior | `ARCHITECTE D’ENTREPRISE — URBANISATION DU SI` | `ARCHITECTE DATA ET IA — ARCHITECTURE D’ENTREPRISE` | inchangé | 8 s |
+| 15 | Offre d'emploi ARCHITECTE AUTOMATISATION & ORDONNANCEMENT | `ARCHITECTE D’ENTREPRISE — AUTORITÉ DE CONCEPTION ET GOUVERNANCE` | `ARCHITECTE DATA ET IA — ARCHITECTURE D’ENTREPRISE` | [2,0,1,3] | 8 s |
+| 16 | Offre d'emploi Architecte Fonctionnel Bbox | `ARCHITECTE D’ENTREPRISE — URBANISATION DU SI` | `ARCHITECTE DATA ET IA — ARCHITECTURE D’ENTREPRISE` | inchangé | 10 s |
+| 17 | Expert technico-fonctionnel Service Now ITSM | = actuel | `ARCHITECTE D’ENTREPRISE — AUTORITÉ DE CONCEPTION ET GOUVERNANCE` | inchangé | 9 s |
+| 18 | Acheteur technique | = actuel | `ARCHITECTE D’ENTREPRISE — DATA ET IA` | inchangé | 6 s |
+| 19 | Mission freelance ITSM Platform Architect | `ARCHITECTE D’ENTREPRISE — URBANISATION DU SI` | `ARCHITECTE DATA ET IA — ARCHITECTURE D’ENTREPRISE` | inchangé | 8 s |
+| 20 | Mission freelance Architecte GCP (H/F) | `ARCHITECTE D’ENTREPRISE — URBANISATION DU SI` | `ARCHITECTE D’ENTREPRISE — AUTORITÉ DE CONCEPTION ET GOUVERNANCE` | inchangé | 5 s |
+
+### Ordres modifiés par Qwen (début des paragraphes, dans le nouvel ordre)
+
+| n | Ordre | Paragraphes de l'accroche, dans le nouvel ordre |
+|--:|---|---|
+| 3 | [0,2,3,1] | résumé · « Opérationnel sur l'ensemble de la chaîne… » · « Socle Data solide… » · « Conception et exploitation de GENIA… » |
+| 7 | [0,3,2,1] | résumé · « Socle Data solide… » · « Opérationnel… » · « GENIA… » |
+| 9 | [0,2,1,3] | résumé · « Maîtrise de la chaîne complète, de l'ingestion à la restitution… » · « Modernisation de patrimoines décisionnels… » · « Analyse et valorisation de la donnée… » |
+| 10 | [0,2,1,3] | identique à l'annonce 9 |
+| 15 | [2,0,1,3] | « Exercice du rôle d'autorité de conception… » · **résumé (« Architecte d'entreprise, 12 ans d'expérience… »)** · « Définition d'architectures cibles… » · « Cartographie… » |
+
+Rendu vérifié (annonces 9 et 15, LibreOffice) : mise en forme intacte, 4 pages. Les 20 fichiers produits ont été relus : titre et ordre écrits
+sont ceux choisis, aucun autre paragraphe ni style ne change.
+
+## Chiffres
+
+| | Qwen 2.5 Coder 14B | Référence TF-IDF |
+|---|--:|--:|
+| Exécutions valides (titre dans la liste, permutation valide) | 20 / 20, aucune réponse rejetée | 20 / 20 |
+| Titre changé | 14 | 18 |
+| CV d'axe inchangé (titre et ordre) | 3 (annonces 1, 17, 18) | 2 (annonces 6 et 9, titre actuel gagnant) |
+| Ordre de l'accroche modifié | 5 | 0 (par construction) |
+| Même titre que l'autre | 1 / 20 (annonce 8) | |
+| Durée par annonce, min / médiane / moyenne / max | 4 / 8 / 12 / 33 s | < 1 ms |
+| 20 annonces | 3,9 min (12 min en rédaction libre) | instantané |
+| Jetons du prompt, min / médiane / max | 4 026 / 4 424 / 5 075 | |
+| Jetons de sortie, médiane / max | 53 / 105 (550 / 797 en rédaction libre) | |
+| Mémoire | 9,5 Go, 100 % GPU ; libre 18 à 27 % ; swap 7,9 à 10,0 Go (7,3 Go avant le premier chargement) | |
+
+Les quatre annonces les plus longues (25 à 33 s : 1, 9, 11, 13) sont la première de chaque CV d'axe. L'analyse du prompt y prend 20 à 27 s, contre 4 s
+pour les suivantes ; l'annonce 1 ajoute 7,5 s de chargement du modèle. Le préfixe du prompt change avec le CV, ce qui explique probablement (non testé)
+que le cache d'Ollama ne joue pas. Avec des annonces d'axes mélangés, la durée réaliste est plus proche de 25 s que de la médiane de 8 s.
+
+**Écarts** (exigences absentes du profil, pour le rapport du matin) : 53 écarts signalés, 34 gardés, **17 écartés à tort** parce que tous leurs mots sont au profil
+(« Azure OpenAI », « Data Factory », « Synapse », « IAM », « RBAC »…), soit un tiers. Neuf annonces ont au moins un écart gardé.
+
+## Lecture provisoire (à contredire par la note du candidat)
+
+1. **Qwen et la référence divergent sur 19 annonces sur 20.** Rien dans les chiffres ne dit lequel a raison : il n'y a pas de vérité terrain.
+2. **La référence remplace le titre presque toujours** (18 / 20). Sur l'axe urbaniste elle choisit `ARCHITECTE DATA ET IA — ARCHITECTURE D’ENTREPRISE`
+   pour 5 annonces sur 8, dont « Architecte Fonctionnel Bbox », « ITSM Platform Architect » et « Architecte SI / Staff Engineer » :
+   la similarité récompense les titres qui contiennent beaucoup de mots courants (« architecte », « architecture », « entreprise », « data »).
+   Pour l'annonce 11 (« Lead Architecte Cloud Azure »), elle donne `DESIGN AUTHORITY AND GOVERNANCE`. Elle n'a aucune règle pour s'abstenir.
+3. **Qwen s'abstient trois fois, à propos** me semble-t-il (« AI Product Lead », « Expert technico-fonctionnel Service Now ITSM », « Acheteur technique » :
+   aucun titre de la liste ne convient), et garde le cadre « architecte d'entreprise » sur l'axe urbaniste (`URBANISATION DU SI`).
+4. **Réserves sur Qwen.**
+   - *Biais de position possible* : il choisit la première option alternative dans 10 de ses 14 changements (rang 2 : 3 fois, rang 3 : 1 fois). Un essai avec l'ordre des options mélangé le vérifierait ; je ne l'ai pas fait.
+   - *Jamais l'un des titres promus par le candidat* : `TECH LEAD IA`, `LEAD DATA SCIENTIST` (axe IA) et `URBANISTE DU SI` ne sont choisis ni par Qwen ni par la référence (0 sur 40 choix). Les deux titres « project director » ne sont pas testés : l'échantillon ne contient aucune annonce de l'axe programme (IA, Data/BI, architecte d'entreprise seulement). Il compte aussi peu d'annonces « lead » ou « urbaniste ».
+   - *Écarts* : un tiers à tort (ci-dessus).
+5. **L'ordre de l'accroche pose un problème de conception, pas de modèle.** L'annonce 15 place un paragraphe de détail avant le résumé : le CV s'ouvre sur « Exercice du rôle d'autorité de conception… » et le « 12 ans d'expérience » passe en deuxième. Sur ses cinq changements d'ordre, Qwen n'a déplacé le résumé qu'une fois, mais la spécification l'autorise. Option : fixer le paragraphe 0 et ne permuter que les trois suivants.
+6. **Ce que Qwen apporte de plus que la référence** : l'abstention, l'ordre de l'accroche, un cadre plus proche de l'axe. Il coûte 8 à 25 s par annonce, 9,5 Go de mémoire, et ses écarts sont peu fiables. Si la note du candidat ne le place pas nettement devant la référence, le modèle sort de cet étage et ne reste que pour les écarts, à condition que leur fiabilité soit d'abord améliorée.
+
+## Décisions attendues
+
+1. Notes de pertinence sur les 20 annonces (tableaux ci-dessus).
+2. Paragraphe 0 (résumé) figé ou permutable.
+   Et : faut-il compléter l'échantillon avec des annonces de l'axe programme et des annonces « lead » ou « urbaniste » ?
+3. Essai avec l'ordre des options mélangé (biais de position), et/ou une référence qui sait s'abstenir (seuil de gain sur le titre actuel), avant de trancher.
+4. Étape 5 (branchement dans le rapport du matin) : toujours suspendue.
